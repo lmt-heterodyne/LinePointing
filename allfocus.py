@@ -14,6 +14,7 @@ from merge_png import merge_png
 from merge_focus import merge_focus
 
 def allfocus(obsNums, peaks, lp_files, opt):
+    print obsNums, peaks, lp_files, opt
 
     # define time stamp
     obsnum = int(obsNums[-1])
