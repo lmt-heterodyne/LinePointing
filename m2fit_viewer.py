@@ -68,7 +68,6 @@ class m2fit_viewer():
             nrows = ncols = 1
         else:
             nrows = ncols = 4
-        outer_grid = gridspec.GridSpec(nrows, ncols)
 
         # inner grid
         if len(line_stats_all) != 0 and len(line_stats_all[0]) != 0:
@@ -90,6 +89,9 @@ class m2fit_viewer():
         else:
             num_sub_rows = num_sub_cols = 0
 
+        if num_sub_rows > 0 and num_sub_cols > 0:
+          outer_grid = gridspec.GridSpec(nrows, ncols)
+
         for index in range(paramfit.n):
             if paramfit.n == 1:
                 pixel_index = 0
@@ -107,12 +109,15 @@ class m2fit_viewer():
                 inner_grid = gridspec.GridSpecFromSubplotSpec(num_sub_rows, num_sub_cols, subplot_spec=outer_grid[pixel_index], hspace=hspace)
                 ax = pl.subplot(inner_grid[:-1,:])
             else:
-                ax = pl.subplot()
+                ax = pl.subplot(111)
             
             if paramfit.m2pos >= 0:
                 ax.plot(paramfit.m2_position,paramfit.data[:,index],'o')
                 ax.plot(prange,model,'r')
-                pl.tick_params(axis='both',which='major',labelsize=6)
+                try:
+                  pl.tick_params(axis='both',which='major',labelsize=6)
+                except:
+                  pass
                 for i in range(num_sub_cols):
                     line_stats = line_stats_all[i][index]
                     ax = pl.subplot(inner_grid[-1,i])
@@ -120,8 +125,14 @@ class m2fit_viewer():
                     pl.gca().get_yaxis().set_visible(False);
                     pl.plot(line_stats.v[vrange],line_stats.spectrum[vrange])
                     ax.axis(plot_axis)
-            ax.tick_params(axis='both',which='major',labelsize=6)
-            pl.tight_layout(rect=[0, 0.03, 1, 0.95])
+            try:
+              ax.tick_params(axis='both',which='major',labelsize=6)
+            except:
+              pass
+            try:
+              pl.tight_layout(rect=[0, 0.03, 1, 0.95])
+            except:
+              pass
             if obsNumArg == False:
                 titleObsNum = paramfit.obsnum
             else:
@@ -185,6 +196,12 @@ class m2fit_viewer():
         textstr = textstr + 'Absolute '+fitype+':  ' +str(round(paramfit.absolute_focus_fit,4)) + '\n' 
         textstr = textstr + 'Fit RMS:                ' +str(round(paramfit.fit_rms,4))
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-        pl.tick_params(axis='both',which='major',labelsize=6)
         pl.text(xpos, ypos, textstr, bbox=props, color='red')
-        pl.tight_layout(rect=[0, 0.03, 1, 0.95])
+        try:
+          pl.tick_params(axis='both',which='major',labelsize=6)
+        except:
+          pass
+        try:
+          pl.tight_layout(rect=[0, 0.03, 1, 0.95])
+        except:
+          pass
