@@ -31,7 +31,7 @@ class m2fit():
                     print 'source error'
                     return
                 if self.obspgm != ifproc.obspgm:
-                    print 'obspgm error'
+                    print 'obspgm error', self.obspgm, ifproc.obspgm
                     return
             m2z.append(ifproc.m2z)
             m2y.append(ifproc.m2y)
