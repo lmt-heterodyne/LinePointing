@@ -20,6 +20,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
     obsnum = int(obsNums[-1])
     file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
 
+    lp_merge_files = []
     lp_params = []
     ifproc_file_data = []
     for i,obsnum in enumerate(obsNums):
@@ -31,6 +32,9 @@ def allfocus(obsNums, peaks, lp_files, opt):
         ifproc_file_data_1 = IFProcData(ifproc_file)
         if ifproc_file_data_1 == None:
             return -1
+        if ifproc_file_data_1.obspgm == 'Cal':
+            continue
+        lp_merge_files += [lp_files[i]]
         lp_params += [lp_params_1]
         ifproc_file_data += [ifproc_file_data_1]
     f = m2fit(lp_params,ifproc_file_data)
@@ -62,10 +66,10 @@ def allfocus(obsNums, peaks, lp_files, opt):
     FV.plot_focus_model_fit(f,obsNums)
     pl.savefig('lf_model_%s.png'%file_ts, bbox_inches='tight')
     merge_png(['lf_fits_%s.png'%file_ts, 'lf_model_%s.png'%file_ts], 'lf_focus_%s.png'%file_ts)
-    lp_files += ['lf_fits_%s.png'%file_ts]
-    lp_files += ['lf_model_%s.png'%file_ts]
-    lp_files += ['lf_focus_%s.png'%file_ts]
-    merge_focus(lp_p, lp_files)
+    lp_merge_files += ['lf_fits_%s.png'%file_ts]
+    lp_merge_files += ['lf_model_%s.png'%file_ts]
+    lp_merge_files += ['lf_focus_%s.png'%file_ts]
+    merge_focus(lp_p, lp_merge_files)
 
     if opt & 0x1:
         pl.show()
