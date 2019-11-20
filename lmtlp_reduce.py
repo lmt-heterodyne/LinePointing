@@ -10,12 +10,17 @@ def lmtlp_reduce(msg) :
     # msg => obsnum & args   : msg = '{obsnum};{key1}:{val1};{key2}:{val2}; ...'
     #
 
+    print ('msg = ', msg)
     if isinstance(msg, str):
         argstrs = msg.split(';')
     else:
         argstrs = msg.decode().split(';')
     obsnum = int(argstrs[0])
-    args = { x[:x.find(':')] : x[x.find(':')+1:] for x in argstrs[1:] }
+    print ('argstrs = ', argstrs[1:])
+    args = {}
+    for x in argstrs[1:]:
+        args[x[:x.find(':')]] = x[x.find(':')+1:]
+    #args = { x[:x.find(':')] : x[x.find(':')+1:] for x in argstrs[1:] }
     print('args = ', args)
 
     opt      = int(args['opt']) if 'opt' in args else 0
