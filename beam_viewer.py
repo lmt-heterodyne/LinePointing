@@ -110,7 +110,10 @@ class BeamMapView():
         textstr =           'Az Offset  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list])) + '\n' 
         textstr = textstr + 'El Offset  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]))
         pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
-        pl.tight_layout(rect=[0, 0.03, 1, 0.9])
+        try:
+            pl.tight_layout(rect=[0, 0.03, 1, 0.9])
+        except:
+            pass
         pl.colorbar()
 
     def map(self,B,map_region,grid_spacing,apply_grid_corrections=False):
@@ -155,8 +158,12 @@ class BeamMapView():
             pixel = B.pix_list[i]
             index = B.BData.find_map_pixel_index(pixel)
             wdata = np.ones(len(B.BData.map_data[index]))
-            zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
-            wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+            try:
+                zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
+                wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+            except:
+                zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
+                wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
@@ -170,7 +177,10 @@ class BeamMapView():
         textstr =           'Az Offset  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list])) + '\n' 
         textstr = textstr + 'El Offset  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]))
         pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
-        pl.tight_layout(rect=[0, 0.03, 1, 0.9])
+        try:
+            pl.tight_layout(rect=[0, 0.03, 1, 0.9])
+        except:
+            pass
         pl.colorbar()
 
 
