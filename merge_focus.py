@@ -5,7 +5,7 @@ from PIL import Image
 
 def merge_focus(mags, files):
     try:
-	print 'merge_focus', files
+	print 'merge_focus', mags, files
         # the last file is the output file
         new_file = files[-1]
         # the two before it are the fit files
