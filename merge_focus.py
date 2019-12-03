@@ -45,7 +45,8 @@ def merge_focus(mags, files):
 
         x_offset = thumb_offset-thumb_size
 	y_offset += im.size[1]*max_width/im.size[0]
-        a = np.array(mags)
+        a = np.abs(np.array(mags))
+        print ('a', a)
         amax = np.max(a)
         for i,im in enumerate(point_images):
             if amax != 0:
