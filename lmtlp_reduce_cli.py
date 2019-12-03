@@ -33,8 +33,9 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
     s.send(msg.encode())
     
     msg = s.recv(1024)
+    print ('msg', msg)
     res = msg.decode().split(',')
-    print (res)
+    print ('res', res)
 
     if res[0] == '0':
         with open('lmtlp_%s.png'%obsnum, 'wb') as f:
