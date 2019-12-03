@@ -158,6 +158,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None):
     # get line_list from arg then from ifproc data file then from default
     if not line_list:
         line_list = IData.line_list
+        print ('line_list in file', line_list)
         if not line_list:
             line_list = [[-30+line_velocity,30+line_velocity]]
             print ('line_list from default', line_list)
@@ -172,6 +173,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None):
     # get baseline_list from arg then from ifproc data file then from default
     if not baseline_list:
         baseline_list = IData.baseline_list
+        print ('baseline_list in file', baseline_list)
         if baseline_list:
             flat_list = [item for sublist in baseline_list for item in sublist]
         else:
