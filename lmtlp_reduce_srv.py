@@ -50,6 +50,7 @@ class LmtlpReduceSrv :
                     
                 conn.send(result)
                 if plotfile is not None:
+                    time.sleep(1)
                     with open(plotfile, 'rb') as f:
                         conn.sendfile(f, 0)
                 break
