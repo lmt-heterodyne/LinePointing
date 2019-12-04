@@ -58,11 +58,14 @@ class LmtlpReduceSrv :
                     res[2] = 0
                     res[3] = 0
 
-                print (len(res))
+                print ('res', res)
                 conn.send(res.tobytes())
                 if plotfile is not None:
-                    with open(plotfile, 'rb') as f:
-                        conn.sendfile(f, 0)
+                    try:
+                        with open(plotfile, 'rb') as f:
+                            conn.sendfile(f, 0)
+                    except Exception as e:
+                        print (e)
                 break
 
 
