@@ -2,6 +2,7 @@ import sys
 import socket
 import subprocess
 import os
+import numpy as np
 from lmtlp_reduce import lmtlp_reduce
 
 def lmtlp_reduce_cli(host, port, obsnum, **args) :
@@ -31,11 +32,15 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
     #s.send(('{};{}'.format(obsnum,argstr)).encode())
     #s.send(('%s;%s'%(obsnum,argstr)).encode())
     s.send(msg.encode())
-    
-    msg = s.recv(1024)
-    print ('msg', msg)
-    res = msg.decode().split(',')
+
+    res = np.zeros(4)
+    print ('size', res.itemsize*4)
+    msg = s.recv(res.itemsize*4)
+    res = np.frombuffer(msg)
+    print ('msg', msg, len(msg))
     print ('res', res)
+    #res = msg.decode().split(',')
+    #print ('res', res)
 
     if res[0] == '0':
         with open('lmtlp_%s.png'%obsnum, 'wb') as f:
@@ -52,7 +57,8 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
     s.close()
     print('connection closed')
 
-    return msg.decode()
+    ans = '{s:1.0f},{x:1.3f},{y:1.3f},{pk:1.6f}'.format(s=res[0],x=res[1], y=res[2], pk=res[3])
+    return ans
 
 
 if __name__ == '__main__':
