@@ -42,7 +42,7 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
     #res = msg.decode().split(',')
     #print ('res', res)
 
-    if res[0] == '0':
+    if res[0] == 0:
         with open('lmtlp_%s.png'%obsnum, 'wb') as f:
             print ('image file opened')
             while True:
