@@ -34,7 +34,7 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
     s.send(msg.encode())
 
     res = np.zeros(4)
-    print ('size', res.itemsize*4)
+    print ('recv size', res.itemsize*4)
     msg = s.recv(res.itemsize*4)
     res = np.frombuffer(msg)
     print ('msg', msg, len(msg))
