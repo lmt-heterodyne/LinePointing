@@ -10,6 +10,7 @@ from merge_png import merge_png
 import time
 import os
 import matplotlib.pyplot as pl
+from msg_image import mkMsgImage
 
 def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None):
 
@@ -22,9 +23,10 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None):
     # read the ifproc file to get the data and the tracking beam
     ifproc_file = lookup_ifproc_file(obsnum)
     if not ifproc_file:
-        print ('No ifproc files found for', obsnum)
-        return None,None,None,None
-    
+        txt = 'No ifproc files found for %d'%obsnum
+        print (txt)
+        mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
+        return 'lmtlp_%s.png'%file_ts,None,None,None
 
     # probe the ifproc file for obspgm
     ifproc_file_quick = IFProcQuick(ifproc_file)
@@ -149,8 +151,10 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None):
         # find the roach files
         files,nfiles = lookup_roach_files(obsnum,roach_dir_list)
         if not files:
-            print ('No roach files found for', obsnum)
-            return None,None,None,None
+            txt = 'No roach files found for %d'%obsnum
+            print (txt)
+            mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
+            return 'lmtlp_%s.png'%file_ts,None,None,None
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
