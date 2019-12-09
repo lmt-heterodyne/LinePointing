@@ -12,7 +12,7 @@ import os
 import matplotlib.pyplot as pl
 from msg_image import mkMsgImage
 
-def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None):
+def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, tracking_beam=None):
 
     # define time stamp
     file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
@@ -110,7 +110,10 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None):
     selected_beam = 10
 
     # check if tracking a specific pixel to modify the roach list and the selected_beam
-    tracking_beam = IData.tracking_beam
+    if 'Msip1mm' not in IData.receiver:
+        tracking_beam = None
+    if tracking_beam == None:
+        tracking_beam = IData.tracking_beam
     if tracking_beam != -1:
         selected_beam = tracking_beam
         if bs_beams != []:

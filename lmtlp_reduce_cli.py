@@ -66,6 +66,6 @@ if __name__ == '__main__':
         print ('usage: python3 lmtlp_reduce_cli obsnum opt line_list baseline_list tsys')
         sys.exit(-1)
 
-    msg = lmtlp_reduce_cli('wares', 16213, sys.argv[1], opt=sys.argv[2], line_list=sys.argv[3], baseline_list=sys.argv[4], tsys=sys.argv[5])
+    msg = lmtlp_reduce_cli('wares', 16213, sys.argv[1], opt=sys.argv[2], line_list=sys.argv[3], baseline_list=sys.argv[4], tsys=sys.argv[5], tracking_beam=sys.argv[6])
     print (msg)
     
