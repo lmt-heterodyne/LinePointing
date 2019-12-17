@@ -66,8 +66,12 @@ class BeamMap():
         self.pix_list = np.array(pix_list)
         self.n_pix_list = len(self.pix_list)
         # grid locations by pixel number
-        self.RIGHT = np.array([-1.5, -1.5, -1.5, -1.5, -.5, -.5, -.5, -.5, .5, .5, .5, .5, 1.5, 1.5, 1.5, 1.5])
-        self.UP = np.array([1.5, .5, -.5, -1.5, 1.5, .5, -.5, -1.5, 1.5, .5, -.5, -1.5, 1.5, .5, -.5, -1.5])
+        if BData.receiver == "Msip1mm":
+            self.RIGHT = np.array([0, 0, 0, 0])
+            self.UP = np.array([0, 0, 0, 0])
+        else:
+            self.RIGHT = np.array([-1.5, -1.5, -1.5, -1.5, -.5, -.5, -.5, -.5, .5, .5, .5, .5, 1.5, 1.5, 1.5, 1.5])
+            self.UP = np.array([1.5, .5, -.5, -1.5, 1.5, .5, -.5, -1.5, 1.5, .5, -.5, -1.5, 1.5, .5, -.5, -1.5])
 
     def find_pixel_index(self,ipix):
         """ locates the index of a specific pixel in the "pix_list" of this BeamMap
