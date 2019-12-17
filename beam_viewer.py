@@ -59,7 +59,7 @@ class BeamMapView():
             B is the BeamMap object with the data and fit results
             apply_grid_corrections=True will use the nominal grid to offset positions
         """
-        g = Grid()
+        g = Grid(B.BData.receiver)
         gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         if apply_grid_corrections:
             gxl = gx[B.pix_list]
@@ -87,7 +87,7 @@ class BeamMapView():
             map_region is the extent of the map: [low left, low right, high left, high right] (arcsec)
             grid_spacing is the size of the map cells (arcsec)
         """
-        g = Grid()
+        g = Grid(B.BData.receiver)
         gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         nx = int((map_region[1]-map_region[0])/grid_spacing)+1
         ny = int((map_region[3]-map_region[2])/grid_spacing)+1
@@ -122,7 +122,8 @@ class BeamMapView():
             map_region is the extent of the map: [low left, low right, high left, high right] (arcsec)
             grid_spacing is the size of the map cells (arcsec)
         """
-        g = Grid()
+        print(B.BData.receiver)
+        g = Grid(B.BData.receiver)
         if B.BData.map_coord == 0:
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         elif B.BData.map_coord == 1:
@@ -189,7 +190,7 @@ class BeamMapView():
             B is BeamMap object with data and fits
             show_id=True will print the pixel id on the map next to the peak position
         """
-        g = Grid()
+        g = Grid(B.BData.receiver)
         gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         ang = g.rotation - B.elev/180.*np.pi
         x = np.zeros(B.n_pix_list)
