@@ -88,7 +88,11 @@ class BeamMap():
         xp = self.BData.map_x[index][peak_index][0]
         yp = self.BData.map_y[index][peak_index][0]
         # print 'found_peak',ipix,index,theMax,peak_index[0][0],xp,yp,theMax
-        v0 = np.array([theMax,xp,15.,yp,15.])
+        if self.BData.receiver == "Msip1mm":
+            hpbw = 6.
+        else:
+            hpbw = 15.
+        v0 = np.array([theMax,xp,hpbw,yp,hpbw])
         spec_list = np.where(np.sqrt((self.BData.map_x[index]-xp)**2 + (self.BData.map_y[index]-yp)**2) < fit_circle)
         #print(spec_list)
         scan = self.BData.map_data[index][:]
