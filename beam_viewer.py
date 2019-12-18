@@ -11,6 +11,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
+from mpl_toolkits.mplot3d import Axes3D
 from beam import *
 from lmtslr.grid.grid import *
 
@@ -169,6 +170,82 @@ class BeamMapView():
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
         pl.axis('equal')
+        pl.xlabel('Azimuth (")')
+        pl.ylabel('Elevation (")')
+        isGood = np.zeros((B.n_pix_list))
+        isGood = (B.peak_fit_status[:] != 5)
+        az_map_offset = B.peak_fit_params[np.nonzero(isGood),1]
+        el_map_offset = B.peak_fit_params[np.nonzero(isGood),3]
+        textstr =           'Az Offset  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list])) + '\n' 
+        textstr = textstr + 'El Offset  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]))
+        pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
+        try:
+            pl.tight_layout(rect=[0, 0.03, 1, 0.9])
+        except:
+            pass
+        pl.colorbar()
+
+
+    def map3d(self,B,map_region,grid_spacing,apply_grid_corrections=False):
+        """ map aligns all maps on the sky using nominal grid and averages the maps
+            B is BeamMap object with data and fits
+            map_region is the extent of the map: [low left, low right, high left, high right] (arcsec)
+            grid_spacing is the size of the map cells (arcsec)
+        """
+        print(B.BData.receiver)
+        g = Grid(B.BData.receiver)
+        if B.BData.map_coord == 0:
+            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+        elif B.BData.map_coord == 1:
+            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean(B.BData.parang),B.BData.tracking_beam) # FIRST CUT
+        else:
+            gx,gy = g.azel(B.BData.elev/180.*np.pi)
+
+        if apply_grid_corrections:
+            if len(B.BData.map_data) == 1:
+                gxl = gx[B.pix_list]
+                gyl = gy[B.pix_list]
+            else:
+                gxl = gx
+                gyl = gy
+        else:
+            gxl = np.zeros(B.n_pix_list)
+            gyl = np.zeros(B.n_pix_list)
+        if not map_region:
+            map_region = [0, 0, 0, 0]
+            map_region[0] = 1.1*(B.BData.map_x[0]).min()
+            map_region[1] = 1.1*(B.BData.map_x[0]).max()
+            map_region[2] = 1.1*(B.BData.map_y[0]).min()
+            map_region[3] = 1.1*(B.BData.map_y[0]).max()
+            print (map_region)
+        nx = int((map_region[1]-map_region[0])/grid_spacing+1)
+        ny = int((map_region[3]-map_region[2])/grid_spacing+1)
+        nx = ny = min(nx, ny)
+        xi = np.linspace(map_region[0],map_region[1],nx)
+        yi = np.linspace(map_region[2],map_region[3],ny)
+        zi_sum = np.zeros((nx,ny))
+        wi_sum = np.zeros((nx,ny))
+        for i in range(B.n_pix_list):
+            pixel = B.pix_list[i]
+            index = B.BData.find_map_pixel_index(pixel)
+            wdata = np.ones(len(B.BData.map_data[index]))
+            try:
+                zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
+                wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+            except:
+                zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
+                wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
+            zi_sum = zi_sum + zi
+            wi_sum = wi_sum + wi
+
+        zi = zi_sum/wi_sum
+        fig = pl.figure()
+        ax = fig.gca(projection='3d')
+        xm,ym = np.meshgrid(xi, yi)
+        my_col = pl.cm.jet(zi/np.amax(zi))
+        surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, facecolors=my_col, linewidth=1, antialiased=False)
+        #surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, cmap=pl.cm.jet, linewidth=1, antialiased=True)
+        #fig.colorbar(surf)
         pl.xlabel('Azimuth (")')
         pl.ylabel('Elevation (")')
         isGood = np.zeros((B.n_pix_list))
