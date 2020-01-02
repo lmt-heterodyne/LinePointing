@@ -400,6 +400,9 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
             BV.map(B,[],grid_spacing,apply_grid_corrections=True)
             BV.show_peaks(B,apply_grid_corrections=True,show_map_points=selected_beam)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
+
+            BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
+
             if opt & 0x1000:
                 BV.set_figure(figure=10)
                 BV.open_figure()
@@ -503,7 +506,7 @@ if __name__ == '__main__':
     except:
         pass
 
-    linepoint(obsNum, opt=opt)
+    linepoint(obsNum, opt=opt, line_list=None, baseline_list=None, tsys=None, tracking_beam=None)
 
     # show plot
     if opt & 0x1:
