@@ -87,7 +87,7 @@ class BeamMap():
         peak_index = np.where(self.BData.map_data[index][:] == theMax)
         xp = self.BData.map_x[index][peak_index][0]
         yp = self.BData.map_y[index][peak_index][0]
-        # print 'found_peak',ipix,index,theMax,peak_index[0][0],xp,yp,theMax
+        print('found_peak',ipix,index,theMax,peak_index[0][0],xp,yp,theMax)
         if self.BData.receiver == "Msip1mm":
             hpbw = 6.
         else:
