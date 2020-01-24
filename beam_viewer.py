@@ -102,6 +102,7 @@ class BeamMapView():
             zi_sum = zi_sum + zi
         pl.imshow(zi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
         pl.axis('equal')
+        pl.grid()
         pl.xlabel('X (")')
         pl.ylabel('Y (")')
         isGood = np.zeros((B.n_pix_list))
@@ -170,6 +171,7 @@ class BeamMapView():
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
         pl.axis('equal')
+        pl.grid()
         pl.xlabel('Azimuth (")')
         pl.ylabel('Elevation (")')
         isGood = np.zeros((B.n_pix_list))
