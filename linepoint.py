@@ -368,7 +368,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
         print ('beam map pix list', pixel_list)
         if opt & 0x1000:
             B = BeamMap(IData,pix_list=pixel_list)
-            B.fit_peaks_in_list()
+            B.fit_peaks_in_list(fit_circle=30)
         else:
             B = BeamMap(SData,pix_list=pixel_list)
             B.fit_peaks_in_list(fit_circle=30)
