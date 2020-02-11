@@ -11,6 +11,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
+import matplotlib.colors
 from mpl_toolkits.mplot3d import Axes3D
 from beam import *
 from lmtslr.grid.grid import *
@@ -244,7 +245,8 @@ class BeamMapView():
         fig = pl.figure()
         ax = fig.gca(projection='3d')
         xm,ym = np.meshgrid(xi, yi)
-        my_col = pl.cm.jet(zi/np.amax(zi))
+        norm =  matplotlib.colors.Normalize(vmin=np.min(zi), vmax=np.max(zi))
+        my_col = pl.cm.jet(norm(zi))
         surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, facecolors=my_col, linewidth=1, antialiased=False)
         #surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, cmap=pl.cm.jet, linewidth=1, antialiased=True)
         #fig.colorbar(surf)
@@ -261,7 +263,9 @@ class BeamMapView():
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
         except:
             pass
-        pl.colorbar()
+        m = pl.cm.ScalarMappable(cmap=pl.cm.jet, norm=norm)
+        m.set_array([])
+        pl.colorbar(m)
 
 
     def align_plot(self,B,show_id=True):
