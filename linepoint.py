@@ -220,7 +220,9 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
 
     # check whether to use calibration and open necessary file
     use_calibration = True
-    #use_calibration = False
+    print('chop_option', IData.chop_option) 
+    if IData.chop_option == 4 or IData.chop_option == 16:
+        use_calibration = False
     if use_calibration == True:
         calobsnum = IData.calobsnum
         print ('cal obs num = ', calobsnum)
