@@ -151,6 +151,8 @@ class BeamMap():
             """ note that i is index to the pixels in the pix_list """
             ipix = self.pix_list[i]
             self.peak_fit_params[i,:],self.peak_fit_errors[i,:],self.peak_fit_status[i],self.peak_fit_chisq[i] = self.fit_peak(ipix,fit_circle)
+            self.peak_fit_params[i,1] = np.clip(self.peak_fit_params[i,1], (self.BData.map_x[i]).min(), (self.BData.map_x[i]).max())
+            self.peak_fit_params[i,3] = np.clip(self.peak_fit_params[i,3], (self.BData.map_y[i]).min(), (self.BData.map_y[i]).max())
             self.model.append(self.compute_model(ipix,self.peak_fit_params[i,:]))
             
     def fit_grid(self):
