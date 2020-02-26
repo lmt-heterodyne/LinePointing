@@ -2,17 +2,20 @@
 
 classes: BeamMapView
 uses: BeamMap, Grid
-author: FPS
+author: FPS, KS
 date: May 2018
 changes: 
  
 """
+import sys
+import traceback
 import numpy as np
 import math
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
 import matplotlib.colors
 from mpl_toolkits.mplot3d import Axes3D
+import scipy.interpolate as interp
 from beam import *
 from lmtslr.grid.grid import *
 
@@ -95,11 +98,17 @@ class BeamMapView():
         ny = int((map_region[3]-map_region[2])/grid_spacing)+1
         xi = np.linspace(map_region[0],map_region[1],nx)
         yi = np.linspace(map_region[2],map_region[3],ny)
+        grid_x, grid_y = np.mgrid[map_region[0]:map_region[1]:complex(nx), map_region[2]:map_region[3]:complex(ny)]
         zi_sum = np.zeros((nx,ny))
         for i in range(B.n_pix_list):
             pixel = B.pix_list[i]
             index = B.BData.find_map_pixel_index(pixel)
-            zi = mlab.griddata(B.BData.map_x[index],B.BData.map_y[index],B.BData.map_data[index],xi,yi,interp='linear')
+            try:
+                print('trying scipy.interpolate.griddata')
+                zi = interp.griddata((B.BData.map_x[index],B.BData.map_y[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
+            except Exception as e:
+                print(e)
+                zi = mlab.griddata(B.BData.map_x[index],B.BData.map_y[index],B.BData.map_data[index],xi,yi,interp='linear')
             zi_sum = zi_sum + zi
         pl.imshow(zi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
         pl.axis('equal')
@@ -156,18 +165,25 @@ class BeamMapView():
         nx = ny = min(nx, ny)
         xi = np.linspace(map_region[0],map_region[1],nx)
         yi = np.linspace(map_region[2],map_region[3],ny)
+        grid_x, grid_y = np.mgrid[map_region[0]:map_region[1]:complex(nx), map_region[2]:map_region[3]:complex(ny)]
         zi_sum = np.zeros((nx,ny))
         wi_sum = np.zeros((nx,ny))
         for i in range(B.n_pix_list):
             pixel = B.pix_list[i]
             index = B.BData.find_map_pixel_index(pixel)
             wdata = np.ones(len(B.BData.map_data[index]))
-            try:
-                zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
-                wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
-            except:
-                zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
-                wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
+            try: 
+                print('trying scipy.interpolate.griddata')
+                zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
+                wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+            except Exception as e:
+                print(e)
+                try:
+                    zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
+                    wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+                except:
+                    zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
+                    wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
@@ -226,6 +242,7 @@ class BeamMapView():
         nx = ny = min(nx, ny)
         xi = np.linspace(map_region[0],map_region[1],nx)
         yi = np.linspace(map_region[2],map_region[3],ny)
+        grid_x, grid_y = np.mgrid[map_region[0]:map_region[1]:complex(nx), map_region[2]:map_region[3]:complex(ny)]
         zi_sum = np.zeros((nx,ny))
         wi_sum = np.zeros((nx,ny))
         for i in range(B.n_pix_list):
@@ -233,11 +250,17 @@ class BeamMapView():
             index = B.BData.find_map_pixel_index(pixel)
             wdata = np.ones(len(B.BData.map_data[index]))
             try:
-                zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
-                wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
-            except:
-                zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
-                wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
+                print('trying scipy.interpolate.griddata')
+                zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
+                wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+            except Exception as e:
+                print(e)
+                try:
+                    zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
+                    wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+                except:
+                    zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
+                    wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
 
