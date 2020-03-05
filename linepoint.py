@@ -472,11 +472,12 @@ if __name__ == '__main__':
     # define options, 0 = write spec file only, 1 = plot, 2 = generate grid
     opt = 0
 
-    try:
-        opt = int(sys.argv[1], 0)
-        print ('opt =', opt)
-    except:
-        pass
+    if len(sys.argv) > 2:
+        try:
+            opt = int(sys.argv[1], 0)
+            print ('opt =', opt)
+        except:
+            pass
 
     # Chi_Cyg cal
     obsNum = 78003
@@ -492,7 +493,7 @@ if __name__ == '__main__':
     obsNum = 76085
 
     try:
-        arg = sys.argv[2]
+        arg = sys.argv[-1]
         if arg.startswith('c'):
             obsNum = 78003
         elif arg.startswith('g'):
