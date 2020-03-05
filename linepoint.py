@@ -366,12 +366,16 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
     if obspgm == 'Map' or obspgm == 'Lissajous':
         #pixel_list = [i for i in range(16)]
         print ('beam map pix list', pixel_list)
+        if IData.receiver == "Msip1mm":
+            fit_circle = 10
+        else:
+            fit_circle = 30
         if opt & 0x1000:
             B = BeamMap(IData,pix_list=pixel_list)
-            B.fit_peaks_in_list(fit_circle=30)
+            B.fit_peaks_in_list(fit_circle=fit_circle)
         else:
             B = BeamMap(SData,pix_list=pixel_list)
-            B.fit_peaks_in_list(fit_circle=30)
+            B.fit_peaks_in_list(fit_circle=fit_circle)
         if tracking_beam != -1:
             params = np.zeros((1,4))
             if len(pixel_list) == 1:
