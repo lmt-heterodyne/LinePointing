@@ -25,13 +25,13 @@ class m2fit():
         for i,ifproc in enumerate(ifproc_file_data):
             if i != 0:
                 if self.receiver != ifproc.receiver:
-                    print 'receiver error'
+                    print('receiver error')
                     return
                 if self.source != ifproc.source:
-                    print 'source error'
+                    print('source error')
                     return
                 if self.obspgm != ifproc.obspgm:
-                    print 'obspgm error', self.obspgm, ifproc.obspgm
+                    print('obspgm error', self.obspgm, ifproc.obspgm)
                     return
             m2z.append(ifproc.m2z)
             m2y.append(ifproc.m2y)
@@ -42,10 +42,10 @@ class m2fit():
         m2y = numpy.array(m2y)
         m2x = numpy.array(m2x)
         m1zer0 = numpy.array(m1zer0)
-        print 'm2x', m2x
-        print 'm2y', m2y
-        print 'm2z', m2z
-        print 'm1zer0', m1zer0
+        print('m2x', m2x)
+        print('m2y', m2y)
+        print('m2z', m2z)
+        print('m1zer0', m1zer0)
         dx = max(m2x)-min(m2x)
         dy = max(m2y)-min(m2y)
         dz = max(m2z)-min(m2z)
@@ -90,7 +90,7 @@ class m2fit():
 
         self.m2pos = m2pos
         m2posLabel = {-1: 'Error', 0: 'Z', 1: 'Y', 2: 'X', 3: 'A'}
-        print 'changing param:', m2posLabel[m2pos]
+        print('changing param:', m2posLabel[m2pos])
 
         self.nscans = len(lp_params)
         self.n = len(lp_params[0])

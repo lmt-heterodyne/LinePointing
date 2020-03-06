@@ -14,7 +14,7 @@ from merge_png import merge_png
 from merge_focus import merge_focus
 
 def allfocus(obsNums, peaks, lp_files, opt):
-    print obsNums, peaks, lp_files, opt
+    print(obsNums, peaks, lp_files, opt)
 
     # define time stamp
     obsnum = int(obsNums[-1])
@@ -45,11 +45,11 @@ def allfocus(obsNums, peaks, lp_files, opt):
     f = m2fit(lp_params,ifproc_file_data)
     f.find_focus()
     f.fit_focus_model()
-    print 'lp_params', lp_params
-    print 'relative_focus',f.relative_focus_fit
-    print 'absolute_focus',f.absolute_focus_fit
-    print 'm2 x y z',f.m2xfocus,f.m2yfocus,f.m2zfocus
-    print 'm1 zer0',f.m1ZernikeC0
+    print('lp_params', lp_params)
+    print('relative_focus',f.relative_focus_fit)
+    print('absolute_focus',f.absolute_focus_fit)
+    print('m2 x y z',f.m2xfocus,f.m2yfocus,f.m2zfocus)
+    print('m1 zer0',f.m1ZernikeC0)
 
     params = numpy.zeros((1,4))
     params[0,0] = f.m2xfocus
@@ -78,7 +78,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
     if opt & 0x1:
         pl.show()
         
-    print 'params', params
+    print('params', params)
     return 'lf_focus_%s.png'%file_ts,params
 
 if __name__ == '__main__':
