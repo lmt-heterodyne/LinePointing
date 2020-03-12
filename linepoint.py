@@ -14,6 +14,8 @@ from msg_image import mkMsgImage
 
 def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, tracking_beam=None):
 
+    roach_pixels_all = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]
+
     # define time stamp
     file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
 
