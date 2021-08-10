@@ -14,7 +14,7 @@ import math
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
 import matplotlib.colors
-from mpl_toolkits.mplot3d import Axes3D
+##from mpl_toolkits.mplot3d import Axes3D
 import scipy.interpolate as interp
 from beam import *
 from lmtslr.grid.grid import *
