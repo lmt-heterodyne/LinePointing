@@ -268,13 +268,13 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
         # reduce all spectra
         if obspgm == 'Map' or obspgm == 'Lissajous':
             for ipix in range(SData.npix):
-                SData.roach[ipix].reduce_spectra(type=2,calibrate=use_calibration,tsys_spectrum=tsys_spectra[ipix],tsys_no_cal=tsys)
+                SData.roach[ipix].reduce_spectra(stype=2,calibrate=use_calibration,tsys_spectrum=tsys_spectra[ipix],tsys_no_cal=tsys)
         elif obspgm == 'Bs':
-            SData.roach[0].reduce_ps_spectrum(type=2,normal_ps=False,calibrate=use_calibration,tsys_spectrum=tsys_spectra[0],tsys_no_cal=tsys)
-            SData.roach[1].reduce_ps_spectrum(type=2,normal_ps=True,calibrate=use_calibration,tsys_spectrum=tsys_spectra[1],tsys_no_cal=tsys)
+            SData.roach[0].reduce_ps_spectrum(stype=2,normal_ps=False,calibrate=use_calibration,tsys_spectrum=tsys_spectra[0],tsys_no_cal=tsys)
+            SData.roach[1].reduce_ps_spectrum(stype=2,normal_ps=True,calibrate=use_calibration,tsys_spectrum=tsys_spectra[1],tsys_no_cal=tsys)
         elif obspgm == 'Ps':
             for ipix in range(SData.npix):
-                SData.roach[ipix].reduce_ps_spectrum(type=2,normal_ps=True,calibrate=use_calibration,tsys_spectrum=tsys_spectra[ipix],tsys_no_cal=tsys)
+                SData.roach[ipix].reduce_ps_spectrum(stype=2,normal_ps=True,calibrate=use_calibration,tsys_spectrum=tsys_spectra[ipix],tsys_no_cal=tsys)
         elif obspgm == 'On':
             for ipix in range(SData.npix):
                 SData.roach[ipix].reduce_on_spectrum(calibrate=False,tsys_spectrum=tsys_spectra[ipix],tsys_no_cal=tsys)
