@@ -13,13 +13,23 @@ should go into **requirements.txt**
 
 # Examples
 
-## allfocus
+## allfocus (test1)
 
-for obsnums: 83578, 83579, 83580, 83581, 83582
+for obsnums: 83578,83579,83580,83581,83582
+
+      python allfocus.py 
 
 ## linefocus
 
-accepts a list of obsnums
+accepts a comma separated list of obsnums
+
+      python linefocus.py obsnums
+	  
+for example
+
+      python linefocus.py 83578,83579,83580,83581,83582
+      
+	  
 
 ## linepoint
 
@@ -61,7 +71,7 @@ Lists the obsnum, receiver, obspgm, e.g.
       receiver Sequoia
       obspgm Map
 
-
+The command **lmtinfo.py $DATA_LMT 79448** would give a bit more info.
 
 # History
 
