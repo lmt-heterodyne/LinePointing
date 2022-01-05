@@ -33,12 +33,31 @@ for example
 
 ## linepoint
 
-for obsnum 76406
+For beam maps. E.g. for obsnum 76406
 
       python linepoint.py 76406
-	  
-no roach files found
 
+Single character arguments allow a shortcut for certain benchmark obsnums:
+
+      c   78003     Chi_Cyg cal 
+      g   78004     Chi_Cyg grid
+      m   76406     IRC otf 
+      p   76085     MARS otf
+      b   78065     BS
+      9pt 78091     PS
+
+The 2021 season started with 
+
+    92984 - beam map at peak focus
+    92986 - beam map at +1.75mm focus
+    92988 - beam map at -1.75mm focus
+
+and a set with a deliberate astigmatism set into the dish:
+
+    92992 - beam map at peak focus
+    92994 - beam map at +1.75mm focus
+    92996 - beam map at -1.75mm focus
+    
 ## lmtlp_reduce_cli
 
 talks to lmtlp_reduce_srv/
