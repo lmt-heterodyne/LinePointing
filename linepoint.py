@@ -23,6 +23,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
     roach_list = [0,1,2,3]
 
     # read the ifproc file to get the data and the tracking beam
+    
     ifproc_file = lookup_ifproc_file(obsnum)
     if not ifproc_file:
         txt = 'No ifproc files found for %d'%obsnum
@@ -156,7 +157,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
         # find the roach files
         files,nfiles = lookup_roach_files(obsnum,roach_dir_list)
         if not files:
-            txt = 'No roach files found for %d'%obsnum
+            txt = 'No roach files found for %d in %s' % (obsnum,str(roach_dir_list))
             print (txt)
             mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
             return 'lmtlp_%s.png'%file_ts,None,None,None
@@ -514,10 +515,14 @@ if __name__ == '__main__':
     except:
         pass
 
-    linepoint(obsNum, opt=opt, line_list=None, baseline_list=None, tsys=None, tracking_beam=None)
 
-    # show plot
-    if opt & 0x1:
-        pl.show()
-        
+    if obsNum > 0:
+        linepoint(obsNum, opt=opt, line_list=None, baseline_list=None, tsys=None, tracking_beam=None)
+
+        # show plot
+        if opt & 0x1:
+            pl.show()
+    else:
+        print("obsnum %d not valid" % obsNum)
+            
 
