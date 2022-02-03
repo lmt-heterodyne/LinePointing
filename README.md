@@ -1,6 +1,6 @@
 # LinePointing
 
-Pointing code for Wares based data
+Pointing code for Wares based data.  Be aware there is also a CVS repo thay may need more merging.
 
 ## Python packages we need:
 
@@ -15,7 +15,7 @@ should go into **requirements.txt**
 
 ## allfocus (test1)
 
-for obsnums: 83578,83579,83580,83581,83582
+for obsnums: 83578,83579,83580,83581,83582   (2018S1SEQUOIACommissioning/Bs/Focus)
 
       python allfocus.py 
 
@@ -33,7 +33,7 @@ for example
 
 ## linepoint
 
-For beam maps. E.g. for obsnum 76406
+For beam maps. E.g. for obsnum 76406 (2018S1SEQUOIACommissioning/Map/Pointing)
 
       python linepoint.py 76406
 
