@@ -8,6 +8,7 @@ import sys
 import traceback
 import numpy as np
 from lmtlp_reduce import lmtlp_reduce
+import json
         
 class LmtlpReduceSrv :
     def __init__ (self) :
@@ -41,25 +42,22 @@ class LmtlpReduceSrv :
                     break
 
                 print (msg)
-                status,x,y,pk,plotfile = self.manageCommand(msg)
-                res = np.zeros(4)
+                results_str = self.manageCommand(msg)
+                results_dict = json.loads(results_str)
 
-                print (status, x, y, pk)
+                status = results_dict['status']
+                print (status)
                 if status == 0:
-                    #result = str.encode('0,{x:1.3f},{y:1.3f},{pk:1.6f}'.format(x=x, y=y, pk=pk))
-                    res[0] = status
-                    res[1] = x
-                    res[2] = y
-                    res[3] = pk
+                    plotfile = results_dict['plot_file']
                 else :
-                    #result = b'-1,0,0,0'
-                    res[0] = -1
-                    res[1] = 0
-                    res[2] = 0
-                    res[3] = 0
+                    plotfile = None
 
-                print ('res', res)
+                res = np.zeros(1)
+                res[0] = len(results_str)
+                print ('results_str len =', res[0])
+                print ('results_str =', results_str)
                 conn.send(res.tobytes())
+                conn.send(results_str.encode())
                 if plotfile is not None:
                     try:
                         with open(plotfile, 'rb') as f:
@@ -78,7 +76,9 @@ class LmtlpReduceSrv :
         except Exception as e:
             print (e)
             traceback.print_exc()
-            return -1,0,0,0,None
+            results_dict = dict()
+            results_dict['status'] = -1
+            return json.dumps(results_dict)
 
 def lmtlp_reduce_srv() :
     srv = LmtlpReduceSrv()

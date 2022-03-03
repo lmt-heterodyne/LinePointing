@@ -23,7 +23,6 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
     roach_list = [0,1,2,3]
 
     # read the ifproc file to get the data and the tracking beam
-    
     ifproc_file = lookup_ifproc_file(obsnum)
     if not ifproc_file:
         txt = 'No ifproc files found for %d'%obsnum
@@ -40,6 +39,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
     print ('obsnum', obsnum)
     print ('receiver', ifproc_file_quick.receiver)
     print ('obspgm', obspgm)
+    print ('tracking_beam', tracking_beam)
 
     if obspgm == 'Cal':
         ICal = IFProcCal(ifproc_file)
@@ -139,6 +139,8 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
     else:
         pixel_list = [tracking_beam]
 
+    #pixel_list = [selected_beam]
+
     print ('tracking_beam', tracking_beam)
     print ('selected_beam', selected_beam)
     print ('roach_list', roach_list)
@@ -166,7 +168,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
     #line_list = [[-27.5,-25.5]]
 
     # get line_list from arg then from ifproc data file then from default
-    if not line_list:
+    if not line_list or not [item for sublist in line_list for item in sublist]:
         line_list = IData.line_list
         print ('line_list in file', line_list)
         if not line_list:
@@ -181,7 +183,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
         print ('line_list from arg', line_list)
         
     # get baseline_list from arg then from ifproc data file then from default
-    if not baseline_list:
+    if not baseline_list or not [item for sublist in baseline_list for item in sublist]:
         baseline_list = IData.baseline_list
         print ('baseline_list in file', baseline_list)
         if baseline_list:
@@ -347,7 +349,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
             SV.plot_all_spectra(SData,selected_beam,plot_axis,SData.blist,SData.nb)
 
         # raster map
-        elif map_motion == 'Continuous':
+        elif map_motion == 'Continuous' or obspgm == 'Lissajous':
             # this does a baseline and integration for the pixels in the list
             SData.create_map_data(SData.clist,SData.nc,SData.blist,SData.nb,baseline_fit_order,pixel_list=pixel_list)
 
@@ -514,7 +516,6 @@ if __name__ == '__main__':
             obsNum = int(arg)
     except:
         pass
-
 
     if obsNum > 0:
         linepoint(obsNum, opt=opt, line_list=None, baseline_list=None, tsys=None, tracking_beam=None)

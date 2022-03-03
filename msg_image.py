@@ -1,12 +1,21 @@
 
 
-def mkMsgImage(pl, obsnum, txt, im, label, color='k') :
+def mkMsgImage(pl, obsnum, txt, im, label, color='k', bg_img=None) :
 
-    fig = pl.figure(figsize = (10,2))
-    pl.subplots_adjust(left=0, right=1, bottom=0, top=1)
     msg = '{label}: {txt}\nObsNum: {obsnum}'.format(label=label, txt=txt, obsnum=obsnum)
     print(msg)
-    pl.annotate(msg, xy=(0.05,0.05), color = color, fontsize=25)
+    if bg_img is not None:
+        import matplotlib.image as img
+        bg = img.imread(bg_img)
+        fig = pl.figure(figsize = (bg.shape[1]/100, bg.shape[0]/100))
+        ax = pl.axes((0,0,1,1)) #axes over whole figure
+        ax.imshow(bg)
+        pl.imshow(bg)
+        ax.text(bg.shape[1]/4, bg.shape[0], msg, color = color, fontsize=50, rotation=90)#, wrap=True)
+    else:
+        fig = pl.figure(figsize = (10,10))
+        pl.subplots_adjust(left=0, right=1, bottom=0, top=1)
+        pl.annotate(msg, xy=(0.05,0.05), color = color, fontsize=25)#, wrap=True)
     try:
       pl.tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False,
                      bottom=False, left=False, right=False, top=False)

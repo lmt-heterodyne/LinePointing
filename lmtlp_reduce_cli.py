@@ -4,6 +4,7 @@ import subprocess
 import os
 import numpy as np
 from lmtlp_reduce import lmtlp_reduce
+import json
 
 def lmtlp_reduce_cli(host, port, obsnum, **args) :
     #
@@ -14,7 +15,14 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
     msg = '{obsnum};{argstr}'.format(obsnum=obsnum,argstr=argstr)
 
     if host is None:
-        status,x,y,pk,plotfile = lmtlp_reduce(msg)
+        print('lmtlp_reduce_cli host is None, run directly')
+        results_str = lmtlp_reduce(msg)
+        results_dict = json.loads(results_str)
+        status = results_dict['status']
+        x =  results_dict['x']
+        y =  results_dict['y']
+        pk =  results_dict['pk']
+        plotfile =  results_dict['plot_file']
         image_file = 'lmtlp_%s.png'%str(obsnum)
         print ('lmtlp_plotfile = ', plotfile)
         print ('lmtlp_imagefile = ', image_file)
@@ -24,7 +32,7 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
             result = str.encode('0,{x:1.3f},{y:1.3f},{pk:1.6f}'.format(x=x, y=y, pk=pk))
         else :
             result = b'-1,0,0,0'
-        return result
+        return results_str
 
 
     s = socket.socket()
@@ -33,16 +41,17 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
     #s.send(('%s;%s'%(obsnum,argstr)).encode())
     s.send(msg.encode())
 
-    res = np.zeros(4)
-    print ('recv size', res.itemsize*4)
-    msg = s.recv(res.itemsize*4)
+    res = np.zeros(1)
+    print ('recv size', res.itemsize*1)
+    msg = s.recv(res.itemsize*1)
     res = np.frombuffer(msg)
-    print ('msg', msg, len(msg))
-    print ('res', res)
-    #res = msg.decode().split(',')
-    #print ('res', res)
+    print ('results_str len =', res[0])
+    results_str = s.recv(int(res[0])).decode()
+    print ('results_str =', results_str)
+    results_dict = json.loads(results_str)
+    status = results_dict['status']
 
-    if res[0] == 0:
+    if status == 0:
         with open('lmtlp_%s.png'%obsnum, 'wb') as f:
             print ('image file opened')
             while True:
@@ -57,8 +66,7 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
     s.close()
     print('connection closed')
 
-    ans = '{s:1.0f},{x:1.3f},{y:1.3f},{pk:1.6f}'.format(s=res[0],x=res[1], y=res[2], pk=res[3])
-    return ans
+    return results_str
 
 
 if __name__ == '__main__':
@@ -66,6 +74,6 @@ if __name__ == '__main__':
         print ('usage: python3 lmtlp_reduce_cli obsnum opt line_list baseline_list tsys')
         sys.exit(-1)
 
-    msg = lmtlp_reduce_cli('wares', 16213, sys.argv[1], opt=sys.argv[2], line_list=sys.argv[3], baseline_list=sys.argv[4], tsys=sys.argv[5], tracking_beam=sys.argv[6])
-    print (msg)
+    msg = lmtlp_reduce_cli('localhost', 16213, sys.argv[1], opt=sys.argv[2], line_list=sys.argv[3], baseline_list=sys.argv[4], tsys=sys.argv[5], tracking_beam=sys.argv[6])
+    print ('msg =', msg)
     

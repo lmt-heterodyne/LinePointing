@@ -65,7 +65,12 @@ class BeamMapView():
             apply_grid_corrections=True will use the nominal grid to offset positions
         """
         g = Grid(B.BData.receiver)
-        gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+        if B.BData.map_coord == 0:
+            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+        elif B.BData.map_coord == 1:
+            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean(B.BData.map_p),B.BData.tracking_beam) # FIRST CUT
+        else:
+            gx,gy = g.azel(B.BData.elev/180.*np.pi)
         if apply_grid_corrections:
             gxl = gx[B.pix_list]
             gyl = gy[B.pix_list]
@@ -139,12 +144,12 @@ class BeamMapView():
         if B.BData.map_coord == 0:
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         elif B.BData.map_coord == 1:
-            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean(B.BData.parang),B.BData.tracking_beam) # FIRST CUT
+            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean(B.BData.map_p),B.BData.tracking_beam) # FIRST CUT
         else:
             gx,gy = g.azel(B.BData.elev/180.*np.pi)
 
         if apply_grid_corrections:
-            if len(B.BData.map_data) == 1:
+            if True or len(B.BData.map_data) == 1:
                 gxl = gx[B.pix_list]
                 gyl = gy[B.pix_list]
             else:
@@ -159,7 +164,7 @@ class BeamMapView():
             map_region[1] = 1.1*(B.BData.map_x[0]).max()
             map_region[2] = 1.1*(B.BData.map_y[0]).min()
             map_region[3] = 1.1*(B.BData.map_y[0]).max()
-            print (map_region)
+            print ('map_region', map_region)
         nx = int((map_region[1]-map_region[0])/grid_spacing+1)
         ny = int((map_region[3]-map_region[2])/grid_spacing+1)
         nx = ny = min(nx, ny)

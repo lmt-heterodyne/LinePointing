@@ -29,9 +29,11 @@ def allfocus(obsNums, peaks, lp_files, opt):
         lp_params_1[0,0] = peaks[i]
         ifproc_file = lookup_ifproc_file(obsnum)
         if not ifproc_file:
+            print('cannot find ifproc file')
             return -1
         ifproc_file_data_1 = IFProcData(ifproc_file)
         if ifproc_file_data_1 == None:
+            print('cannot find ifproc data')
             return -1
         if ifproc_file_data_1.obspgm == 'Cal':
             continue
@@ -85,7 +87,12 @@ if __name__ == '__main__':
     obsNums = [83578, 83579, 83580, 83581, 83582]
     peaks  = [8.386131542861701, 14.80816494349861, 16.462157307450138, 15.80190338676115, 9.86341460275963]
     imageFiles = ['lp_spec_83578_1568497923432_47231.png', 'lp_spec_83579_1568497924551_47231.png', 'lp_spec_83580_1568497924985_47231.png', 'lp_spec_83581_1568497925395_47231.png', 'lp_spec_83582_1568497925891_47231.png']
-    allfocus(obsNums, peaks, imageFiles, 0x1)
+    opt = 0x1
+    ObsNums = [93164, 93165, 93166, 93167, 93168]
+    peaks = [1050.5671629157275, 1159.8579761398939, 1218.4598409124826, 1157.5620061643654, 1043.9765320135932]
+    imageFiles = ['lmtlp_93164.png', 'lmtlp_93165.png', 'lmtlp_93166.png', 'lmtlp_93167.png', 'lmtlp_93168.png']
+    opt = 0
+    allfocus(obsNums, peaks, imageFiles, opt)
     
 
 
