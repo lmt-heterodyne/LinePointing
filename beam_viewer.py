@@ -199,9 +199,12 @@ class BeamMapView():
         isGood = np.zeros((B.n_pix_list))
         isGood = (B.peak_fit_status[:] != 5)
         az_map_offset = B.peak_fit_params[np.nonzero(isGood),1]
+        az_map_hpbw = B.peak_fit_params[np.nonzero(isGood),2]
         el_map_offset = B.peak_fit_params[np.nonzero(isGood),3]
-        textstr =           'Az Offset  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list])) + '\n' 
-        textstr = textstr + 'El Offset  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]))
+        el_map_hpbw = B.peak_fit_params[np.nonzero(isGood),4]
+        textstr =           'Az Offset  %6.4f   HPBW  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list]),az_map_hpbw) + '\n' 
+        textstr = textstr + 'El Offset  %6.4f   HPBW  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]),el_map_hpbw)
+        print('xxxx', textstr)
         pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
         try:
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
