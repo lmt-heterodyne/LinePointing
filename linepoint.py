@@ -128,6 +128,8 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
         else:
             roach_list = find_roach_from_pixel(tracking_beam)
 
+    if False:
+        roach_list = [0,1,2,3]
     # build the roach directory list
     roach_dir_list = [ 'roach%d'%i for i in roach_list]
 
@@ -140,6 +142,8 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
         pixel_list = [tracking_beam]
 
     #pixel_list = [selected_beam]
+    if False:
+        pixel_list = sum([roach_pixels_all[roach_index] for roach_index in roach_list], [])
 
     print ('tracking_beam', tracking_beam)
     print ('selected_beam', selected_beam)
