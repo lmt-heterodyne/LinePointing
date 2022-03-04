@@ -4,7 +4,7 @@ import matplotlib.pyplot as pl
 try:
   import matplotlib.gridspec as gridspec
 except Exception as e:
-  print(e)
+  print('m2fit_viewer', e)
 
 
 class m2fit_viewer():
