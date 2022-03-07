@@ -12,7 +12,103 @@ import os
 import matplotlib.pyplot as pl
 from msg_image import mkMsgImage
 
-def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, tracking_beam=None):
+def write_pointing_log_header(ofile):
+    # Col 1 Flag
+    ofile.write('Flag,')
+    # Col 2 Date
+    ofile.write('Date,')
+    # Col 3 UTDate
+    ofile.write('UTDate,')
+    # Col 4 UT1 - hours
+    ofile.write('UT1,')
+    # Col 5 Obsnum
+    ofile.write('ObsNum,')
+    # Col 6 Source Name
+    ofile.write('Source,')
+    # Col 7,8 Az, El
+    ofile.write('Az,El,')
+    # Col 9,10,11 M2Z, M2Y, EL_M2
+    ofile.write('M2Z,M2Y,EL_M2,')
+    # Col 12,13,14,15 X and Y tilts and errors
+    ofile.write('TxPar,TxStd,TyPar,TyStd,')
+    # Col 16,17,18,19 Az, El Map offsets and Errors
+    ofile.write('AzMapOff,AzMapErr,ElMapOff,ElMapErr,')
+    # Col 20,21 HPBW ratio and error
+    ofile.write('HpbwRatio,HpbwRatioErr,')
+    # Col 22,23,24,25 sep, sep error, ang, ang_error
+    ofile.write('Sep,SepErr,Ang,AngErr,')
+    # Col 26 27 total azoff, eloff
+    ofile.write('AzTotalOff,ElTotalOff\n')
+
+def write_pointing_log_entry(F,B,ofile):
+    """Writes a log entry with pointing data for this fit to a file."""
+    # Col 1 Flag
+    ofile.write('1,')
+    # Col 2 Date
+    ofile.write('{:s},'
+                .format(F.date_ymd))
+    # Col 3 UTDate
+    ofile.write('{:0.5f},'
+                .format(np.mean(F.utdate))
+                )
+    # Col 4 UT1 - hours
+    ofile.write('{:.1f},'
+                .format(np.mean(F.ut1_h))
+                )
+    # Col 5 Obsnum
+    ofile.write('{:d},'
+                .format(F.obsnum)
+                )
+    # Col 6 Source Name
+    ofile.write('{:s},'
+                .format(F.source[0:12])
+                )
+    # Col 7,8 Az, El
+    ofile.write('{:.1f},{:.1f},'
+                .format(np.mean(F.azim),
+                        np.mean(F.elev))
+                )
+    # Col 9,10,11 M2Z, M2Y, EL_M2
+    ofile.write('{:.2f},{:.2f},{:.1f},'
+                .format(np.mean(F.m2z),
+                        np.mean(F.m2y),
+                        np.mean(F.el_m2))
+                )
+    # Col 12,13,14,15 X and Y tilts and errors
+    txpar,txstd = (np.mean(F.tilt0_x),np.std(F.tilt0_x))
+    typar,tystd = (np.mean(F.tilt0_y),np.std(F.tilt0_y))
+    ofile.write('{:.1f},{:.1f},{:.1f},{:.1f},'
+                .format(txpar,txstd,typar,tystd)
+                )
+    # Col 16,17,18,19 Az, El Map offsets and Errors
+    ofile.write('{:.1f},{:.1f},{:.1f},{:.1f},'
+                .format(np.mean(B.peak_fit_params[:,1]),
+                        np.mean(B.peak_fit_errors[:,1]),
+                        np.mean(B.peak_fit_params[:,3]),
+                        np.mean(B.peak_fit_errors[:,3]))
+                )
+    # Col 20,21 HPBW ratio and error
+    ofile.write('{:.3f},{:.3f},'
+                .format(np.mean(B.peak_fit_params[:,2])/np.mean(B.peak_fit_params[:,4]),
+                        np.mean(B.peak_fit_errors[:,2])/np.mean(B.peak_fit_errors[:,4]))
+
+                )
+    # Col 22,23,24,25 sep, sep error, ang, ang_error
+    ofile.write('{:.1f},{:.1f},{:.1f},{:.1f},'
+                .format(0,
+                        0,
+                        0,
+                        0,
+                        0)
+                )
+    # Col 26 27 total azoff, eloff
+    ofile.write('{:.1f},{:.1f}\n'
+                .format(np.mean(B.peak_fit_params[:,1])+F.az_total-F.az_receiver-F.az_m2,
+                        np.mean(B.peak_fit_params[:,3])+F.el_total-F.el_receiver-F.el_m2)
+                )
+
+
+def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, tracking_beam=None, pointing_log_fp=None):
 
     roach_pixels_all = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]
 
@@ -472,6 +568,9 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
 
         pl.show()
 
+    if pointing_log_fp is not None:
+        write_pointing_log_entry(IData,B,pointing_log_fp)
+
     print ('plot_file', 'lmtlp_%s.png'%file_ts)
     print ('params', params)
     return 'lmtlp_%s.png'%file_ts,params,IData,line_stats_all
@@ -522,7 +621,9 @@ if __name__ == '__main__':
         pass
 
     if obsNum > 0:
-        linepoint(obsNum, opt=opt, line_list=None, baseline_list=None, tsys=None, tracking_beam=None)
+        ofile = open('seq.csv', 'w')
+        write_pointing_log_header(ofile)
+        linepoint(obsNum, opt=opt, line_list=None, baseline_list=None, tsys=None, tracking_beam=None, pointing_log_fp=ofile)
 
         # show plot
         if opt & 0x1:
