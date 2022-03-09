@@ -114,6 +114,7 @@ class m2fit_viewer():
             if paramfit.m2pos >= 0:
                 ax.plot(paramfit.m2_position,paramfit.data[:,index],'o')
                 ax.plot(prange,model,'r')
+                pl.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
                 try:
                   pl.tick_params(axis='both',which='major',labelsize=6)
                 except:
@@ -148,7 +149,6 @@ class m2fit_viewer():
         the_model = paramfit.relative_focus_fit+(paramfit.focus_slope)*brange
         pl.plot(brange,result_relative,'o')
         pl.plot(brange,the_model,'r')
-        pl.axhline(y=.5*numpy.max(result_relative), color='b')
         if len(brange) == 1:
             xpos = brange[0]+0.01
             ypos = result_relative*1.01
