@@ -148,6 +148,7 @@ class m2fit_viewer():
         the_model = paramfit.relative_focus_fit+(paramfit.focus_slope)*brange
         pl.plot(brange,result_relative,'o')
         pl.plot(brange,the_model,'r')
+        pl.axhline(y=.5*numpy.max(result_relative), color='b')
         if len(brange) == 1:
             xpos = brange[0]+0.01
             ypos = result_relative*1.01
