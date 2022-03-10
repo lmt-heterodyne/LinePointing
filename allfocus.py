@@ -52,6 +52,9 @@ def allfocus(obsNums, peaks, lp_files, opt):
     print('absolute_focus',f.absolute_focus_fit)
     print('m2 x y z',f.m2xfocus,f.m2yfocus,f.m2zfocus)
     print('m1 zer0',f.m1ZernikeC0)
+    print('x ', f.scans_xpos_all)
+    lp_merge_params = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_params))]
+    lp_merge_files = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_files))]
 
     params = numpy.zeros((1,4))
     params[0,0] = f.m2xfocus
