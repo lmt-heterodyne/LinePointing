@@ -131,6 +131,9 @@ class m2fit():
         """Uses data loaded in during creation of this instance to fit focus."""
         if self.m2pos < 0: return
 
+        mdata_max = numpy.amax(self.data, axis=0)
+        print(self.data)
+        print(mdata_max)
         for index in range(self.n):
             ptp = numpy.zeros((3,3))
             ptr = numpy.zeros(3)
@@ -139,11 +142,12 @@ class m2fit():
             I = []
             par = []
             pcor = []
-            mdata_max = numpy.max(self.data[:][index])
+            print('index, mdata_max', index, mdata_max[index])
             scan_id_good = 0
             for scan_id in range(self.nscans):
                 self.scans_xpos_all.append(self.m2_position[scan_id])
-                if True and self.data[scan_id][index] < 0.5*mdata_max:
+                print('scan_id, mdata', scan_id, self.data[scan_id][index])
+                if True and self.data[scan_id][index] < 0.5*mdata_max[index]:
                     continue
                 I.append(self.data[scan_id][index])
                 par.append(self.m2_position[scan_id])
