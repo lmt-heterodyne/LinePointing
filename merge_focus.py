@@ -1,7 +1,10 @@
 import os
 import sys
+import math
 import numpy as np
+import traceback
 from PIL import Image
+
 
 def merge_focus(mags, files):
     try:
@@ -14,10 +17,10 @@ def merge_focus(mags, files):
         point_files = files[0:-3]
         
         print('create fit images', fit_files)
-        fit_images = map(Image.open, fit_files)
+        fit_images = [Image.open(f) for f in fit_files]
 
         print('create point images', point_files)
-        point_images = map(Image.open, point_files)
+        point_images = [Image.open(f) for f in point_files]
 
         print('figure out fit images', fit_files)
         widths, heights = zip(*(i.size for i in fit_images))
@@ -27,7 +30,7 @@ def merge_focus(mags, files):
             total_height = total_height + im.size[1]*max_width/im.size[0]
 
         print('figure out point images', point_files)
-        num_thumbs = len(point_images)
+        num_thumbs = len(point_files)
         if(num_thumbs > 0):
             thumb_size =  max_width/num_thumbs
         else:
@@ -36,12 +39,12 @@ def merge_focus(mags, files):
         thumb_offset = int(0.98*thumb_size)
         thumb_size = int(0.82*thumb_size)
 
-        new_im = Image.new('RGB', (max_width, total_height), 'white')
+        new_im = Image.new('RGB', (int(max_width), int(total_height)), 'white')
 
         x_offset = 0
         y_offset = 0
         im = fit_images[0]
-        new_im.paste(im.resize((max_width, im.size[1]*max_width/im.size[0]), Image.ANTIALIAS), (x_offset,y_offset))
+        new_im.paste(im.resize((int(max_width), int(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (x_offset,y_offset))
 
         x_offset = thumb_offset-thumb_size
         y_offset += im.size[1]*max_width/im.size[0]
@@ -53,19 +56,22 @@ def merge_focus(mags, files):
                 thumb_height = int(a[i]/amax*thumb_size)
             else:
                 thumb_height = thumb_size
-            new_im.paste(im.resize((int(thumb_height), int(thumb_height)), Image.ANTIALIAS), (x_offset+thumb_size/2-thumb_height/2, y_offset+thumb_offset-thumb_height))
+            if thumb_height <= 0:
+                thumb_height = 1
+            new_im.paste(im.resize((math.ceil(thumb_height), math.ceil(thumb_height)), Image.ANTIALIAS), (math.ceil(x_offset+thumb_size/2-thumb_height/2), math.ceil(y_offset+thumb_offset-thumb_height)))
             x_offset += thumb_offset
 
         x_offset = 0
         y_offset += thumb_offset
         im = fit_images[1]
-        new_im.paste(im.resize((max_width, im.size[1]*max_width/im.size[0]), Image.ANTIALIAS), (x_offset,y_offset))
+        new_im.paste(im.resize((math.ceil(max_width), math.ceil(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (math.ceil(x_offset),math.ceil(y_offset)))
 
         new_im.save(new_file)
         #os.system('rm -f %s'%zip(image_files))
 
     except Exception as e:
         print(e)
+        traceback.print_exc()
         pass
 
 if __name__ == '__main__':
