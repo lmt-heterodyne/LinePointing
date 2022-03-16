@@ -301,8 +301,6 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
             baseline_list = [baseline_list]
         print ('baseline_list from arg', baseline_list)
 
-    sys.exit(0)
-            
     if not tsys:
         tsys = 200
     print ('line_list', line_list)
