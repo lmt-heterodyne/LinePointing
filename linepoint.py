@@ -268,7 +268,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
     #line_list = [[-27.5,-25.5]]
 
     # get line_list from arg then from ifproc data file then from default
-    if not line_list or not [item for sublist in line_list for item in sublist]:
+    if not line_list or (all(isinstance(x, list) for x in line_list) and not [item for sublist in line_list for item in sublist]):
         line_list = IData.line_list
         print ('line_list in file', line_list)
         if not line_list:
@@ -300,6 +300,8 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
             print ('modify baseline_list to be a list of lists')
             baseline_list = [baseline_list]
         print ('baseline_list from arg', baseline_list)
+
+    sys.exit(0)
             
     if not tsys:
         tsys = 200
@@ -623,7 +625,7 @@ if __name__ == '__main__':
     if obsNum > 0:
         ofile = open('seq.csv', 'w')
         write_pointing_log_header(ofile)
-        linepoint(obsNum, opt=opt, line_list=None, baseline_list=None, tsys=None, tracking_beam=None, pointing_log_fp=ofile)
+        linepoint(obsNum, opt=opt, line_list=[-50,0], baseline_list=None, tsys=None, tracking_beam=None, pointing_log_fp=ofile)
 
         # show plot
         if opt & 0x1:
