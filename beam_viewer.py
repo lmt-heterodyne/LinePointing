@@ -175,7 +175,10 @@ class BeamMapView():
         wi_sum = np.zeros((nx,ny))
         for i in range(B.n_pix_list):
             pixel = B.pix_list[i]
-            index = B.BData.find_map_pixel_index(pixel)
+            if B.n_pix_list == 1:
+                index = i
+            else:
+                index = B.BData.find_map_pixel_index(pixel)
             wdata = np.ones(len(B.BData.map_data[index]))
             try: 
                 print('trying scipy.interpolate.griddata')
