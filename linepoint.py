@@ -108,7 +108,7 @@ def write_pointing_log_entry(F,B,ofile):
                 )
 
 
-def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, tracking_beam=None, pointing_log_fp=None):
+def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_order=0, tsys=None, tracking_beam=None, pointing_log_fp=None):
 
     roach_pixels_all = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]
 
@@ -203,7 +203,6 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
     map_motion = IData.map_motion
     line_velocity = IData.velocity
     reduce_type = 2
-    baseline_fit_order = 0
 
     # specify beam for fitting and plotting
     selected_beam = 10
@@ -303,8 +302,15 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, tsys=None, trac
 
     if not tsys:
         tsys = 200
+
+    if baseline_fit_order < 0:
+        baseline_fit_order = 0
+    elif baseline_fit_order > 3:
+        baseline_fit_order = 3
+        
     print ('line_list', line_list)
     print ('baseline_list', baseline_list)
+    print ('baseline_fit_order', baseline_fit_order)
     print ('tsys', tsys)
     plot_axis = [-100-30+line_velocity, 100+30+line_velocity,-5,15] # modify y according to peak spectrum
     fit_circle = 30
@@ -623,7 +629,7 @@ if __name__ == '__main__':
     if obsNum > 0:
         ofile = open('seq.csv', 'w')
         write_pointing_log_header(ofile)
-        linepoint(obsNum, opt=opt, line_list=[-50,0], baseline_list=None, tsys=None, tracking_beam=None, pointing_log_fp=ofile)
+        linepoint(obsNum, opt=opt, line_list=[-50,0], baseline_list=None, tsys=None, tracking_beam=3, pointing_log_fp=ofile)
 
         # show plot
         if opt & 0x1:

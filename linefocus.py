@@ -4,14 +4,14 @@ import json
 from lmtlp_reduce_cli import lmtlp_reduce_cli
 from allfocus import allfocus
 
-def linefocus(obsNumList, opt, line_list, baseline_list, tsys, tracking_beam):
+def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam):
     obsNums = []
     peaks = []
     data_files = []
     image_files = []
     for i,obsN in enumerate(obsNumList):
       print('look for obsnum', obsN)
-      results_str = lmtlp_reduce_cli(None, 0, str(obsN), opt=opt, line_list=line_list, baseline_list=baseline_list, tsys=tsys, tracking_beam=tracking_beam)
+      results_str = lmtlp_reduce_cli(None, 0, str(obsN), opt=opt, line_list=line_list, baseline_list=baseline_list, baseline_fit_order=baseline_fit_order, tsys=tsys, tracking_beam=tracking_beam)
       print(results_str)
       results_dict = json.loads(results_str)
       status = results_dict['status']
@@ -51,5 +51,5 @@ if __name__ == '__main__':
         print(e)
         print('using default ObsNumList', obsNumList)
     
-    linefocus(obsNumList, opt=opt, line_list=None, baseline_list=None, tsys=200, tracking_beam=None)
+    linefocus(obsNumList, opt=opt, line_list=None, baseline_list=None, baseline_fit_order=0, tsys=200, tracking_beam=None)
 

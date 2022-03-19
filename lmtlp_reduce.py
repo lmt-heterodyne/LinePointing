@@ -27,11 +27,12 @@ def lmtlp_reduce(msg) :
     opt      = int(args['opt']) if 'opt' in args else 0
     line_list = ast.literal_eval(args['line_list']) if 'line_list' in args else None
     baseline_list = ast.literal_eval(args['baseline_list']) if 'baseline_list' in args else None
+    baseline_fit_order = ast.literal_eval(args['baseline_fit_order']) if 'baseline_fit_order' in args else 0
     tsys = float(args['tsys']) if 'tsys' in args else None
     tracking_beam = ast.literal_eval(args['tracking_beam']) if 'tracking_beam' in args else None
 
     print('args = ', obsnum, opt, line_list, baseline_list, tsys, tracking_beam)
-    plot_file,params,ifproc_file_data,lp_stats_all = linepoint(obsnum, opt=opt, line_list=line_list, baseline_list=baseline_list, tsys=tsys, tracking_beam=tracking_beam)
+    plot_file,params,ifproc_file_data,lp_stats_all = linepoint(obsnum, opt=opt, line_list=line_list, baseline_list=baseline_list, baseline_fit_order=baseline_fit_order, tsys=tsys, tracking_beam=tracking_beam)
 
     results_dict = dict()
     if plot_file is not None:

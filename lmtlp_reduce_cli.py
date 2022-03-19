@@ -13,6 +13,7 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
 
     argstr = ';'.join(['{key}:{val}'.format(key=x, val=args[x]) for x in args])
     msg = '{obsnum};{argstr}'.format(obsnum=obsnum,argstr=argstr)
+    print('lmtlp_reduce_cli msg = ', msg)
 
     if host is None:
         print('lmtlp_reduce_cli host is None, run directly')
@@ -71,9 +72,9 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print ('usage: python3 lmtlp_reduce_cli obsnum opt line_list baseline_list tsys')
+        print ('usage: python3 lmtlp_reduce_cli obsnum opt line_list baseline_list baseline_fit_order tsys tracking_beam')
         sys.exit(-1)
 
-    msg = lmtlp_reduce_cli('localhost', 16213, sys.argv[1], opt=sys.argv[2], line_list=sys.argv[3], baseline_list=sys.argv[4], tsys=sys.argv[5], tracking_beam=sys.argv[6])
+    msg = lmtlp_reduce_cli('localhost', 16213, sys.argv[1], opt=sys.argv[2], line_list=sys.argv[3], baseline_list=sys.argv[4], baseline_fit_order=argv[5], tsys=sys.argv[6], tracking_beam=sys.argv[7])
     print ('msg =', msg)
     
