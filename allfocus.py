@@ -6,6 +6,7 @@ import time
 import os
 import numpy as np
 from lmtslr.ifproc.ifproc import lookup_ifproc_file, IFProcData
+from msg_image import mkMsgImage
 
 from linepoint import linepoint
 from m2fit import m2fit
@@ -45,6 +46,13 @@ def allfocus(obsNums, peaks, lp_files, opt):
         lp_params += [lp_params_1]
         ifproc_file_data += [ifproc_file_data_1]
     f = m2fit(lp_params,ifproc_file_data)
+    if f.status < 0:
+        print(f.msg)
+        mkMsgImage(pl, obsnum, txt=f.msg, im='lf_focus_%s.png'%file_ts, label='Error', color='r')
+        params = None
+        print('params', params)
+        return 'lf_focus_%s.png'%file_ts,params
+        
     f.find_focus()
     f.fit_focus_model()
     print('lp_params', lp_params)
