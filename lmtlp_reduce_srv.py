@@ -34,15 +34,16 @@ class LmtlpReduceSrv :
             if(self.debug & 0x1):
                 print("accepted client")
             while True:
-                msg = conn.recv(self.bufsize)
-                if len(msg) == 0 :
+                args_str = conn.recv(self.bufsize)
+                if len(args_str) == 0 :
                     if(self.debug & 0x1):
                         print('connection is closed by client')
                         print('closing socket...')
                     break
 
-                print (msg)
-                results_str = self.manageCommand(msg)
+                print ('args_str', args_str)
+                print ('args_str.decode', args_str.decode())
+                results_str = self.manageCommand(args_str.decode())
                 results_dict = json.loads(results_str)
 
                 status = results_dict['status']
@@ -69,10 +70,11 @@ class LmtlpReduceSrv :
 
             conn.close()
 
-    def manageCommand(self, msg) :
-        print (msg)
+    def manageCommand(self, args_str) :
+        args_dict = json.loads(args_str)
+        print (args_dict)
         try:
-            return lmtlp_reduce(msg)
+            return lmtlp_reduce(args_dict)
         except Exception as e:
             print (e)
             traceback.print_exc()

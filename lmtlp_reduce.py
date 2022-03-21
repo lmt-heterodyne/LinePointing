@@ -5,34 +5,12 @@ from linepoint import linepoint
 import matplotlib.pyplot as plt
 import json
 
-def lmtlp_reduce(msg) :
+def lmtlp_reduce(args_dict) :
 
-    #
-    # msg => obsnum & args   : msg = '{obsnum};{key1}:{val1};{key2}:{val2}; ...'
-    #
+    print ('args_dict = ', args_dict)
 
-    print ('msg = ', msg)
-    if isinstance(msg, str):
-        argstrs = msg.split(';')
-    else:
-        argstrs = msg.decode().split(';')
-    obsnum = int(argstrs[0])
-    print ('argstrs = ', argstrs[1:])
-    args = {}
-    for x in argstrs[1:]:
-        args[x[:x.find(':')]] = x[x.find(':')+1:]
-    #args = { x[:x.find(':')] : x[x.find(':')+1:] for x in argstrs[1:] }
-    print('args = ', args)
-
-    opt      = int(args['opt']) if 'opt' in args else 0
-    line_list = ast.literal_eval(args['line_list']) if 'line_list' in args else None
-    baseline_list = ast.literal_eval(args['baseline_list']) if 'baseline_list' in args else None
-    baseline_fit_order = ast.literal_eval(args['baseline_fit_order']) if 'baseline_fit_order' in args else 0
-    tsys = float(args['tsys']) if 'tsys' in args else None
-    tracking_beam = ast.literal_eval(args['tracking_beam']) if 'tracking_beam' in args else None
-
-    print('args = ', obsnum, opt, line_list, baseline_list, tsys, tracking_beam)
-    plot_file,params,ifproc_file_data,lp_stats_all = linepoint(obsnum, opt=opt, line_list=line_list, baseline_list=baseline_list, baseline_fit_order=baseline_fit_order, tsys=tsys, tracking_beam=tracking_beam)
+    
+    plot_file,params,ifproc_file_data,lp_stats_all = linepoint(args_dict)
 
     results_dict = dict()
     if plot_file is not None:
@@ -68,8 +46,10 @@ def lmtlp_reduce(msg) :
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print ('usage: python3 lmtlp_reduce obsnum[;{key1}:{val1};{key2}:{val2};...]')
+        print ('usage: python3 lmtlp_reduce ObsNum')
         sys.exit(-1)
 
-    lmtlp_reduce(sys.argv[1])
+    args_dict = dict()
+    args_dict['ObsNum'] = sys.argv[1]
+    lmtlp_reduce(args_dict)
     plt.show()

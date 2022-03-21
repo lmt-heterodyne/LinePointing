@@ -6,18 +6,13 @@ import numpy as np
 from lmtlp_reduce import lmtlp_reduce
 import json
 
-def lmtlp_reduce_cli(host, port, obsnum, **args) :
-    #
-    # args -> string
-    #
-
-    argstr = ';'.join(['{key}:{val}'.format(key=x, val=args[x]) for x in args])
-    msg = '{obsnum};{argstr}'.format(obsnum=obsnum,argstr=argstr)
-    print('lmtlp_reduce_cli msg = ', msg)
+def lmtlp_reduce_cli(host, port, args_dict) :
+    print('lmtlp_reduce_cli args_dict = ', args_dict)
+    obsnum = args_dict.get('ObsNum')
 
     if host is None:
         print('lmtlp_reduce_cli host is None, run directly')
-        results_str = lmtlp_reduce(msg)
+        results_str = lmtlp_reduce(args_dict)
         results_dict = json.loads(results_str)
         status = results_dict['status']
         x =  results_dict['x']
@@ -38,9 +33,7 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
 
     s = socket.socket()
     s.connect((host, port))
-    #s.send(('{};{}'.format(obsnum,argstr)).encode())
-    #s.send(('%s;%s'%(obsnum,argstr)).encode())
-    s.send(msg.encode())
+    s.send(json.dumps(args_dict))
 
     res = np.zeros(1)
     print ('recv size', res.itemsize*1)
@@ -72,9 +65,18 @@ def lmtlp_reduce_cli(host, port, obsnum, **args) :
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print ('usage: python3 lmtlp_reduce_cli obsnum opt line_list baseline_list baseline_fit_order tsys tracking_beam')
+        print ('usage: python3 lmtlp_reduce_cli ObsNum SpecOrCont LineList BaselineList BaselineFitOrder TSys TrackingBeam')
         sys.exit(-1)
 
-    msg = lmtlp_reduce_cli('localhost', 16213, sys.argv[1], opt=sys.argv[2], line_list=sys.argv[3], baseline_list=sys.argv[4], baseline_fit_order=argv[5], tsys=sys.argv[6], tracking_beam=sys.argv[7])
+    args_dict = dict()
+    args_dict['ObsNum'] = sys.argv[1]
+    args_dict['SpecOrCont'] = sys.argv[2]
+    args_dict['LineList'] = sys.argv[3]
+    args_dict['BaseLineList'] = sys.argv[4]
+    args_dict['BaselineFitOrder'] = sys.argv[5]
+    args_dict['TSys'] = sys.argv[6]
+    args_dict['TrackingBeam'] = sys.argv[7]
+    
+    msg = lmtlp_reduce_cli('localhost', 16213, args_dict)
     print ('msg =', msg)
     

@@ -108,7 +108,19 @@ def write_pointing_log_entry(F,B,ofile):
                 )
 
 
-def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_order=0, tsys=None, tracking_beam=None, pointing_log_fp=None):
+def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
+
+    obsnum = (args_dict.get('ObsNum', 'None'))
+    spec_cont = (args_dict.get('SpecOrCont', 'Spec')).lower()
+    line_list = (args_dict.get('LineList', 'None'))
+    baseline_list = (args_dict.get('BaselineList', 'None'))
+    baseline_fit_order = (args_dict.get('BaselineFitOrder', '0'))
+    tsys = (args_dict.get('TSys', 'None'))
+    tracking_beam = (args_dict.get('TrackingBeam', 'None'))
+    opt = (args_dict.get('Opt', 0))
+
+    print('args = ', obsnum, spec_cont, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam, opt)
+    
 
     roach_pixels_all = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]
 
@@ -172,7 +184,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
         pl.suptitle("TSys %s ObsNum: %d"%(ICal.receiver,ICal.obsnum))
         pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
 
-        if opt & 0x1000:
+        if spec_cont == 'cont':
             merge_png(['lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
         else:
             files,nfiles = lookup_roach_files(obsnum)
@@ -250,7 +262,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
     print ('line_velocity', line_velocity)
     print ('line_freq', IData.line_rest_frequency)
 
-    if opt & 0x1000:
+    if spec_cont == 'cont':
         print ('continuum reduction')
         pass
     else:
@@ -318,7 +330,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
     # create a list of cal spectra
     tsys_spectra = []
 
-    if opt & 0x1000:
+    if spec_cont == 'cont':
         pass
     else:
         # create the spec_bank object. This reads all the roaches in the list "files"
@@ -343,7 +355,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
             use_calibration = False
         else:
             ICal = IFProcCal(ifproc_cal_file)
-            if opt & 0x1000:
+            if spec_cont == 'cont':
                 ICal.compute_calcons()
                 ICal.compute_tsys()
                 for ipix in range(ICal.npix):
@@ -360,7 +372,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
     # line statistics
     line_stats_all = []
 
-    if opt & 0x1000:
+    if spec_cont == 'cont':
         if use_calibration == False:
             IData.dont_calibrate_data()
         else:
@@ -474,6 +486,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
     # set grid spacing
     grid_spacing = 1
     # now use the BeamMap class to solve for peaks
+    B = None
     if obspgm == 'Map' or obspgm == 'Lissajous':
         #pixel_list = [i for i in range(16)]
         print ('beam map pix list', pixel_list)
@@ -481,7 +494,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
             fit_circle = 10
         else:
             fit_circle = 30
-        if opt & 0x1000:
+        if spec_cont == 'cont':
             B = BeamMap(IData,pix_list=pixel_list)
             B.fit_peaks_in_list(fit_circle=fit_circle)
         else:
@@ -513,13 +526,13 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
             BV.open_figure()
             #BV.add_subplot(SV.fig)
             BV.map(B,[],grid_spacing,apply_grid_corrections=True)
-            if opt & 0x1000 == 0:
+            if spec_cont != 'cont':
                 BV.show_peaks(B,apply_grid_corrections=True,show_map_points=selected_beam)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
 
             ###BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
 
-            if opt & 0x1000:
+            if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
                 BV.show_fit(B,selected_beam)
@@ -535,7 +548,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
             BV.map(B,[],grid_spacing,apply_grid_corrections=True)
             BV.show_peaks(B,apply_grid_corrections=True)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
-            if opt & 0x1000:
+            if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
                 BV.show_fit(B,selected_beam)
@@ -543,7 +556,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
             # merge plots
             merge_png(['lmtlp_%s.png'%file_ts, 'lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
     
-    if opt & 0x2:
+    if view_opt & 0x2:
         if obspgm == 'Map' or obspgm == 'Lissajous':
             # show the fit to the data
             BV.set_figure(figure=10)
@@ -551,7 +564,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
             BV.show_fit(B,selected_beam)
 
         if map_motion == 'Continuous':
-            if (opt & 0x1000):
+            if spec_cont == 'cont':
                 BV.set_figure(figure=11)
                 BV.open_figure()
                 BV.sanchez_map(B,[-100,100,-100,100],grid_spacing)
@@ -574,7 +587,7 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
 
         pl.show()
 
-    if pointing_log_fp is not None:
+    if pointing_log_fp is not None and B:
         write_pointing_log_entry(IData,B,pointing_log_fp)
 
     print ('plot_file', 'lmtlp_%s.png'%file_ts)
@@ -582,8 +595,6 @@ def linepoint(obsnum, opt=0, line_list=None, baseline_list=None, baseline_fit_or
     return 'lmtlp_%s.png'%file_ts,params,IData,line_stats_all
 
 if __name__ == '__main__':
-    # define obsnum
-    obsnum = 76406
     # define options, 0 = write spec file only, 1 = plot, 2 = generate grid
     opt = 0
 
@@ -606,6 +617,8 @@ if __name__ == '__main__':
     obsNum = 78060
     # PS
     obsNum = 76085
+    # R-Cas Ra Map
+    obsNum = 94052
 
     try:
         arg = sys.argv[-1]
@@ -629,7 +642,18 @@ if __name__ == '__main__':
     if obsNum > 0:
         ofile = open('seq.csv', 'w')
         write_pointing_log_header(ofile)
-        linepoint(obsNum, opt=opt, line_list=[-50,0], baseline_list=None, tsys=None, tracking_beam=3, pointing_log_fp=ofile)
+        args_dict = dict()
+        args_dict['ObsNum'] = obsNum
+        args_dict['SpecOrCont'] = 'Cont' if opt & 0x1000 else 'Spec'
+        args_dict['LineList'] = None
+        args_dict['BaseLineList'] = None
+        args_dict['BaselineFitOrder'] = 0
+        args_dict['TSys'] = None
+        args_dict['TrackingBeam'] = None
+        args_dict['Opt'] = opt
+    
+        
+        linepoint(args_dict, view_opt=opt, pointing_log_fp=ofile)
 
         # show plot
         if opt & 0x1:
