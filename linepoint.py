@@ -38,7 +38,9 @@ def write_pointing_log_header(ofile):
     # Col 22,23,24,25 sep, sep error, ang, ang_error
     ofile.write('Sep,SepErr,Ang,AngErr,')
     # Col 26 27 total azoff, eloff
-    ofile.write('AzTotalOff,ElTotalOff\n')
+    ofile.write('AzTotalOff,ElTotalOff,')
+    # Col 28 29 model
+    ofile.write('AzPointModelCor,ElPointModelCor\n')
 
 def write_pointing_log_entry(F,B,ofile):
     """Writes a log entry with pointing data for this fit to a file."""
@@ -102,9 +104,14 @@ def write_pointing_log_entry(F,B,ofile):
                         0)
                 )
     # Col 26 27 total azoff, eloff
-    ofile.write('{:.1f},{:.1f}\n'
+    ofile.write('{:.1f},{:.1f},'
                 .format(np.mean(B.peak_fit_params[:,1])+F.az_total-F.az_receiver-F.az_m2,
                         np.mean(B.peak_fit_params[:,3])+F.el_total-F.el_receiver-F.el_m2)
+                )
+    # Col 28 29 model
+    ofile.write('{:.1f},{:.1f}\n'
+                .format(F.az_point_model_cor,
+                        F.el_point_model_cor)
                 )
 
 
@@ -646,7 +653,7 @@ if __name__ == '__main__':
         args_dict['ObsNum'] = obsNum
         args_dict['SpecOrCont'] = 'Cont' if opt & 0x1000 else 'Spec'
         args_dict['LineList'] = None
-        args_dict['BaseLineList'] = None
+        args_dict['BaselineList'] = None
         args_dict['BaselineFitOrder'] = 0
         args_dict['TSys'] = None
         args_dict['TrackingBeam'] = None
