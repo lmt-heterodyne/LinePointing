@@ -151,7 +151,7 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
         pl.plot(IData.azmap, IData.elmap)
         pl.xlabel('AzMap (")')
         pl.ylabel('ElMap (")')
-        pl.title(obsnum)
+        pl.title('%d %s el=%lf'%(obsnum,IData.date_obs,IData.elev))
         pl.savefig('%s_azelmap.png'%obsnum, bbox_inches='tight')
         return '%s_azelmap.png'%obsnum,None,None,None
 
