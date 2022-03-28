@@ -147,6 +147,7 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
 
     if view_opt == 0x1234:
         IData = IFProcData(ifproc_file)
+        pl.clf()
         pl.plot(IData.azmap, IData.elmap)
         pl.xlabel('AzMap (")')
         pl.ylabel('ElMap (")')
