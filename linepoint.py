@@ -145,6 +145,15 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
         mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
         return 'lmtlp_%s.png'%file_ts,None,None,None
 
+    if view_opt == 0x1234:
+        IData = IFProcData(ifproc_file)
+        pl.plot(IData.azmap, IData.elmap)
+        pl.xlabel('AzMap (")')
+        pl.ylabel('ElMap (")')
+        pl.title(obsnum)
+        pl.savefig('%s_azelmap.png'%obsnum, bbox_inches='tight')
+        sys.exit(0)
+
     # probe the ifproc file for obspgm
     ifproc_file_quick = IFProcQuick(ifproc_file)
 
