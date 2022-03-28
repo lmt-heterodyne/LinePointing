@@ -152,7 +152,7 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
         pl.ylabel('ElMap (")')
         pl.title(obsnum)
         pl.savefig('%s_azelmap.png'%obsnum, bbox_inches='tight')
-        sys.exit(0)
+        return '%s_azelmap.png'%obsnum,None,None,None
 
     # probe the ifproc file for obspgm
     ifproc_file_quick = IFProcQuick(ifproc_file)
