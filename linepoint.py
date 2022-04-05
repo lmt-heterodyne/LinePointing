@@ -40,7 +40,9 @@ def write_pointing_log_header(ofile):
     # Col 26 27 total azoff, eloff
     ofile.write('AzTotalOff,ElTotalOff,')
     # Col 28 29 model
-    ofile.write('AzPointModelCor,ElPointModelCor\n')
+    ofile.write('AzPointModelCor,ElPointModelCor,')
+    # Col 30 ambient temp
+    ofile.write('AmbientTemp\n')
 
 def write_pointing_log_entry(F,B,ofile):
     """Writes a log entry with pointing data for this fit to a file."""
@@ -109,11 +111,14 @@ def write_pointing_log_entry(F,B,ofile):
                         np.mean(B.peak_fit_params[:,3])+F.el_total-F.el_receiver-F.el_m2)
                 )
     # Col 28 29 model
-    ofile.write('{:.1f},{:.1f}\n'
+    ofile.write('{:.1f},{:.1f},'
                 .format(F.az_point_model_cor,
                         F.el_point_model_cor)
                 )
-
+    # Col Ambient Temp
+    ofile.write('{:.2f}\n'
+                .format(F.weather_temperature)
+               )
 
 def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
 
