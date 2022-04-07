@@ -11,7 +11,16 @@ def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsy
     image_files = []
     for i,obsN in enumerate(obsNumList):
       print('look for obsnum', obsN)
-      results_str = lmtlp_reduce_cli(None, 0, str(obsN), opt=opt, line_list=line_list, baseline_list=baseline_list, baseline_fit_order=baseline_fit_order, tsys=tsys, tracking_beam=tracking_beam)
+      args_dict = dict()
+      args_dict['ObsNum'] = obsN
+      args_dict['SpecOrCont'] = 'Cont' if opt & 0x1000 else 'Spec'
+      args_dict['LineList'] = line_list
+      args_dict['BaselineList'] = baseline_list
+      args_dict['BaselineFitOrder'] = baseline_fit_order
+      args_dict['TSys'] = tsys
+      args_dict['TrackingBeam'] = tracking_beam
+      args_dict['Opt'] = opt
+      results_str = lmtlp_reduce_cli(None, 0, args_dict)
       print(results_str)
       results_dict = json.loads(results_str)
       status = results_dict['status']
@@ -36,6 +45,7 @@ def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsy
 if __name__ == '__main__':
     opt = 0
     obsNumList = list(range(94823, 94832+1, 1))
+    obsNumList = list(range(97764, 97767+1, 1))
     print(obsNumList)
 
     if len(sys.argv) > 2:
