@@ -172,6 +172,8 @@ class m2fit():
             print('par', par)
             print('xpos', self.scans_xpos)
             print('pcor', pcor)
+            if len(I) <= 2:
+                raise Exception("Only %d data points are above half max"%len(I))
             ptpinv = numpy.linalg.inv(ptp)
             self.parameters[index,:] = numpy.dot(ptpinv,ptr)
             if self.parameters[index,2] != 0:
