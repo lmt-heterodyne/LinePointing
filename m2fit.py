@@ -139,7 +139,7 @@ class m2fit():
         if self.m2pos < 0: return
 
         mdata_max = numpy.amax(self.data, axis=0)
-        print(self.data)
+        print('data', self.data)
         print(mdata_max)
         for index in range(self.n):
             ptp = numpy.zeros((3,3))
@@ -168,6 +168,10 @@ class m2fit():
                         ptp[ii][jj] = ptp[ii][jj] + f[ii]*f[jj]
                     ptr[ii] = ptr[ii] + f[ii]*I[scan_id_good]
                 scan_id_good += 1
+            print('I', I)
+            print('par', par)
+            print('xpos', self.scans_xpos)
+            print('pcor', pcor)
             ptpinv = numpy.linalg.inv(ptp)
             self.parameters[index,:] = numpy.dot(ptpinv,ptr)
             if self.parameters[index,2] != 0:
