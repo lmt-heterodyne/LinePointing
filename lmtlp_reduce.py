@@ -9,8 +9,12 @@ def lmtlp_reduce(args_dict) :
 
     print ('args_dict = ', args_dict)
 
-    
-    plot_file,params,ifproc_file_data,lp_stats_all = linepoint(args_dict)
+
+    lp_dict = linepoint(args_dict)
+    plot_file = lp_dict['plot_file']
+    params = lp_dict['params']
+    ifproc_file_data = lp_dict['ifproc_data']
+    lp_stats_all = lp_dict['line_stats']
 
     results_dict = dict()
     if plot_file is not None:
@@ -50,6 +54,6 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     args_dict = dict()
-    args_dict['ObsNum'] = sys.argv[1]
+    args_dict['ObsNum'] = int(sys.argv[1])
     lmtlp_reduce(args_dict)
     plt.show()
