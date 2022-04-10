@@ -510,6 +510,7 @@ def linepoint(args_dict, view_opt=0):
             'ifproc_file': ifproc_file,
             'peak_fit_params': B.peak_fit_params,
             'peak_fit_errors': B.peak_fit_errors,
+            'clipped': B.clipped,
             'pixel_list': pixel_list
     }
 

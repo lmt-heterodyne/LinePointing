@@ -147,13 +147,19 @@ class BeamMap():
         self.peak_fit_status = np.zeros((self.n_pix_list))
         self.peak_fit_chisq = np.zeros((self.n_pix_list))
         self.model = []
+        self.clipped = False
         for i in range(self.n_pix_list):
             """ note that i is index to the pixels in the pix_list """
             ipix = self.pix_list[i]
             self.peak_fit_params[i,:],self.peak_fit_errors[i,:],self.peak_fit_status[i],self.peak_fit_chisq[i] = self.fit_peak(ipix,fit_circle)
+            az_off_unclipped = self.peak_fit_params[i,1]
             self.peak_fit_params[i,1] = np.clip(self.peak_fit_params[i,1], (self.BData.map_x[i]).min(), (self.BData.map_x[i]).max())
+            el_off_unclipped = self.peak_fit_params[i,3]
             self.peak_fit_params[i,3] = np.clip(self.peak_fit_params[i,3], (self.BData.map_y[i]).min(), (self.BData.map_y[i]).max())
             self.model.append(self.compute_model(ipix,self.peak_fit_params[i,:]))
+            if self.peak_fit_params[i,1] != az_off_unclipped or self.peak_fit_params[i,3] != el_off_unclipped:
+                self.clipped = True
+            
             
     def fit_grid(self):
         """ fits the grid parameters for the array given a list of gaussian fit results
