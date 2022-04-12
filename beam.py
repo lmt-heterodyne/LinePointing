@@ -108,8 +108,8 @@ class BeamMap():
         chisq = np.dot(residuals.transpose(),residuals)
         npts = self.BData.map_n[index]
         if lsq_cov is None:
-            lsq_err = None
-            lsq_snr = None
+            lsq_err = 0
+            lsq_snr = 0
         else:
             lsq_err = np.sqrt(np.diag(lsq_cov)*chisq/(npts-5))
             lsq_snr = lsq_fit/lsq_err
