@@ -12,8 +12,8 @@ def lmtlp_reduce(args_dict) :
 
     lp_dict = linepoint(args_dict)
     plot_file = lp_dict.get('plot_file', None)
-    params = lp_dict.get('params' None)
-    ifproc_file_data = lp_dict.get('ifproc_data'. None)
+    params = lp_dict.get('params', None)
+    ifproc_file_data = lp_dict.get('ifproc_data', None)
 
     results_dict = dict()
     if plot_file is not None:
