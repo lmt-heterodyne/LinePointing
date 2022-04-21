@@ -50,6 +50,7 @@ def linepoint(args_dict, view_opt=0):
         pl.ylabel('ElMap (")')
         pl.title('%d %s el=%lf'%(obsnum,IData.date_obs,IData.elev))
         pl.savefig('%s_azelmap.png'%obsnum, bbox_inches='tight')
+        pl.show()
         return {'plot_file': '%s_azelmap.png'%obsnum}
 
     # probe the ifproc file for obspgm
