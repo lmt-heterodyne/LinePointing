@@ -509,10 +509,10 @@ def linepoint(args_dict, view_opt=0):
             'ifproc_data': IData,
             'line_stats': line_stats_all,
             'ifproc_file': ifproc_file,
-            'peak_fit_params': B.peak_fit_params,
-            'peak_fit_errors': B.peak_fit_errors,
-            'peak_fit_snr': B.peak_fit_snr,
-            'clipped': B.clipped,
+            'peak_fit_params': B.peak_fit_params if B is not None else None,
+            'peak_fit_errors': B.peak_fit_errors if B is not None else None,
+            'peak_fit_snr': B.peak_fit_snr if B is not None else None,
+            'clipped': B.clipped if B is not None else None,
             'pixel_list': pixel_list
     }
 
