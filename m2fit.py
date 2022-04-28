@@ -175,6 +175,9 @@ class m2fit():
             if len(I) <= 2:
                 self.result_relative[index] = 0
                 self.result_absolute[index] = 0
+                self.msg = "Only %d data points are above half max"%len(I)
+                print(self.msg)
+                self.status = -1
             else:
                 ptpinv = numpy.linalg.inv(ptp)
                 self.parameters[index,:] = numpy.dot(ptpinv,ptr)
@@ -184,6 +187,9 @@ class m2fit():
                 else:
                     self.result_relative[index] = 0
                     self.result_absolute[index] = 0
+                    self.msg = "Problem in fit"
+                    print(self.msg)
+                    self.status = -1
 
 
     def fit_focus_model(self):
