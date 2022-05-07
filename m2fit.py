@@ -172,7 +172,7 @@ class m2fit():
             print('par', par)
             print('xpos', self.scans_xpos)
             print('pcor', pcor)
-            if len(I) <= 2:
+            if len(I) <= 2 or len(set(par)) <= 2:
                 self.result_relative[index] = 0
                 self.result_absolute[index] = 0
                 self.msg = "Only %d data points are above half max"%len(I)
