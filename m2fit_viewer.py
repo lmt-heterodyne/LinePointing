@@ -117,6 +117,9 @@ class m2fit_viewer():
                 ax.plot(paramfit.m2_position,paramfit.data[:,index],'o')
                 ax.plot(prange,model,'r')
                 pl.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
+                if paramfit.status < 0:
+                  props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+                  pl.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(paramfit.data[:,index]), paramfit.msg, bbox=props, color='red')
                 try:
                   pl.tick_params(axis='both',which='major',labelsize=6)
                 except:
