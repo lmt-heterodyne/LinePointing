@@ -12,123 +12,15 @@ import os
 import matplotlib.pyplot as pl
 from msg_image import mkMsgImage
 
-def write_pointing_log_header(ofile):
-    # Col 1 Flag
-    ofile.write('Flag,')
-    # Col 2 Date
-    ofile.write('Date,')
-    # Col 3 UTDate
-    ofile.write('UTDate,')
-    # Col 4 UT1 - hours
-    ofile.write('UT1,')
-    # Col 5 Obsnum
-    ofile.write('ObsNum,')
-    # Col 6 Source Name
-    ofile.write('Source,')
-    # Col 7,8 Az, El
-    ofile.write('Az,El,')
-    # Col 9,10,11 M2Z, M2Y, EL_M2
-    ofile.write('M2Z,M2Y,EL_M2,')
-    # Col 12,13,14,15 X and Y tilts and errors
-    ofile.write('TxPar,TxStd,TyPar,TyStd,')
-    # Col 16,17,18,19 Az, El Map offsets and Errors
-    ofile.write('AzMapOff,AzMapErr,ElMapOff,ElMapErr,')
-    # Col 20,21 HPBW ratio and error
-    ofile.write('HpbwRatio,HpbwRatioErr,')
-    # Col 22,23,24,25 sep, sep error, ang, ang_error
-    ofile.write('Sep,SepErr,Ang,AngErr,')
-    # Col 26 27 total azoff, eloff
-    ofile.write('AzTotalOff,ElTotalOff,')
-    # Col 28 29 model
-    ofile.write('AzPointModelCor,ElPointModelCor,')
-    # Col 30 ambient temp
-    ofile.write('AmbientTemp\n')
+def linepoint(args_dict, view_opt=0):
 
-def write_pointing_log_entry(F,B,ofile):
-    """Writes a log entry with pointing data for this fit to a file."""
-    # Col 1 Flag
-    ofile.write('1,')
-    # Col 2 Date
-    ofile.write('{:s},'
-                .format(F.date_ymd))
-    # Col 3 UTDate
-    ofile.write('{:0.5f},'
-                .format(np.mean(F.utdate))
-                )
-    # Col 4 UT1 - hours
-    ofile.write('{:.1f},'
-                .format(np.mean(F.ut1_h))
-                )
-    # Col 5 Obsnum
-    ofile.write('{:d},'
-                .format(F.obsnum)
-                )
-    # Col 6 Source Name
-    ofile.write('{:s},'
-                .format(F.source[0:12])
-                )
-    # Col 7,8 Az, El
-    ofile.write('{:.1f},{:.1f},'
-                .format(np.mean(F.azim),
-                        np.mean(F.elev))
-                )
-    # Col 9,10,11 M2Z, M2Y, EL_M2
-    ofile.write('{:.2f},{:.2f},{:.1f},'
-                .format(np.mean(F.m2z),
-                        np.mean(F.m2y),
-                        np.mean(F.el_m2))
-                )
-    # Col 12,13,14,15 X and Y tilts and errors
-    txpar,txstd = (np.mean(F.tilt0_x),np.std(F.tilt0_x))
-    typar,tystd = (np.mean(F.tilt0_y),np.std(F.tilt0_y))
-    ofile.write('{:.1f},{:.1f},{:.1f},{:.1f},'
-                .format(txpar,txstd,typar,tystd)
-                )
-    # Col 16,17,18,19 Az, El Map offsets and Errors
-    ofile.write('{:.1f},{:.1f},{:.1f},{:.1f},'
-                .format(np.mean(B.peak_fit_params[:,1]),
-                        np.mean(B.peak_fit_errors[:,1]),
-                        np.mean(B.peak_fit_params[:,3]),
-                        np.mean(B.peak_fit_errors[:,3]))
-                )
-    # Col 20,21 HPBW ratio and error
-    ofile.write('{:.3f},{:.3f},'
-                .format(np.mean(B.peak_fit_params[:,2])/np.mean(B.peak_fit_params[:,4]),
-                        np.mean(B.peak_fit_errors[:,2])/np.mean(B.peak_fit_errors[:,4]))
-
-                )
-    # Col 22,23,24,25 sep, sep error, ang, ang_error
-    ofile.write('{:.1f},{:.1f},{:.1f},{:.1f},'
-                .format(0,
-                        0,
-                        0,
-                        0,
-                        0)
-                )
-    # Col 26 27 total azoff, eloff
-    ofile.write('{:.1f},{:.1f},'
-                .format(np.mean(B.peak_fit_params[:,1])+F.az_total-F.az_receiver-F.az_m2,
-                        np.mean(B.peak_fit_params[:,3])+F.el_total-F.el_receiver-F.el_m2)
-                )
-    # Col 28 29 model
-    ofile.write('{:.1f},{:.1f},'
-                .format(F.az_point_model_cor,
-                        F.el_point_model_cor)
-                )
-    # Col Ambient Temp
-    ofile.write('{:.2f}\n'
-                .format(F.weather_temperature)
-               )
-
-def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
-
-    obsnum = (args_dict.get('ObsNum', 'None'))
+    obsnum = (args_dict.get('ObsNum', None))
     spec_cont = (args_dict.get('SpecOrCont', 'Spec')).lower()
-    line_list = (args_dict.get('LineList', 'None'))
-    baseline_list = (args_dict.get('BaselineList', 'None'))
-    baseline_fit_order = (args_dict.get('BaselineFitOrder', '0'))
-    tsys = (args_dict.get('TSys', 'None'))
-    tracking_beam = (args_dict.get('TrackingBeam', 'None'))
+    line_list = (args_dict.get('LineList', None))
+    baseline_list = (args_dict.get('BaselineList', None))
+    baseline_fit_order = (args_dict.get('BaselineFitOrder', 0))
+    tsys = (args_dict.get('TSys', None))
+    tracking_beam = (args_dict.get('TrackingBeam', None))
     opt = (args_dict.get('Opt', 0))
 
     print('args = ', obsnum, spec_cont, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam, opt)
@@ -148,7 +40,7 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
         txt = 'No ifproc files found for %d'%obsnum
         print (txt)
         mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
-        return 'lmtlp_%s.png'%file_ts,None,None,None
+        return {'plot_file': 'lmtlp_%s.png'%file_ts}
 
     if view_opt == 0x1234:
         IData = IFProcData(ifproc_file)
@@ -158,7 +50,8 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
         pl.ylabel('ElMap (")')
         pl.title('%d %s el=%lf'%(obsnum,IData.date_obs,IData.elev))
         pl.savefig('%s_azelmap.png'%obsnum, bbox_inches='tight')
-        return '%s_azelmap.png'%obsnum,None,None,None
+        pl.show()
+        return {'plot_file': '%s_azelmap.png'%obsnum}
 
     # probe the ifproc file for obspgm
     ifproc_file_quick = IFProcQuick(ifproc_file)
@@ -223,7 +116,7 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
         
         params = np.zeros((1,1))
         params[0,0] = np.mean(ICal.tsys)
-        return 'lmtlp_%s.png'%file_ts,params,ICal,None
+        return {'plot_file': 'lmtlp_%s.png'%file_ts, 'params' : params, 'ifproc_data': ICal}
 
     # not a Cal
     # not a Cal
@@ -295,7 +188,7 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
             txt = 'No roach files found for %d in %s' % (obsnum,str(roach_dir_list))
             print (txt)
             mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
-            return 'lmtlp_%s.png'%file_ts,None,None,None
+            return {'plot_file': 'lmtlp_%s.png'%file_ts}
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
@@ -609,12 +502,19 @@ def linepoint(args_dict, view_opt=0, pointing_log_fp=None):
 
         pl.show()
 
-    if pointing_log_fp is not None and B:
-        write_pointing_log_entry(IData,B,pointing_log_fp)
-
     print ('plot_file', 'lmtlp_%s.png'%file_ts)
     print ('params', params)
-    return 'lmtlp_%s.png'%file_ts,params,IData,line_stats_all
+    return {'plot_file': 'lmtlp_%s.png'%file_ts,
+            'params': params,
+            'ifproc_data': IData,
+            'line_stats': line_stats_all,
+            'ifproc_file': ifproc_file,
+            'peak_fit_params': B.peak_fit_params if B is not None else None,
+            'peak_fit_errors': B.peak_fit_errors if B is not None else None,
+            'peak_fit_snr': B.peak_fit_snr if B is not None else None,
+            'clipped': B.clipped if B is not None else None,
+            'pixel_list': pixel_list
+    }
 
 if __name__ == '__main__':
     # define options, 0 = write spec file only, 1 = plot, 2 = generate grid
@@ -662,8 +562,6 @@ if __name__ == '__main__':
         pass
 
     if obsNum > 0:
-        ofile = open('seq.csv', 'w')
-        write_pointing_log_header(ofile)
         args_dict = dict()
         args_dict['ObsNum'] = obsNum
         args_dict['SpecOrCont'] = 'Cont' if opt & 0x1000 else 'Spec'
@@ -675,7 +573,8 @@ if __name__ == '__main__':
         args_dict['Opt'] = opt
     
         
-        linepoint(args_dict, view_opt=opt, pointing_log_fp=ofile)
+        lp_dict = linepoint(args_dict, view_opt=opt)
+        print(lp_dict)
 
         # show plot
         if opt & 0x1:

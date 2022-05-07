@@ -107,20 +107,24 @@ class BeamMap():
         residuals = compute_the_residuals(lsq_fit,self.BData.map_x[index][spec_list],self.BData.map_y[index][spec_list],scan[spec_list])
         chisq = np.dot(residuals.transpose(),residuals)
         npts = self.BData.map_n[index]
-        print('peak fit chisq = %f     rms = %f'%(chisq,np.sqrt(chisq/npts)))
-        #print 'lsq_fit',lsq_fit
-        #print 'lsq_cov',lsq_cov
-        #print 'lsq_msg',lsq_msg
-        #print 'lsq_success',lsq_success
         if lsq_cov is None:
             lsq_err = 0
+            lsq_snr = 0
         else:
             lsq_err = np.sqrt(np.diag(lsq_cov)*chisq/(npts-5))
+            lsq_snr = lsq_fit/lsq_err
         if lsq_success > 4:
             lsq_status = False
         else:
             lsq_status = True
-        return(lsq_fit,lsq_err,lsq_status,chisq)
+        print('peak fit chisq = %f     rms = %f'%(chisq,np.sqrt(chisq/npts)))
+        print('lsq_fit',lsq_fit)
+        print('lsq_cov',lsq_cov)
+        print('lsq_msg',lsq_msg)
+        print('lsq_success',lsq_success)
+        print('lsq_err',lsq_err)
+        print('lsq_snr',lsq_snr)
+        return(lsq_fit,lsq_err,lsq_status,chisq,lsq_snr)
 
     def compute_model(self,ipix,params):
         """ computes a model scan for the fit to a single peak
@@ -146,14 +150,21 @@ class BeamMap():
         self.peak_fit_errors = np.zeros((self.n_pix_list,5))
         self.peak_fit_status = np.zeros((self.n_pix_list))
         self.peak_fit_chisq = np.zeros((self.n_pix_list))
+        self.peak_fit_snr = np.zeros((self.n_pix_list,5))
         self.model = []
+        self.clipped = False
         for i in range(self.n_pix_list):
             """ note that i is index to the pixels in the pix_list """
             ipix = self.pix_list[i]
-            self.peak_fit_params[i,:],self.peak_fit_errors[i,:],self.peak_fit_status[i],self.peak_fit_chisq[i] = self.fit_peak(ipix,fit_circle)
+            self.peak_fit_params[i,:],self.peak_fit_errors[i,:],self.peak_fit_status[i],self.peak_fit_chisq[i],self.peak_fit_snr[i,:] = self.fit_peak(ipix,fit_circle)
+            az_off_unclipped = self.peak_fit_params[i,1]
             self.peak_fit_params[i,1] = np.clip(self.peak_fit_params[i,1], (self.BData.map_x[i]).min(), (self.BData.map_x[i]).max())
+            el_off_unclipped = self.peak_fit_params[i,3]
             self.peak_fit_params[i,3] = np.clip(self.peak_fit_params[i,3], (self.BData.map_y[i]).min(), (self.BData.map_y[i]).max())
             self.model.append(self.compute_model(ipix,self.peak_fit_params[i,:]))
+            if self.peak_fit_params[i,1] != az_off_unclipped or self.peak_fit_params[i,3] != el_off_unclipped:
+                self.clipped = True
+            
             
     def fit_grid(self):
         """ fits the grid parameters for the array given a list of gaussian fit results

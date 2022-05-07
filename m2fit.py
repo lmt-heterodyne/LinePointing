@@ -172,14 +172,24 @@ class m2fit():
             print('par', par)
             print('xpos', self.scans_xpos)
             print('pcor', pcor)
-            ptpinv = numpy.linalg.inv(ptp)
-            self.parameters[index,:] = numpy.dot(ptpinv,ptr)
-            if self.parameters[index,2] != 0:
-                self.result_relative[index] = -self.parameters[index,1]/self.parameters[index,2]/2.
-                self.result_absolute[index] = self.result_relative[index] + numpy.mean(pcor)
+            if len(I) <= 2 or len(set(par)) <= 2:
+                self.result_relative[index] = 0
+                self.result_absolute[index] = 0
+                self.msg = "Only %d data points are above half max"%len(I)
+                print(self.msg)
+                self.status = -1
             else:
-                self.result_relative[index] = None
-                self.result_absolute[index] = None
+                ptpinv = numpy.linalg.inv(ptp)
+                self.parameters[index,:] = numpy.dot(ptpinv,ptr)
+                if self.parameters[index,2] != 0:
+                    self.result_relative[index] = -self.parameters[index,1]/self.parameters[index,2]/2.
+                    self.result_absolute[index] = self.result_relative[index] + numpy.mean(pcor)
+                else:
+                    self.result_relative[index] = 0
+                    self.result_absolute[index] = 0
+                    self.msg = "Problem in fit"
+                    print(self.msg)
+                    self.status = -1
 
 
     def fit_focus_model(self):
