@@ -38,7 +38,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
             return -1
         if ifproc_file_data_1.obspgm == 'Cal':
             continue
-        if ifproc_file_data_1.obspgm == 'Bs' or ifproc_file_data_1.obspgm == 'Ps':
+        if ifproc_file_data_1.obspgm == 'Bs' or ifproc_file_data_1.obspgm == 'Ps' or ifproc_file_data_1.obspgm == 'Map':
             lp_merge_params += [float(peaks[i])]
         else:
             lp_merge_params += [1]
