@@ -35,9 +35,10 @@ def merge_focus(mags, files):
             thumb_size =  max_width/num_thumbs
         else:
             thumb_size = 0
-        total_height += thumb_size
         thumb_offset = int(0.98*thumb_size)
         thumb_size = int(0.82*thumb_size)
+        thumb_y_offset = point_images[0].size[1]*thumb_size/point_images[0].size[0]
+        total_height += thumb_y_offset
 
         new_im = Image.new('RGB', (int(max_width), int(total_height)), 'white')
 
@@ -46,23 +47,24 @@ def merge_focus(mags, files):
         im = fit_images[0]
         new_im.paste(im.resize((int(max_width), int(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (x_offset,y_offset))
 
-        x_offset = thumb_offset-thumb_size
-        y_offset += im.size[1]*max_width/im.size[0]
+        x_offset = thumb_offset-thumb_size/2
+        y_offset += im.size[1]*max_width/im.size[0]+thumb_y_offset
         a = np.abs(np.array(mags))
         print('a', a)
         amax = np.max(a)
         for i,im in enumerate(point_images):
             if amax != 0:
-                thumb_height = int(a[i]/amax*thumb_size)
+                thumb_width  = int(a[i]/amax*thumb_size)
+                thumb_height = int(im.size[1]*thumb_width/im.size[0])
             else:
                 thumb_height = thumb_size
             if thumb_height <= 0:
                 thumb_height = 1
-            new_im.paste(im.resize((math.ceil(thumb_height), math.ceil(thumb_height)), Image.ANTIALIAS), (math.ceil(x_offset+thumb_size/2-thumb_height/2), math.ceil(y_offset+thumb_offset-thumb_height)))
+            new_im.paste(im.resize((math.ceil(thumb_width), math.ceil(thumb_height)), Image.ANTIALIAS), (math.ceil(x_offset-thumb_width/2), math.ceil(y_offset-thumb_height)))
             x_offset += thumb_offset
 
         x_offset = 0
-        y_offset += thumb_offset
+        #y_offset += thumb_offset
         im = fit_images[1]
         new_im.paste(im.resize((math.ceil(max_width), math.ceil(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (math.ceil(x_offset),math.ceil(y_offset)))
 
@@ -75,4 +77,5 @@ def merge_focus(mags, files):
         pass
 
 if __name__ == '__main__':
-    merge_focus(sys.argv[1], sys.argv[2:-1], sys.argv[-1])
+    #merge_focus(sys.argv[1], sys.argv[2:-1], sys.argv[-1])
+    merge_focus([2038.569733216587, 4884.6694603665765, 4592.468723424062, 2251.3286242376257], ['lmtlp_97764.png', 'lmtlp_97765.png', 'lmtlp_97766.png', 'lmtlp_97767.png', 'lf_fits_97767_1652563410021_53044.png', 'lf_model_97767_1652563410021_53044.png', 'lf_focus_97767.png'])
