@@ -335,7 +335,7 @@ def linepoint(args_dict, view_opt=0):
             params[0,1] = pixel_list[0]
             SV.set_figure(figure=1)
             SV.open_figure()
-            SV.plot_bs(SData,baseline_fit_order,plot_axis,line_stats)
+            SV.plot_bs(SData,baseline_fit_order,plot_axis,line_stats,line_list,baseline_list)
 
         # on
         elif obspgm == 'On':
