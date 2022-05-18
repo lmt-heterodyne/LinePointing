@@ -61,7 +61,10 @@ class m2fit_viewer():
         pl.xlabel(self.xlabel)
         pl.ylabel('Intensity')
         prange = numpy.arange(min(paramfit.m2_position)-.1,max(paramfit.m2_position)+.1,.1)
-        prange = numpy.arange(min(paramfit.scans_xpos)-.1,max(paramfit.scans_xpos)+.1,.1)
+        if len(paramfit.scans_xpos) > 0:
+          prange = numpy.arange(min(paramfit.scans_xpos)-.1,max(paramfit.scans_xpos)+.1,.1)
+        else:
+          prange = numpy.arange(0)
         
         plot_order = [1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16];
 
