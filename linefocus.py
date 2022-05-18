@@ -46,6 +46,7 @@ if __name__ == '__main__':
     opt = 0
     obsNumList = list(range(94823, 94832+1, 1))
     obsNumList = list(range(97764, 97767+1, 1))
+    obsNumList = list(range(99880, 99883+1, 1))
     print(obsNumList)
 
     if len(sys.argv) > 2:
@@ -60,6 +61,8 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         print('using default ObsNumList', obsNumList)
-    
-    linefocus(obsNumList, opt=opt, line_list=None, baseline_list=None, baseline_fit_order=0, tsys=200, tracking_beam=None)
+
+    line_list = None
+    baseline_list = None
+    linefocus(obsNumList, opt=opt, line_list=line_list, baseline_list=baseline_list, baseline_fit_order=0, tsys=200, tracking_beam=None)
 
