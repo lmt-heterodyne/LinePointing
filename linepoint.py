@@ -369,7 +369,7 @@ def linepoint(args_dict, view_opt=0):
 
             SV.set_figure(figure=1)
             SV.open_figure()
-            SV.plot_ps(SData,baseline_fit_order,plot_axis,line_stats_all)
+            SV.plot_ps(SData,baseline_fit_order,plot_axis,line_stats_all,line_list,baseline_list)
 
         # grid map
         elif map_motion == 'Discrete':
@@ -379,7 +379,7 @@ def linepoint(args_dict, view_opt=0):
             # plot the spectra
             SV.set_figure(figure=1)
             SV.open_figure()
-            SV.plot_all_spectra(SData,selected_beam,plot_axis,SData.blist,SData.nb)
+            SV.plot_all_spectra(SData,selected_beam,plot_axis,SData.blist,SData.nb,line_list,baseline_list)
 
         # raster map
         elif map_motion == 'Continuous' or obspgm == 'Lissajous':
@@ -389,7 +389,7 @@ def linepoint(args_dict, view_opt=0):
             # show the peak spectrum
             SV.set_figure(figure=1)
             SV.open_figure()
-            SV.plot_peak_spectrum(SData,selected_beam,plot_axis,SData.blist,SData.nb)
+            SV.plot_peak_spectrum(SData,selected_beam,plot_axis,SData.blist,SData.nb,line_list,baseline_list)
 
         # save spectra plot
         pl.savefig('lmtlp_%s.png'%file_ts, bbox_inches='tight')
