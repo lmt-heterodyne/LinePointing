@@ -60,13 +60,13 @@ def merge_focus(mags, files):
                 thumb_height = thumb_size
             if thumb_height <= 0:
                 thumb_height = 1
-            new_im.paste(im.resize((math.ceil(thumb_width), math.ceil(thumb_height)), Image.ANTIALIAS), (math.ceil(x_offset-thumb_width/2), math.ceil(y_offset-thumb_height)))
+            new_im.paste(im.resize((int(math.ceil(thumb_width)), int(math.ceil(thumb_height))), Image.ANTIALIAS), (int(math.ceil(x_offset-thumb_width/2)), int(math.ceil(y_offset-thumb_height))))
             x_offset += thumb_offset
 
         x_offset = 0
         #y_offset += thumb_offset
         im = fit_images[1]
-        new_im.paste(im.resize((math.ceil(max_width), math.ceil(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (math.ceil(x_offset),math.ceil(y_offset)))
+        new_im.paste(im.resize((int(math.ceil(max_width)), int(math.ceil(im.size[1]*max_width/im.size[0]))), Image.ANTIALIAS), (int(math.ceil(x_offset)), int(math.ceil(y_offset))))
 
         new_im.save(new_file)
         #os.system('rm -f %s'%zip(image_files))
