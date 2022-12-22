@@ -306,8 +306,11 @@ def linepoint(args_dict, view_opt=0):
             for ipix in range(SData.npix):
                 SData.roach[ipix].reduce_spectra(stype=2,calibrate=use_calibration,tsys_spectrum=tsys_spectra[ipix],tsys_no_cal=tsys)
         elif obspgm == 'Bs':
-            SData.roach[0].reduce_ps_spectrum(stype=2,normal_ps=False,calibrate=use_calibration,tsys_spectrum=tsys_spectra[0],tsys_no_cal=tsys)
-            SData.roach[1].reduce_ps_spectrum(stype=2,normal_ps=True,calibrate=use_calibration,tsys_spectrum=tsys_spectra[1],tsys_no_cal=tsys)
+            dict_pix = {}
+            dict_pix[SData.roach[0].pixel] = 0
+            dict_pix[SData.roach[1].pixel] = 1
+            SData.roach[dict_pix[bs_beams[0]]].reduce_ps_spectrum(stype=2,normal_ps=True,calibrate=use_calibration,tsys_spectrum=tsys_spectra[dict_pix[bs_beams[0]]],tsys_no_cal=tsys)
+            SData.roach[dict_pix[bs_beams[1]]].reduce_ps_spectrum(stype=2,normal_ps=False,calibrate=use_calibration,tsys_spectrum=tsys_spectra[dict_pix[bs_beams[1]]],tsys_no_cal=tsys)
         elif obspgm == 'Ps':
             for ipix in range(SData.npix):
                 SData.roach[ipix].reduce_ps_spectrum(stype=2,normal_ps=True,calibrate=use_calibration,tsys_spectrum=tsys_spectra[ipix],tsys_no_cal=tsys)
