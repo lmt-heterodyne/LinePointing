@@ -146,7 +146,7 @@ class m2fit_viewer():
                 titleObsNum = paramfit.obsnum
             else:
                 titleObsNum = obsNumArg
-            pl.suptitle('ObsNum: %s %s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
+            pl.title('ObsNum: %s %s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
 
     def plot_focus_model_fit(self,paramfit,obsNumArg=False):
         """Plots data and focus model fit."""
