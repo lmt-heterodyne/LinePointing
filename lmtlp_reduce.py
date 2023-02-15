@@ -41,11 +41,14 @@ def lmtlp_reduce(args_dict) :
         results_dict['az_user_off'] = ifproc_file_data.az_user / 206264.8
         results_dict['el_user_off'] = ifproc_file_data.el_user / 206264.8
         results_dict['obspgm'] = ifproc_file_data.obspgm
-        for a in ['peak_fit_params', 'peak_fit_errors', 'peak_fit_snr', 'clipped', 'pixel_list']:
-            obj = lp_dict[a]
-            if isinstance(obj, (numpy.ndarray,)):
-                obj = obj.tolist()
-            results_dict[a] = obj
+        try:
+            for a in ['peak_fit_params', 'peak_fit_errors', 'peak_fit_snr', 'clipped', 'pixel_list']:
+                obj = lp_dict[a]
+                if isinstance(obj, (numpy.ndarray,)):
+                    obj = obj.tolist()
+                results_dict[a] = obj
+        except Exception as e:
+            print('----------------', e)
     else:
         results_dict['status'] = -1
     results_str = json.dumps(results_dict)
