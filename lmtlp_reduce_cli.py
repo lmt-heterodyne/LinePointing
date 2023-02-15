@@ -33,7 +33,10 @@ def lmtlp_reduce_cli(host, port, args_dict) :
 
     s = socket.socket()
     s.connect((host, port))
-    s.send(json.dumps(args_dict))
+    try:
+        s.send(json.dumps(args_dict))
+    except:
+        s.send(json.dumps(args_dict).encode())
 
     res = np.zeros(1)
     print ('recv size', res.itemsize*1)
