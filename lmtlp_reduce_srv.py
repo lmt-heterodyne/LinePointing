@@ -16,10 +16,10 @@ class LmtlpReduceSrv :
         self.bufsize    = 8192
         self.thisHost       = '0.0.0.0'
         self.debug = 0x0
-        if(self.debug & 0x1): print("debug ", 0x1)
+        if(self.debug & 0x1): print(("debug ", 0x1))
 
         #open listen port 
-        print("listen at port %d" % self.listenPort)
+        print(("listen at port %d" % self.listenPort))
         self.tcpServerSock = socket(AF_INET, SOCK_STREAM)
         self.tcpServerSock.setsockopt(SOL_SOCKET, SO_REUSEADDR,1)
         self.tcpServerSock.bind((self.thisHost, self.listenPort))
@@ -41,8 +41,8 @@ class LmtlpReduceSrv :
                         print('closing socket...')
                     break
 
-                print ('args_str', args_str)
-                print ('args_str.decode', args_str.decode())
+                print(('args_str', args_str))
+                print(('args_str.decode', args_str.decode()))
                 results_str = self.manageCommand(args_str.decode())
                 results_dict = json.loads(results_str)
 
@@ -55,8 +55,8 @@ class LmtlpReduceSrv :
 
                 res = np.zeros(1)
                 res[0] = len(results_str)
-                print ('results_str len =', res[0])
-                print ('results_str =', results_str)
+                print(('results_str len =', res[0]))
+                print(('results_str =', results_str))
                 conn.send(res.tobytes())
                 conn.send(results_str.encode())
                 if plotfile is not None:
