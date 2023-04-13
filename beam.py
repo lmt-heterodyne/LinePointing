@@ -85,6 +85,14 @@ class BeamMap():
         index = self.BData.find_map_pixel_index(ipix)
         theMax = np.max(self.BData.map_data[index][:])
         peak_index = np.where(self.BData.map_data[index][:] == theMax)
+        if len(peak_index[0]) == 0:
+            print('no peak found', index, peak_index)
+            lsq_fit = 0
+            lsq_err = 0
+            lsq_status = False
+            chisq = 0
+            lsq_snr = 0
+            return(lsq_fit,lsq_err,lsq_status,chisq,lsq_snr)
         xp = self.BData.map_x[index][peak_index][0]
         yp = self.BData.map_y[index][peak_index][0]
         print('found_peak',ipix,index,theMax,peak_index[0][0],xp,yp,theMax)
