@@ -99,7 +99,11 @@ def linepoint(args_dict, view_opt=0):
                 pl.plot(x,y,'.')
             pl.legend(legend,prop={'size': 10})
         else:
-            nrows = int(ICal.npix/4)
+            if ICal.npix >= 16:
+                ncols = 4
+            else:
+                ncols = 1
+            nrows = int(ICal.npix/ncols)
             plot_scale = 0.0
             for ipix in range(ICal.npix):
                 if ICal.tsys[ipix] < 500:
@@ -108,9 +112,13 @@ def linepoint(args_dict, view_opt=0):
             colors = pl.rcParams['axes.prop_cycle']
             colors = [c['color'] for c in colors]
             plot_order = [1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16]
+            print(nrows)
             for ipix in range(ICal.npix):
-                ipix1 = plot_order[(ipix%len(plot_order))]+int(ipix/len(plot_order))*len(plot_order) #ipix+1)
-                ax = pl.subplot(nrows, 4, ipix1)
+                if ncols == 1:
+                    ipix1 = ipix+1
+                else:
+                    ipix1 = plot_order[(ipix%len(plot_order))]+int(ipix/len(plot_order))*len(plot_order) #ipix+1)
+                ax = pl.subplot(nrows, ncols, ipix1)
                 ax.tick_params(axis='both', which='major', labelsize=6)
                 ax.tick_params(axis='both', which='minor', labelsize=6)
                 label = '%2d %6.1f'%(ipix,ICal.tsys[ipix])
