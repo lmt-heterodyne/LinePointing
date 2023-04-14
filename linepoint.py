@@ -26,13 +26,14 @@ def linepoint(args_dict, view_opt=0):
     print('args = ', obsnum, spec_cont, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam, opt)
     
 
-    roach_pixels_all = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]
+    roach_pixels_all = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],
+                        [16,17,18,19],[20,21,22,23],[24,25,26,27],[28,29,30,31]]
 
     # define time stamp
     file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
 
     # define roach_list, can be modified if tracking a specific pixel
-    roach_list = [0,1,2,3]
+    roach_list = [0,1,2,3,4,5,6,7]
 
     # read the ifproc file to get the data and the tracking beam
     ifproc_file = lookup_ifproc_file(obsnum)
@@ -69,7 +70,7 @@ def linepoint(args_dict, view_opt=0):
         ICal.compute_calcons()
         ICal.compute_tsys()
         for ipix in range(ICal.npix):
-            print ('Tsys[%2d] = %6.1f'%(ipix,ICal.tsys[ipix]))
+            print ('IFPROC Tsys[%2d] = %6.1f'%(ipix,ICal.tsys[ipix]))
         if ICal.receiver == 'Msip1mm':
             msip1mm_pixel_description = {0: 'P0_USB',
                                          1: 'P0_LSB',
@@ -118,8 +119,9 @@ def linepoint(args_dict, view_opt=0):
                 #color = next(colors)['color']
                 color = colors[ipix%len(colors)]
                 ax.plot(x,y,'.', color=color)
+                plot_scale = np.mean(ICal.level[:,ipix])+np.min(ICal.level[:,ipix])
                 ax.text(x[-1]/2, plot_scale/2, label, verticalalignment='center', horizontalalignment='center', zorder=10)
-                if plot_scale != 0:
+                if False and plot_scale != 0:
                     ax.set_ylim(0, plot_scale * 1.1)
         pl.suptitle("TSys %s ObsNum: %d"%(ICal.receiver,ICal.obsnum))
         pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
@@ -176,7 +178,7 @@ def linepoint(args_dict, view_opt=0):
             roach_list = find_roach_from_pixel(tracking_beam)
 
     if False:
-        roach_list = [0,1,2,3]
+        roach_list = [0,1,2,3,4,5,6,7]
     # build the roach directory list
     roach_dir_list = [ 'roach%d'%i for i in roach_list]
 
@@ -299,13 +301,13 @@ def linepoint(args_dict, view_opt=0):
                 ICal.compute_calcons()
                 ICal.compute_tsys()
                 for ipix in range(ICal.npix):
-                    print ('Tsys[%2d] = %6.1f'%(ipix,ICal.tsys[ipix]))
+                    print ('IFPROC Tsys[%2d] = %6.1f'%(ipix,ICal.tsys[ipix]))
             else:
                 SCal = SpecBankCal(cal_files,ICal,pixel_list=pixel_list)
                 check_cal = SCal.test_cal(SData)
                 for ipix in range(SData.npix):
                     tsys_spectra.append(SCal.roach[ipix].tsys_spectrum)
-                    print ('Tsys[%2d] = %6.1f'%(ipix,SCal.roach[ipix].tsys))
+                    print ('SPEC Tsys[%2d] = %6.1f'%(ipix,SCal.roach[ipix].tsys))
                 if check_cal > 0:
                     print ('WARNING: CAL MAY NOT BE CORRECT')
 
