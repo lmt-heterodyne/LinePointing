@@ -26,14 +26,13 @@ def linepoint(args_dict, view_opt=0):
     print('args = ', obsnum, spec_cont, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam, opt)
     
 
-    roach_pixels_all = [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],
-                        [16,17,18,19],[20,21,22,23],[24,25,26,27],[28,29,30,31]]
+    roach_pixels_all = [[i+j*4 for i in range(4)] for j in range(8)]
 
     # define time stamp
     file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
 
     # define roach_list, can be modified if tracking a specific pixel
-    roach_list = [0,1,2,3,4,5,6,7]
+    roach_list = range(8)
 
     # read the ifproc file to get the data and the tracking beam
     ifproc_file = lookup_ifproc_file(obsnum)
@@ -186,7 +185,7 @@ def linepoint(args_dict, view_opt=0):
             roach_list = find_roach_from_pixel(tracking_beam)
 
     if False:
-        roach_list = [0,1,2,3,4,5,6,7]
+        roach_list = range(8)
     # build the roach directory list
     roach_dir_list = [ 'roach%d'%i for i in roach_list]
 
@@ -606,7 +605,7 @@ if __name__ == '__main__':
         args_dict['LineList'] = None
         args_dict['BaselineList'] = None
         args_dict['BaselineFitOrder'] = 0
-        args_dict['TSys'] = None
+        args_dict['TSys'] = 0
         args_dict['TrackingBeam'] = None
         args_dict['Opt'] = opt
     
