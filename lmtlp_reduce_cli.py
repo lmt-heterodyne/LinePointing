@@ -43,7 +43,19 @@ def lmtlp_reduce_cli(host, port, args_dict) :
     msg = s.recv(res.itemsize*1)
     res = np.frombuffer(msg)
     print ('results_str len =', res[0])
-    results_str = s.recv(int(res[0])).decode()
+    snd_len = int(res[0])
+    results_str = ''
+    while True:
+        print('expect len = ', snd_len)
+        recv_str = s.recv(snd_len).decode()
+        results_str += recv_str
+        rcv_len = len(recv_str)
+        print('rcv len = ', rcv_len)
+        if len(results_str) < snd_len:
+            snd_len -= rcv_len
+        else:
+            break
+
     print ('results_str =', results_str)
     results_dict = json.loads(results_str)
     status = results_dict['status']
