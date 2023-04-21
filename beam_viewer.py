@@ -133,13 +133,13 @@ class BeamMapView():
             pass
         pl.colorbar()
 
-    def map(self,B,map_region,grid_spacing,apply_grid_corrections=False):
+    def map(self,B,map_region,grid_spacing,apply_grid_corrections=False,display_coord=None):
         """ map aligns all maps on the sky using nominal grid and averages the maps
             B is BeamMap object with data and fits
             map_region is the extent of the map: [low left, low right, high left, high right] (arcsec)
             grid_spacing is the size of the map cells (arcsec)
         """
-        print(B.BData.receiver)
+        print(B.BData.receiver, B.BData.map_coord)
         g = Grid(B.BData.receiver)
         if B.BData.map_coord == 0:
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
@@ -158,12 +158,45 @@ class BeamMapView():
         else:
             gxl = np.zeros(B.n_pix_list)
             gyl = np.zeros(B.n_pix_list)
+        if display_coord is None:
+            map_x = B.BData.map_x
+            map_y = B.BData.map_y
+            label_x = 'Az'
+            label_y = 'El'
+        elif display_coord == 0:
+            map_x = B.BData.map_az
+            map_y = B.BData.map_el
+            label_x = 'Az'
+            label_y = 'El'
+        elif display_coord == 1:
+            map_x = B.BData.map_ra
+            map_y = B.BData.map_dec
+            label_x = 'Ra'
+            label_y = 'Dec'
+        elif display_coord == 2:
+            map_x = B.BData.map_l
+            map_y = B.BData.map_b
+            label_x = 'L'
+            label_y = 'B'
+        elif display_coord == 11:
+            map_x = B.BData.map_ra
+            map_y = B.BData.map_dec
+            label_x = 'Ra-interp'
+            label_y = 'Dec-interp'
+        elif display_coord == 21:
+            map_x = B.BData.map_l
+            map_y = B.BData.map_b
+            label_x = 'Ra-astropy'
+            label_y = 'Dec-astropy'
+            
         if not map_region:
             map_region = [0, 0, 0, 0]
-            map_region[0] = 1.1*(B.BData.map_x[0]).min()
-            map_region[1] = 1.1*(B.BData.map_x[0]).max()
-            map_region[2] = 1.1*(B.BData.map_y[0]).min()
-            map_region[3] = 1.1*(B.BData.map_y[0]).max()
+            map_region[0] = 1.1*(map_x[0]).min()
+            map_region[1] = 1.1*(map_x[0]).max()
+            map_region[2] = 1.1*(map_y[0]).min()
+            map_region[3] = 1.1*(map_y[0]).max()
+            #np.set_printoptions(threshold=sys.maxsize)
+            #print(map_x, map_y)
             print ('map_region', map_region)
         nx = int((map_region[1]-map_region[0])/grid_spacing+1)
         ny = int((map_region[3]-map_region[2])/grid_spacing+1)
@@ -182,23 +215,24 @@ class BeamMapView():
             wdata = np.ones(len(B.BData.map_data[index]))
             try: 
                 print('trying scipy.interpolate.griddata')
-                zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
-                wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+                zi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
+                wi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
             except Exception as e:
                 print(e)
                 try:
-                    zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
-                    wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+                    zi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
+                    wi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
                 except:
-                    zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
-                    wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
+                    zi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
+                    wi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
+        pl.plot(map_x[index],map_y[index])
         pl.axis('equal')
         pl.grid()
-        pl.xlabel('Azimuth (")')
-        pl.ylabel('Elevation (")')
+        pl.xlabel('%s (")'%label_x)
+        pl.ylabel('%s (")'%label_y)
         isGood = np.zeros((B.n_pix_list))
         isGood = (B.peak_fit_status[:] != 5)
         az_map_offset = B.peak_fit_params[np.nonzero(isGood),1]
