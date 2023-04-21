@@ -137,16 +137,24 @@ def linepoint(args_dict, view_opt=0):
             merge_png(['lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
         else:
             files,nfiles = lookup_roach_files(obsnum)
-            SCal = SpecBankCal(files,ICal)
-            # create viewer
-            SV = SpecCalViewer()
-            SV.set_figure(figure=1)
-            SV.open_figure()
-            SV.plot_tsys(SCal)
-            pl.savefig('lmtlp_%s.png'%file_ts, bbox_inches='tight')
+            if len(files) == 1:
+                files = [files]
+            else:
+                files = [files[i:i+4] for i in range(0, len(files), 4)] 
+            fnames = []
+            for bank in range(len(files)):
+                SCal = SpecBankCal(files[bank],ICal,bank=bank)
+                # create viewer
+                SV = SpecCalViewer()
+                SV.set_figure(figure=1+bank)
+                SV.open_figure()
+                SV.plot_tsys(SCal)
+                fnames += ['lmtlp_%s_%d.png'%(file_ts, bank)]
+                pl.savefig(fnames[-1], bbox_inches='tight')
 
             # merge plots
-            merge_png(['lmtlp_%s.png'%file_ts, 'lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
+            print(fnames)
+            merge_png(fnames+['lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
         
         params = np.zeros((1,1))
         params[0,0] = np.mean(ICal.tsys)
@@ -223,6 +231,8 @@ def linepoint(args_dict, view_opt=0):
             print (txt)
             mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
             return {'plot_file': 'lmtlp_%s.png'%file_ts}
+        if nfiles > 4:
+            files = files[0:4]
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
@@ -299,6 +309,8 @@ def linepoint(args_dict, view_opt=0):
         ifproc_cal_file = ''
         if calobsnum > 0:
             cal_files,ncalfiles = lookup_roach_files(calobsnum,roach_dir_list)
+            if ncalfiles > 4:
+                cal_files = cal_files[0:4]
             ifproc_cal_file = lookup_ifproc_file(calobsnum)
         if ifproc_cal_file == '':
             use_calibration = False
