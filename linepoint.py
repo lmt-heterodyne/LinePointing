@@ -135,7 +135,7 @@ def linepoint(args_dict, view_opt=0):
             files,nfiles = lookup_roach_files(obsnum)
             if ICal.receiver == 'Msip1mm':
                 bank_files = [files, files]
-                bank_pixel_list = [[0, 1], [2, 3]]
+                bank_pixel_list = [[0, 3], [1, 2]]
             else:
                 bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
                 bank_pixel_list = 2*[list(range(16))]
@@ -228,7 +228,7 @@ def linepoint(args_dict, view_opt=0):
 
     if IData.receiver == 'Msip1mm':
         bank_files = [files, files]
-        bank_pixel_list = [[0, 1], [2, 3]]
+        bank_pixel_list = [[0, 3], [1, 2]]
         if selected_beam in bank_pixel_list[0]:
             bank = 0
         else:
