@@ -179,6 +179,8 @@ def linepoint(args_dict, view_opt=0):
         tracking_beam = None
     if tracking_beam == None:
         tracking_beam = IData.tracking_beam
+    if False and tracking_beam == -1:
+        tracking_beam = selected_beam
     if tracking_beam != -1:
         selected_beam = tracking_beam
         if bs_beams != []:
@@ -521,10 +523,17 @@ def linepoint(args_dict, view_opt=0):
             BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=0)
             BV.set_figure(figure=4)
             BV.open_figure()
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=11)
+            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=1)
             BV.set_figure(figure=5)
             BV.open_figure()
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=21)
+            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=2)
+            if False:
+                BV.set_figure(figure=6)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=11)
+                BV.set_figure(figure=7)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=21)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
             if spec_cont == 'cont':
                 BV.set_figure(figure=10)
