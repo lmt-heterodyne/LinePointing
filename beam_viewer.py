@@ -65,14 +65,8 @@ class BeamMapView():
             apply_grid_corrections=True will use the nominal grid to offset positions
         """
         g = Grid(B.BData.receiver)
-        if B.BData.map_coord == 0:
-            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
-        elif B.BData.map_coord == 1:
-            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
-        elif B.BData.map_coord == 2:
-            gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
-        else:
-            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+        gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+        
         if apply_grid_corrections:
             gxl = gx[B.pix_list]
             gyl = gy[B.pix_list]
@@ -143,13 +137,47 @@ class BeamMapView():
         """
         print(B.BData.receiver, B.pix_list, B.BData.map_coord)
         g = Grid(B.BData.receiver)
-        if B.BData.map_coord == 0:
+        if display_coord is None:
+            map_x = B.BData.map_x
+            map_y = B.BData.map_y
+            label_x = 'Az'
+            label_y = 'El'
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
-        elif B.BData.map_coord == 1:
+        elif display_coord == 0:
+            map_x = B.BData.map_az
+            map_y = B.BData.map_el
+            label_x = 'Az'
+            label_y = 'El'
+            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+        elif display_coord == 1:
+            map_x = B.BData.map_ra
+            map_y = B.BData.map_dec
+            label_x = 'Ra'
+            label_y = 'Dec'
             gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
-        elif B.BData.map_coord == 2:
+        elif display_coord == 2:
+            map_x = B.BData.map_l
+            map_y = B.BData.map_b
+            label_x = 'L'
+            label_y = 'B'
             gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
+        elif display_coord == 11:
+            map_x = B.BData.map_ra
+            map_y = B.BData.map_dec
+            label_x = 'Ra-interp'
+            label_y = 'Dec-interp'
+            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
+        elif display_coord == 21:
+            map_x = B.BData.map_l
+            map_y = B.BData.map_b
+            label_x = 'Ra-astropy'
+            label_y = 'Dec-astropy'
+            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
         else:
+            map_x = B.BData.map_x
+            map_y = B.BData.map_y
+            label_x = 'Az'
+            label_y = 'El'
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
 
         if apply_grid_corrections:
@@ -162,36 +190,6 @@ class BeamMapView():
         else:
             gxl = np.zeros(B.n_pix_list)
             gyl = np.zeros(B.n_pix_list)
-        if display_coord is None:
-            map_x = B.BData.map_x
-            map_y = B.BData.map_y
-            label_x = 'Az'
-            label_y = 'El'
-        elif display_coord == 0:
-            map_x = B.BData.map_az
-            map_y = B.BData.map_el
-            label_x = 'Az'
-            label_y = 'El'
-        elif display_coord == 1:
-            map_x = B.BData.map_ra
-            map_y = B.BData.map_dec
-            label_x = 'Ra'
-            label_y = 'Dec'
-        elif display_coord == 2:
-            map_x = B.BData.map_l
-            map_y = B.BData.map_b
-            label_x = 'L'
-            label_y = 'B'
-        elif display_coord == 11:
-            map_x = B.BData.map_ra
-            map_y = B.BData.map_dec
-            label_x = 'Ra-interp'
-            label_y = 'Dec-interp'
-        elif display_coord == 21:
-            map_x = B.BData.map_l
-            map_y = B.BData.map_b
-            label_x = 'Ra-astropy'
-            label_y = 'Dec-astropy'
             
         if not map_region:
             map_region = [0, 0, 0, 0]
@@ -232,7 +230,7 @@ class BeamMapView():
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
-        pl.plot(map_x[index],map_y[index])
+        #pl.plot(map_x[index],map_y[index])
         pl.axis('equal')
         pl.grid()
         pl.xlabel('%s (")'%label_x)
@@ -245,6 +243,8 @@ class BeamMapView():
         el_map_hpbw = B.peak_fit_params[np.nonzero(isGood),4]
         textstr =           'Az Offset  %6.4f   HPBW  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list]),az_map_hpbw.mean()) + '\n' 
         textstr = textstr + 'El Offset  %6.4f   HPBW  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]),el_map_hpbw.mean())
+        map_coord = {0: 'Az-El', 1: 'Ra-Dec', 2: 'L-B'}
+        textstr = textstr +'\n Map Coord %s'%(map_coord.get(B.BData.map_coord, 'Err'))
         pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
         try:
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
