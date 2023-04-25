@@ -69,8 +69,10 @@ class BeamMapView():
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         elif B.BData.map_coord == 1:
             gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
+        elif B.BData.map_coord == 2:
+            gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
         else:
-            gx,gy = g.azel(B.BData.elev/180.*np.pi)
+            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         if apply_grid_corrections:
             gxl = gx[B.pix_list]
             gyl = gy[B.pix_list]
@@ -139,14 +141,16 @@ class BeamMapView():
             map_region is the extent of the map: [low left, low right, high left, high right] (arcsec)
             grid_spacing is the size of the map cells (arcsec)
         """
-        print(B.BData.receiver)
+        print(B.BData.receiver, B.pix_list, B.BData.map_coord)
         g = Grid(B.BData.receiver)
         if B.BData.map_coord == 0:
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         elif B.BData.map_coord == 1:
             gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
+        elif B.BData.map_coord == 2:
+            gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
         else:
-            gx,gy = g.azel(B.BData.elev/180.*np.pi)
+            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
 
         if apply_grid_corrections:
             if True or len(B.BData.map_data) == 1:
@@ -227,8 +231,10 @@ class BeamMapView():
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
         elif B.BData.map_coord == 1:
             gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
+        elif B.BData.map_coord == 2:
+            gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
         else:
-            gx,gy = g.azel(B.BData.elev/180.*np.pi)
+            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
 
         if apply_grid_corrections:
             if len(B.BData.map_data) == 1:
