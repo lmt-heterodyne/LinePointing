@@ -2,7 +2,7 @@ import numpy as np
 from lmtslr.spec.spec import SpecBankData, SpecBankCal
 from lmtslr.viewer.spec_viewer import SpecBankViewer, SpecCalViewer
 from lmtslr.ifproc.ifproc import lookup_ifproc_file, IFProcQuick, IFProcData, IFProcCal
-from lmtslr.utils.roach_file_utils import find_roach_from_pixel, lookup_roach_files
+from lmtslr.utils.roach_file_utils import find_roach_from_pixel, lookup_roach_files, create_roach_list
 import sys
 from beam import BeamMap
 from beam_viewer import BeamMapView
@@ -25,14 +25,11 @@ def linepoint(args_dict, view_opt=0):
 
     print('args = ', obsnum, spec_cont, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam, opt)
     
-
-    roach_pixels_all = [[i+j*4 for i in range(4)] for j in range(8)]
-
     # define time stamp
     file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
 
-    # define roach_list, can be modified if tracking a specific pixel
-    roach_list = range(8)
+    # define roach_pixels_all
+    roach_pixels_all = [[i+j*4 for i in range(4)] for j in range(4)]
 
     # read the ifproc file to get the data and the tracking beam
     ifproc_file = lookup_ifproc_file(obsnum)
@@ -111,7 +108,6 @@ def linepoint(args_dict, view_opt=0):
             colors = pl.rcParams['axes.prop_cycle']
             colors = [c['color'] for c in colors]
             plot_order = [1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16]
-            print(nrows)
             for ipix in range(ICal.npix):
                 if ncols == 1:
                     ipix1 = ipix+1
@@ -137,13 +133,15 @@ def linepoint(args_dict, view_opt=0):
             merge_png(['lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
         else:
             files,nfiles = lookup_roach_files(obsnum)
-            if len(files) == 1:
-                files = [files]
+            if ICal.receiver == 'Msip1mm':
+                bank_files = [files, files]
+                bank_pixel_list = [[0, 1], [2, 3]]
             else:
-                files = [files[i:i+4] for i in range(0, len(files), 4)] 
+                bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
+                bank_pixel_list = 2*[list(range(16))]
             fnames = []
-            for bank in range(len(files)):
-                SCal = SpecBankCal(files[bank],ICal,bank=bank)
+            for bank in range(len(bank_files)):
+                SCal = SpecBankCal(bank_files[bank],ICal,bank=bank,pixel_list=bank_pixel_list[bank])
                 # create viewer
                 SV = SpecCalViewer()
                 SV.set_figure(figure=1+bank)
@@ -191,9 +189,9 @@ def linepoint(args_dict, view_opt=0):
                     roach_list += roach_beam
         else:
             roach_list = find_roach_from_pixel(tracking_beam)
+    else:
+        roach_list = list(range(8))
 
-    if False:
-        roach_list = range(8)
     # build the roach directory list
     roach_dir_list = [ 'roach%d'%i for i in roach_list]
 
@@ -201,13 +199,9 @@ def linepoint(args_dict, view_opt=0):
     if bs_beams != []:
         pixel_list = bs_beams
     elif tracking_beam == -1 or obspgm == 'On':
-        pixel_list = sum([roach_pixels_all[roach_index] for roach_index in roach_list], [])
+        pixel_list = sum([roach_pixels_all[roach_index] for roach_index in range(len(roach_pixels_all))], [])
     else:
         pixel_list = [tracking_beam]
-
-    #pixel_list = [selected_beam]
-    if False:
-        pixel_list = sum([roach_pixels_all[roach_index] for roach_index in roach_list], [])
 
     print ('tracking_beam', tracking_beam)
     print ('selected_beam', selected_beam)
@@ -231,8 +225,17 @@ def linepoint(args_dict, view_opt=0):
             print (txt)
             mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
             return {'plot_file': 'lmtlp_%s.png'%file_ts}
-        if nfiles > 4:
-            files = files[0:4]
+
+    if IData.receiver == 'Msip1mm':
+        bank_files = [files, files]
+        bank_pixel_list = [[0, 1], [2, 3]]
+        if selected_beam in bank_pixel_list[0]:
+            bank = 0
+        else:
+            bank = 1
+    else:
+        bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
+        bank = 0
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
@@ -293,7 +296,8 @@ def linepoint(args_dict, view_opt=0):
         pass
     else:
         # create the spec_bank object. This reads all the roaches in the list "files"
-        SData = SpecBankData(files,IData,pixel_list=pixel_list)
+        print(files, bank_files[bank], pixel_list)
+        SData = SpecBankData(bank_files[bank],IData,pixel_list=pixel_list,bank=bank)
 
         # set the pixel list to the pixels from the files we could find
         print ('unmodified pixel_list = ', pixel_list)
@@ -302,15 +306,12 @@ def linepoint(args_dict, view_opt=0):
 
     # check whether to use calibration and open necessary file
     use_calibration = True
-    #use_calibration = False
     if use_calibration == True:
         calobsnum = IData.calobsnum
         print ('cal obs num = ', calobsnum)
         ifproc_cal_file = ''
         if calobsnum > 0:
             cal_files,ncalfiles = lookup_roach_files(calobsnum,roach_dir_list)
-            if ncalfiles > 4:
-                cal_files = cal_files[0:4]
             ifproc_cal_file = lookup_ifproc_file(calobsnum)
         if ifproc_cal_file == '':
             use_calibration = False
@@ -322,7 +323,11 @@ def linepoint(args_dict, view_opt=0):
                 for ipix in range(ICal.npix):
                     print ('IFPROC Tsys[%2d] = %6.1f'%(ipix,ICal.tsys[ipix]))
             else:
-                SCal = SpecBankCal(cal_files,ICal,pixel_list=pixel_list)
+                if IData.receiver == 'Msip1mm':
+                    bank_cal_files = [cal_files, cal_files]
+                else:
+                    bank_cal_files = [cal_files[i:i+4] for i in range(0, len(cal_files), 4)] 
+                SCal = SpecBankCal(bank_cal_files[bank],ICal,pixel_list=pixel_list,bank=bank)
                 check_cal = SCal.test_cal(SData)
                 for ipix in range(SData.npix):
                     tsys_spectra.append(SCal.roach[ipix].tsys_spectrum)
