@@ -390,16 +390,17 @@ def linepoint(args_dict, view_opt=0):
             mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
             return {'plot_file': 'lmtlp_%s.png'%file_ts}
 
-    if IData.receiver == 'Msip1mm':
-        bank_files = [files, files]
-        bank_pixel_list = [[0, 3], [1, 2]]
-        if selected_beam in bank_pixel_list[0]:
-            bank = 0
+    if spec_cont == 'spec':
+        if IData.receiver == 'Msip1mm':
+            bank_files = [files, files]
+            bank_pixel_list = [[0, 3], [1, 2]]
+            if selected_beam in bank_pixel_list[0]:
+                bank = 0
+            else:
+                bank = 1
         else:
-            bank = 1
-    else:
-        bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
-        bank = 0
+            bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
+            bank = 0
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
