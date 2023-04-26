@@ -137,6 +137,7 @@ class BeamMapView():
         """
         print(B.BData.receiver, B.pix_list, B.BData.map_coord)
         g = Grid(B.BData.receiver)
+        invert_x = False
         if display_coord is None:
             map_x = B.BData.map_x
             map_y = B.BData.map_y
@@ -155,12 +156,14 @@ class BeamMapView():
             label_x = 'Ra'
             label_y = 'Dec'
             gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
+            invert_x = True
         elif display_coord == 2:
             map_x = B.BData.map_l
             map_y = B.BData.map_b
             label_x = 'L'
             label_y = 'B'
             gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
+            invert_x = True
         else:
             map_x = B.BData.map_x
             map_y = B.BData.map_y
@@ -223,6 +226,8 @@ class BeamMapView():
         pl.grid()
         pl.xlabel('%s (")'%label_x)
         pl.ylabel('%s (")'%label_y)
+        if invert_x:
+            pl.gca().invert_xaxis()
         isGood = np.zeros((B.n_pix_list))
         isGood = (B.peak_fit_status[:] != 5)
         az_map_offset = B.peak_fit_params[np.nonzero(isGood),1]
