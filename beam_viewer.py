@@ -235,7 +235,7 @@ class BeamMapView():
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
-        #pl.plot(map_x[index],map_y[index])
+        pl.plot(map_x[index],map_y[index])
         pl.axis('equal')
         pl.grid()
         pl.xlabel('%s (")'%label_x)
