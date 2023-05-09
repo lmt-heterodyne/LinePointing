@@ -23,20 +23,21 @@ class m2fit():
         m2x = []
         m1zer0 = []
         self.status = 0
+        self.msg = 'Ok'
         for i,ifproc in enumerate(ifproc_file_data):
             if i != 0:
                 if self.receiver != ifproc.receiver:
-                    self.msg = 'receiver mismatch %s %s'%(self.receiver, ifproc.receiver)
+                    self.msg = 'Receiver mismatch %s %s'%(self.receiver, ifproc.receiver)
                     print(self.msg)
                     self.status = -1
                     return
                 if self.source != ifproc.source:
-                    self.msg = 'source mismatch %s %s'%(self.source, ifproc.source)
+                    self.msg = 'Source mismatch %s %s'%(self.source, ifproc.source)
                     print(self.msg)
                     self.status = -1
                     return
                 if self.obspgm != ifproc.obspgm:
-                    self.msg = 'obspgm mismatch %s %s'%(self.obspgm, ifproc.obspgm)
+                    self.msg = 'ObsPgm mismatch %s %s'%(self.obspgm, ifproc.obspgm)
                     print(self.msg)
                     self.status = -1
                     return
