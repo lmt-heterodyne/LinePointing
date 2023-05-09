@@ -52,7 +52,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
         mkMsgImage(pl, obsnum, txt=f.msg, im='lf_focus_%s.png'%file_ts, label='Error', color='r')
         params = None
         print('params', params)
-        return 'lf_focus_%s.png'%file_ts,params
+        return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
         
     f.find_focus()
     f.fit_focus_model()
@@ -93,7 +93,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
         pl.show()
         
     print('params', params)
-    return 'lf_focus_%s.png'%file_ts,params
+    return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
 
 if __name__ == '__main__':
     obsNums = [83578, 83579, 83580, 83581, 83582]
