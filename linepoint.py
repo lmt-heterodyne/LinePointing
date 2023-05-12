@@ -22,8 +22,9 @@ def linepoint(args_dict, view_opt=0):
     tsys = (args_dict.get('TSys', None))
     tracking_beam = (args_dict.get('TrackingBeam', None))
     opt = (args_dict.get('Opt', 0))
+    bank = (args_dict.get('Bank', 0)) 
 
-    print('args = ', obsnum, spec_cont, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam, opt)
+    print('args = ', obsnum, spec_cont, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam, opt, bank)
     
     # define time stamp
     file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
@@ -192,7 +193,9 @@ def linepoint(args_dict, view_opt=0):
         else:
             roach_list = find_roach_from_pixel(tracking_beam)
     else:
-        roach_list = list(range(8))
+        roach_list = list(range(4))
+
+    roach_list = [i+(bank*4) for i in roach_list]
 
     # build the roach directory list
     roach_dir_list = [ 'roach%d'%i for i in roach_list]
@@ -236,8 +239,9 @@ def linepoint(args_dict, view_opt=0):
         else:
             bank = 1
     else:
-        bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
-        bank = 0
+        bank_files = [[],[]]
+        bank_files[bank] = files
+    print(bank, bank_files)
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
@@ -643,6 +647,7 @@ if __name__ == '__main__':
         args_dict['TSys'] = 0
         args_dict['TrackingBeam'] = None
         args_dict['Opt'] = opt
+        args_dict['Bank'] = 0
     
         
         lp_dict = linepoint(args_dict, view_opt=opt)
