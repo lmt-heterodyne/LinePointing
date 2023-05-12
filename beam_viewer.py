@@ -139,52 +139,66 @@ class BeamMapView():
         g = Grid(B.BData.receiver)
         invert_x = False
         if display_coord is None:
-            map_x = B.BData.map_x
-            map_y = B.BData.map_y
-            label_x = 'Az'
-            label_y = 'El'
-            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+            pass
         elif display_coord == 0:
-            map_x = B.BData.map_az
-            map_y = B.BData.map_el
-            label_x = 'Az'
-            label_y = 'El'
-            gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+            try:
+                map_x = B.BData.map_az
+                map_y = B.BData.map_el
+                label_x = 'Az'
+                label_y = 'El'
+                gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+            except:
+                display_coord = None
         elif display_coord == 1:
-            map_x = B.BData.map_ra
-            map_y = B.BData.map_dec
-            label_x = 'Ra'
-            label_y = 'Dec'
-            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
-            invert_x = True
+            try:
+                map_x = B.BData.map_ra
+                map_y = B.BData.map_dec
+                label_x = 'Ra'
+                label_y = 'Dec'
+                gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
+                invert_x = True
+            except:
+                display_coord = None
         elif display_coord == 2:
-            map_x = B.BData.map_l
-            map_y = B.BData.map_b
-            label_x = 'L'
-            label_y = 'B'
-            gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
-            invert_x = True
+            try:
+                map_x = B.BData.map_l
+                map_y = B.BData.map_b
+                label_x = 'L'
+                label_y = 'B'
+                gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
+                invert_x = True
+            except:
+                display_coord = None
         elif display_coord == 11:
-            map_x = B.BData.map_ra
-            map_y = B.BData.map_dec
-            label_x = 'Ra-interp'
-            label_y = 'Dec-interp'
-            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
-            invert_x = True
+            try:
+                map_x = B.BData.map_ra
+                map_y = B.BData.map_dec
+                label_x = 'Ra-interp'
+                label_y = 'Dec-interp'
+                gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
+                invert_x = True
+            except:
+                display_coord = None
         elif display_coord == 21:
-            map_x = B.BData.map_l
-            map_y = B.BData.map_b
-            label_x = 'Ra-astropy'
-            label_y = 'Dec-astropy'
-            gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
-            invert_x = True
+            try:
+                map_x = B.BData.map_l
+                map_y = B.BData.map_b
+                label_x = 'Ra-astropy'
+                label_y = 'Dec-astropy'
+                gx,gy = g.radec(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),B.BData.tracking_beam) # FIRST CUT
+                invert_x = True
+            except:
+                display_coord = None
         else:
+            display_coord = None
+
+        if display_coord is None:
             map_x = B.BData.map_x
             map_y = B.BData.map_y
             label_x = 'Az'
             label_y = 'El'
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
-
+            
         if apply_grid_corrections:
             if True or len(B.BData.map_data) == 1:
                 gxl = gx[B.pix_list]
