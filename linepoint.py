@@ -131,17 +131,30 @@ def extend_ifproc(ifproc):
 
 
     # set the ra/dec map
-    self.ramap = self.ramap_interp
-    self.decmap = self.decmap_interp
+    #self.ramap = self.ramap_interp
+    #self.decmap = self.decmap_interp
+    self.ramap = self.ramap_file
+    self.decmap = self.decmap_file
 
     # set the l/b map
-    self.lmap = (self.nc.variables['Data.TelescopeBackend.SourceLAct'][:] - self.source_L) * 206264.8
+    self.lmap = (self.nc.variables['Data.TelescopeBackend.SourceLAct'][:] - self.source_L) * np.cos(self.source_B) * 206264.8
     self.bmap = (self.nc.variables['Data.TelescopeBackend.SourceBAct'][:] - self.source_B) * 206264.8
 
     # do this to compare different ra/dec: file vs interp vs astropy
-    #self.lmap = self.ramap_astropy
-    #self.bmap = self.decmap_astropy
+    if self.source_coord_sys != 2:
+        self.lmap = self.ramap_astropy
+        self.bmap = self.decmap_astropy
 
+
+    if self.map_coord == 1:
+        self.xmap = self.ramap
+        self.ymap = self.decmap
+    elif self.map_coord == 2:
+        self.xmap = self.lmap
+        self.ymap = self.bmap
+    else:
+        self.xmap = self.azmap
+        self.ymap = self.elmap
 
     if False:
         def stat_change(d, d_orig, unit, name):
