@@ -198,7 +198,7 @@ class BeamMapView():
             label_x = 'Az'
             label_y = 'El'
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
-            
+
         if apply_grid_corrections:
             if True or len(B.BData.map_data) == 1:
                 gxl = gx[B.pix_list]
