@@ -505,8 +505,6 @@ def linepoint(args_dict, view_opt=0):
                 BV.show_peaks(B,apply_grid_corrections=True,show_map_points=selected_beam)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
 
-            ###BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
-
             if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
@@ -576,7 +574,8 @@ def linepoint(args_dict, view_opt=0):
                 SV.open_figure()
                 SV.waterfall(SData,selected_beam,[-1500,1500],[-1,10],SData.blist,SData. nb)
 
-        pl.show()
+        BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
+
 
     print ('plot_file', 'lmtlp_%s.png'%file_ts)
     print ('params', params)
