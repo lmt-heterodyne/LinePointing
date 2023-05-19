@@ -166,6 +166,8 @@ def linepoint(args_dict, view_opt=0):
     
     # open data file
     IData = IFProcData(ifproc_file)
+    IData.xmap = IData.azmap
+    IData.ymap = IData.elmap
     
     bs_beams = IData.bs_beams
     map_motion = IData.map_motion
@@ -180,7 +182,7 @@ def linepoint(args_dict, view_opt=0):
         tracking_beam = None
     if tracking_beam == None:
         tracking_beam = IData.tracking_beam
-    if False and tracking_beam == -1:
+    if tracking_beam == -1:
         tracking_beam = selected_beam
     if tracking_beam != -1:
         selected_beam = tracking_beam
