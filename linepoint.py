@@ -141,6 +141,7 @@ def extend_ifproc(ifproc):
     self.bmap = (self.nc.variables['Data.TelescopeBackend.SourceBAct'][:] - self.source_B) * 206264.8
 
     # do this to compare different ra/dec: file vs interp vs astropy
+    self.source_coord_sys = self.nc.variables['Header.Source.CoordSys'][0]
     if self.source_coord_sys != 2:
         self.lmap = self.ramap_astropy
         self.bmap = self.decmap_astropy
