@@ -316,14 +316,20 @@ class BeamMapView():
         grid_x, grid_y = np.mgrid[map_region[0]:map_region[1]:complex(nx), map_region[2]:map_region[3]:complex(ny)]
         zi_sum = np.zeros((nx,ny))
         wi_sum = np.zeros((nx,ny))
+        with_fill_value = False
         for i in range(B.n_pix_list):
             pixel = B.pix_list[i]
             index = B.BData.find_map_pixel_index(pixel)
             wdata = np.ones(len(B.BData.map_data[index]))
             try:
                 print('trying scipy.interpolate.griddata')
-                zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
-                wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+                if with_fill_value:
+                    zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear',fill_value=0).T
+                    wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear',fill_value=1).T
+                else:
+                    zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
+                    wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+                    
             except Exception as e:
                 print(e)
                 try:
@@ -339,11 +345,17 @@ class BeamMapView():
         fig = pl.figure()
         ax = fig.gca(projection='3d')
         xm,ym = np.meshgrid(xi, yi)
-        norm =  matplotlib.colors.Normalize(vmin=np.min(zi), vmax=np.max(zi))
-        my_col = pl.cm.jet(norm(zi))
-        surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, facecolors=my_col, linewidth=1, antialiased=False)
-        #surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, cmap=pl.cm.jet, linewidth=1, antialiased=True)
-        #fig.colorbar(surf)
+        # this breaks when grid has nan
+        if with_fill_value:
+            norm =  matplotlib.colors.Normalize(vmin=np.min(zi), vmax=np.max(zi))
+            my_col = pl.cm.jet(norm(zi))
+            surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, facecolors=my_col, linewidth=1, antialiased=False)
+            m = pl.cm.ScalarMappable(cmap=pl.cm.jet, norm=norm)
+            m.set_array([])
+            pl.colorbar(m)
+        else:
+            surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, cmap=pl.cm.jet, linewidth=1, antialiased=True)
+            pl.colorbar(surf)
         pl.xlabel('Azimuth (")')
         pl.ylabel('Elevation (")')
         isGood = np.zeros((B.n_pix_list))
@@ -357,9 +369,6 @@ class BeamMapView():
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
         except:
             pass
-        m = pl.cm.ScalarMappable(cmap=pl.cm.jet, norm=norm)
-        m.set_array([])
-        pl.colorbar(m)
 
 
     def align_plot(self,B,show_id=True):
