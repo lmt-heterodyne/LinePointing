@@ -20,6 +20,14 @@ def extend_ifproc(ifproc):
     if os.path.isfile(self.filename):
         self.nc = netCDF4.Dataset(self.filename)
 
+    self.tel_utc = 180/15/np.pi*self.nc.variables['Data.TelescopeBackend.TelUtc'][:][:]
+    utdate = self.utdate
+    utdate = datetime.datetime.utcfromtimestamp(self.time[0]).date()
+    print(utdate, self.tel_utc[0])
+    import dateutil.parser as dparser
+    print([dparser.parse(str(utdate)+' '+str(datetime.timedelta(hours=self.tel_utc[0]))+' UTC', fuzzy=True) for i in range(1)])
+    self.sky_time = np.array([dparser.parse(str(utdate)+' '+str(datetime.timedelta(hours=self.tel_utc[i]))+' UTC', fuzzy=True).timestamp() for i in range(len(self.tel_utc))])
+
     self.ut = self.nc.variables['Data.TelescopeBackend.TelUtc'][:] / 2 / np.pi * 24
     self.lst = self.nc.variables['Data.TelescopeBackend.TelLst'][:] / 2 / np.pi * 24
     self.ramap_file = (self.nc.variables['Data.TelescopeBackend.SourceRaAct'][:] - self.source_RA) * np.cos(self.source_Dec) * 206264.8
@@ -377,17 +385,17 @@ def linepoint(args_dict, view_opt=0):
             mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
             return {'plot_file': 'lmtlp_%s.png'%file_ts}
 
-    if IData.receiver == 'Msip1mm':
-        bank_files = [files, files]
-        bank_pixel_list = [[0, 3], [1, 2]]
-        if selected_beam in bank_pixel_list[0]:
-            bank = 0
+        if IData.receiver == 'Msip1mm':
+            bank_files = [files, files]
+            bank_pixel_list = [[0, 3], [1, 2]]
+            if selected_beam in bank_pixel_list[0]:
+                bank = 0
+            else:
+                bank = 1
         else:
-            bank = 1
-    else:
-        bank_files = [[],[]]
-        bank_files[bank] = files
-    print(bank, bank_files)
+            bank_files = [[],[]]
+            bank_files[bank] = files
+        print(bank, bank_files)
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
