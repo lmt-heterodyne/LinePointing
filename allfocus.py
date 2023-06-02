@@ -5,7 +5,8 @@ import matplotlib.pyplot as pl
 import time
 import os
 import numpy as np
-from lmtslr.ifproc.ifproc import lookup_ifproc_file, IFProcData
+from lmtslr.ifproc.ifproc import IFProcData, IFProcQuick
+from lmtslr.utils.ifproc_file_utils import lookup_ifproc_file_all
 from msg_image import mkMsgImage
 import glob
 
@@ -29,9 +30,22 @@ def allfocus(obsNums, peaks, lp_files, opt):
     for i,obsnum in enumerate(obsNums):
         lp_params_1 = np.zeros((1,1))
         lp_params_1[0,0] = peaks[i]
-        ifproc_file = lookup_ifproc_file(obsnum)
-        if not ifproc_file:
-            print('cannot find ifproc file')
+        ifproc_files = lookup_ifproc_file_all(obsnum)
+        print('found', obsnum, ifproc_files)
+        ifproc_file = None
+        for f in ifproc_files:
+            if 'toltec2' in f:
+                continue
+            if not f:
+                print('cannot find ifproc file', f)
+                return -1
+            ifproc_file_quick = IFProcQuick(f)
+            obspgm = ifproc_file_quick.obspgm
+            if obspgm == 'Tune':
+                continue
+            ifproc_file = f
+        if ifproc_file is None:
+            print('cannot find ifproc file in ', ifproc_files)
             return -1
         ifproc_file_data_1 = IFProcData(ifproc_file)
         if ifproc_file_data_1 == None:
