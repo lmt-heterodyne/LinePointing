@@ -44,7 +44,7 @@ def extend_ifproc(ifproc):
     self.decmap_file = (self.nc.variables['Data.TelescopeBackend.SourceDecAct'][:] - self.source_Dec) * 206264.8
 
     # interpolate ra/dec based on tel time
-    if True:
+    if False:
         sl = slice(0, len(self.time), 1)
         ra_file = self.nc.variables['Data.TelescopeBackend.SourceRaAct'][:]
         dec_file = self.nc.variables['Data.TelescopeBackend.SourceDecAct'][:]
@@ -73,7 +73,7 @@ def extend_ifproc(ifproc):
             print('ramap_interp', self.ramap_interp)
 
     # compute ra/dec from astropy
-    if True:
+    if False:
         from astropy.coordinates import SkyCoord
         import astropy.units as u
         from astropy.time import Time
