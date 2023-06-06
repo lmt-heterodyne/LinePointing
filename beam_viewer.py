@@ -167,7 +167,10 @@ class BeamMapView():
                 label_y = 'B'
                 gx,gy = g.latlon(B.BData.elev/180.*np.pi,np.mean([np.mean(map_p) for map_p in B.BData.map_p]),np.mean([np.mean(map_g) for map_g in B.BData.map_g]),B.BData.tracking_beam) # FIRST CUT
                 invert_x = True
-            except:
+            except Exception as e:
+                print(e)
+                import traceback
+                traceback.print_exc()
                 display_coord = None
         elif display_coord == 11:
             try:
@@ -199,8 +202,11 @@ class BeamMapView():
             label_y = 'El'
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
 
+        #idx = np.where(B.BData.bufpos == 0)
+        idx = slice(None)
+        map_data = B.BData.map_data
         if apply_grid_corrections:
-            if True or len(B.BData.map_data) == 1:
+            if True or len(map_data) == 1:
                 gxl = gx[B.pix_list]
                 gyl = gy[B.pix_list]
             else:
@@ -212,10 +218,10 @@ class BeamMapView():
             
         if not map_region:
             map_region = [0, 0, 0, 0]
-            map_region[0] = 1.1*(map_x[0]).min()
-            map_region[1] = 1.1*(map_x[0]).max()
-            map_region[2] = 1.1*(map_y[0]).min()
-            map_region[3] = 1.1*(map_y[0]).max()
+            map_region[0] = 1.1*(map_x[0][idx]).min()
+            map_region[1] = 1.1*(map_x[0][idx]).max()
+            map_region[2] = 1.1*(map_y[0][idx]).min()
+            map_region[3] = 1.1*(map_y[0][idx]).max()
             #np.set_printoptions(threshold=sys.maxsize)
             #print(map_x, map_y)
             print ('map_region', map_region)
@@ -233,23 +239,23 @@ class BeamMapView():
                 index = i
             else:
                 index = B.BData.find_map_pixel_index(pixel)
-            wdata = np.ones(len(B.BData.map_data[index]))
+            wdata = np.ones(len(map_data[index][idx]))
             try: 
                 print('trying scipy.interpolate.griddata')
-                zi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
-                wi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+                zi = interp.griddata((map_x[index][idx]-gxl[index],map_y[index][idx]-gyl[index]),map_data[index][idx],(grid_x,grid_y),method='linear').T
+                wi = interp.griddata((map_x[index][idx]-gxl[index],map_y[index][idx]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
             except Exception as e:
                 print(e)
                 try:
-                    zi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
-                    wi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+                    zi = mlab.griddata(map_x[index][idx]-gxl[index],map_y[index][idx]-gyl[index],map_data[index][idx],xi,yi,interp='linear')
+                    wi = mlab.griddata(map_x[index][idx]-gxl[index],map_y[index][idx]-gyl[index],wdata,xi,yi,interp='linear')
                 except:
-                    zi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
-                    wi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
+                    zi = mlab.griddata(map_x[index][idx]-gxl[index],map_y[index][idx]-gyl[index],map_data[index][idx],xi,yi,interp='nn')
+                    wi = mlab.griddata(map_x[index][idx]-gxl[index],map_y[index][idx]-gyl[index],wdata,xi,yi,interp='nn')
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
-        pl.plot(map_x[index],map_y[index])
+        pl.plot(map_x[index][idx],map_y[index][idx])
         pl.axis('equal')
         pl.grid()
         pl.xlabel('%s (")'%label_x)
@@ -266,6 +272,8 @@ class BeamMapView():
         textstr = textstr + 'El Offset  %6.4f   HPBW  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]),el_map_hpbw.mean())
         map_coord = {0: 'Az-El', 1: 'Ra-Dec', 2: 'L-B'}
         textstr = textstr +'\n Map Coord %s'%(map_coord.get(B.BData.map_coord, 'Err'))
+        if B.BData.xoffset != 0 or B.BData.yoffset != 0:
+            textstr = textstr +', Offsets %0.2f %0.2f'%(B.BData.xoffset*B.BData.xlength, B.BData.yoffset*B.BData.ylength)
         pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
         try:
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
