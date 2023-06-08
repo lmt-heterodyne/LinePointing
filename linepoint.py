@@ -163,6 +163,22 @@ def extend_ifproc(ifproc):
 
     self.close_nc()
 
+def create_map_data_main(ifproc):
+    self = ifproc
+    idx = np.where(self.bufpos == 0)[0]
+    self.map_x = self.map_x[:,idx]
+    self.map_y = self.map_y[:,idx]
+    self.map_az = self.map_az[:,idx]
+    self.map_el = self.map_el[:,idx]
+    self.map_ra = self.map_ra[:,idx]
+    self.map_dec = self.map_dec[:,idx]
+    self.map_l = self.map_l[:,idx]
+    self.map_b = self.map_b[:,idx]
+    self.map_p = self.map_p[:,idx]
+    self.map_g = self.map_g[:,idx]
+    #self.map_n = self.map_n[:,idx]
+    self.map_data = self.map_data[:,idx]
+
 def linepoint(args_dict, view_opt=0):
 
     obsnum = (args_dict.get('ObsNum', None))
@@ -333,7 +349,7 @@ def linepoint(args_dict, view_opt=0):
     if 'Msip1mm' not in IData.receiver:
         tracking_beam = None
     if tracking_beam == None:
-        tracking_beam = IData.tracking_beam
+        tracking_beam = int(IData.tracking_beam)
     if tracking_beam == -1:
         tracking_beam = selected_beam
     if tracking_beam != -1:
@@ -624,6 +640,7 @@ def linepoint(args_dict, view_opt=0):
         else:
             fit_circle = 30
         if spec_cont == 'cont':
+            create_map_data_main(IData)
             B = BeamMap(IData,pix_list=pixel_list)
             B.fit_peaks_in_list(fit_circle=fit_circle)
         else:
@@ -674,6 +691,8 @@ def linepoint(args_dict, view_opt=0):
             #BV.add_subplot(SV.fig)
             BV.map(B,[],grid_spacing,apply_grid_corrections=True)
             BV.show_peaks(B,apply_grid_corrections=True)
+            pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
+
             BV.set_figure(figure=3)
             BV.open_figure()
             BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=0)
@@ -690,7 +709,6 @@ def linepoint(args_dict, view_opt=0):
                 BV.set_figure(figure=7)
                 BV.open_figure()
                 BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=21)
-            pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
             if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
