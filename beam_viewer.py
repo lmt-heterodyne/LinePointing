@@ -214,12 +214,8 @@ class BeamMapView():
 
         map_data = B.BData.map_data
         if apply_grid_corrections:
-            if True or len(map_data) == 1:
-                gxl = gx[B.pix_list]
-                gyl = gy[B.pix_list]
-            else:
-                gxl = gx
-                gyl = gy
+            gxl = gx
+            gyl = gy
         else:
             gxl = np.zeros(B.n_pix_list)
             gyl = np.zeros(B.n_pix_list)
@@ -243,10 +239,7 @@ class BeamMapView():
         wi_sum = np.zeros((nx,ny))
         for i in range(B.n_pix_list):
             pixel = B.pix_list[i]
-            if B.n_pix_list == 1:
-                index = i
-            else:
-                index = B.BData.find_map_pixel_index(pixel)
+            index = B.BData.find_map_pixel_index(pixel)
             wdata = np.ones(len(map_data[index]))
             try: 
                 print('trying scipy.interpolate.griddata')
@@ -282,6 +275,7 @@ class BeamMapView():
         textstr = textstr +'\n Map Coord %s'%(map_coord.get(B.BData.map_coord, 'Err'))
         if B.BData.xoffset != 0 or B.BData.yoffset != 0:
             textstr = textstr +', Offsets %0.2f %0.2f'%(B.BData.xoffset*B.BData.xlength, B.BData.yoffset*B.BData.ylength)
+        textstr = textstr +('\n Tracking Beam %d'%B.BData.tracking_beam if B.BData.tracking_beam >=0 else 'Tracking Center')
         pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
         try:
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
