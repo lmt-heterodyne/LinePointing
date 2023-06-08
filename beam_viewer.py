@@ -95,8 +95,18 @@ class BeamMapView():
         """
         g = Grid(B.BData.receiver)
         gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+        if not map_region:
+            map_region = [0, 0, 0, 0]
+            map_region[0] = 1.1*(B.BData.map_x[0]).min()
+            map_region[1] = 1.1*(B.BData.map_x[0]).max()
+            map_region[2] = 1.1*(B.BData.map_y[0]).min()
+            map_region[3] = 1.1*(B.BData.map_y[0]).max()
+            #np.set_printoptions(threshold=sys.maxsize)
+            #print(map_x, map_y)
+            print ('map_region', map_region)
         nx = int((map_region[1]-map_region[0])/grid_spacing)+1
         ny = int((map_region[3]-map_region[2])/grid_spacing)+1
+        nx = ny = min(nx, ny)
         xi = np.linspace(map_region[0],map_region[1],nx)
         yi = np.linspace(map_region[2],map_region[3],ny)
         grid_x, grid_y = np.mgrid[map_region[0]:map_region[1]:complex(nx), map_region[2]:map_region[3]:complex(ny)]
@@ -106,7 +116,7 @@ class BeamMapView():
             index = B.BData.find_map_pixel_index(pixel)
             try:
                 print('trying scipy.interpolate.griddata')
-                zi = interp.griddata((B.BData.map_x[index],B.BData.map_y[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
+                zi = interp.griddata((B.BData.map_x[index],B.BData.map_y[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear',fill_value=B.BData.map_data[index].min()).T
             except Exception as e:
                 print(e)
                 zi = mlab.griddata(B.BData.map_x[index],B.BData.map_y[index],B.BData.map_data[index],xi,yi,interp='linear')
@@ -240,8 +250,8 @@ class BeamMapView():
             wdata = np.ones(len(map_data[index]))
             try: 
                 print('trying scipy.interpolate.griddata')
-                zi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),map_data[index],(grid_x,grid_y),method='linear').T
-                wi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+                zi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),map_data[index],(grid_x,grid_y),method='linear',fill_value=map_data[index].min()).T
+                wi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear',fill_value=wdata.min()).T
             except Exception as e:
                 print(e)
                 try:
@@ -322,7 +332,7 @@ class BeamMapView():
         grid_x, grid_y = np.mgrid[map_region[0]:map_region[1]:complex(nx), map_region[2]:map_region[3]:complex(ny)]
         zi_sum = np.zeros((nx,ny))
         wi_sum = np.zeros((nx,ny))
-        with_fill_value = False
+        with_fill_value = True
         for i in range(B.n_pix_list):
             pixel = B.pix_list[i]
             index = B.BData.find_map_pixel_index(pixel)
@@ -330,8 +340,8 @@ class BeamMapView():
             try:
                 print('trying scipy.interpolate.griddata')
                 if with_fill_value:
-                    zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear',fill_value=0).T
-                    wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear',fill_value=1).T
+                    zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear',fill_value=B.BData.map_data[index].min()).T
+                    wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear',fill_value=wdata.min()).T
                 else:
                     zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
                     wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
@@ -352,10 +362,11 @@ class BeamMapView():
         ax = fig.gca(projection='3d')
         xm,ym = np.meshgrid(xi, yi)
         # this breaks when grid has nan
-        if with_fill_value:
+        with_norm_colormap = False
+        if with_norm_colormap:
             norm =  matplotlib.colors.Normalize(vmin=np.min(zi), vmax=np.max(zi))
             my_col = pl.cm.jet(norm(zi))
-            surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, facecolors=my_col, linewidth=1, antialiased=False)
+            surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, facecolors=my_col, linewidth=1, antialiased=True)
             m = pl.cm.ScalarMappable(cmap=pl.cm.jet, norm=norm)
             m.set_array([])
             pl.colorbar(m)
