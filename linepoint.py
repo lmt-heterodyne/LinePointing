@@ -350,7 +350,7 @@ def linepoint(args_dict, view_opt=0):
         tracking_beam = None
     if tracking_beam == None:
         tracking_beam = int(IData.tracking_beam)
-    if tracking_beam == -1:
+    if False and tracking_beam == -1:
         tracking_beam = selected_beam
     if tracking_beam != -1:
         selected_beam = tracking_beam
@@ -693,15 +693,16 @@ def linepoint(args_dict, view_opt=0):
             BV.show_peaks(B,apply_grid_corrections=True)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
 
-            BV.set_figure(figure=3)
-            BV.open_figure()
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=0)
-            BV.set_figure(figure=4)
-            BV.open_figure()
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=1)
-            BV.set_figure(figure=5)
-            BV.open_figure()
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=2)
+            if view_opt & 0x4:
+                BV.set_figure(figure=3)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=0)
+                BV.set_figure(figure=4)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=1)
+                BV.set_figure(figure=5)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=2)
             if False:
                 BV.set_figure(figure=6)
                 BV.open_figure()
@@ -728,24 +729,25 @@ def linepoint(args_dict, view_opt=0):
             if spec_cont == 'cont':
                 BV.set_figure(figure=11)
                 BV.open_figure()
-                BV.sanchez_map(B,[-100,100,-100,100],grid_spacing)
+                BV.sanchez_map(B,[],grid_spacing)
                 BV.show_peaks(B,apply_grid_corrections=False)
             else:
                 # the "sanchez map" shows the array grid on the sky
                 SV.set_figure(figure=11)
                 SV.open_figure()
-                SV.sanchez_map(SData,[-100,100,-100,100],grid_spacing,None,pixel_list=pixel_list)
+                SV.sanchez_map(SData,[],grid_spacing,None,pixel_list=pixel_list)
 
                 # the "map" uses the array grid model to align the pixels
                 SV.set_figure(figure=12)
                 SV.open_figure()
-                SV.map(SData,[-200,200,-200,200],grid_spacing,None,pixel_list=pixel_list)
+                SV.map(SData,[],grid_spacing,None,pixel_list=pixel_list)
 
                 # show the waterfall plot near the peak spectrum
                 SV.set_figure(figure=13)
                 SV.open_figure()
                 SV.waterfall(SData,selected_beam,[-1500,1500],[-1,10],SData.blist,SData. nb)
 
+    if view_opt & 0x8:
         BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
 
 
