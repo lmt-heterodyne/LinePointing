@@ -186,8 +186,15 @@ class m2fit():
                     from scipy.optimize import curve_fit
                     def gaus(x,a,x0,sigma):
                         return a*numpy.exp(-(x-x0)**2/(2*sigma**2))
-                    popt,pcov = curve_fit(gaus,par,I)
-                    print('g popt = ', popt)
+                    I = numpy.array(I)
+                    par = numpy.array(par)
+                    ymean = max(I)
+                    mean = sum(par*I)/sum(I)
+                    sigma = numpy.sqrt(abs(sum((par-mean)**2*I)/sum(I)))
+                    p0 = [ymean, mean, sigma]
+                    print('gaus p0', p0)
+                    popt,pcov = curve_fit(gaus,par,I,p0)
+                    print('gaus popt ', popt)
                     self.result_relative[index] = popt[1]
                     self.parameters[index,0] = popt[0]
                     self.parameters[index,1] = popt[1]
