@@ -39,14 +39,14 @@ def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsy
     print(obsNums)
     print(peaks)
     print(image_files)
-    imagefiles, params = allfocus(obsNums, peaks, image_files, opt)
+    imagefiles, params, status, msg = allfocus(obsNums, peaks, image_files, opt)
     print(params)
 
 if __name__ == '__main__':
     opt = 0
     obsNumList = list(range(94823, 94832+1, 1))
-    obsNumList = list(range(97764, 97767+1, 1))
     obsNumList = list(range(99880, 99883+1, 1))
+    obsNumList = list(range(97764, 97767+1, 1))
     print(obsNumList)
 
     if len(sys.argv) > 2:
@@ -65,4 +65,6 @@ if __name__ == '__main__':
     line_list = None
     baseline_list = None
     linefocus(obsNumList, opt=opt, line_list=line_list, baseline_list=baseline_list, baseline_fit_order=0, tsys=200, tracking_beam=None)
+    import matplotlib.pyplot as pl
+    pl.show()
 
