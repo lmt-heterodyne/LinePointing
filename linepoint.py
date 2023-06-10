@@ -142,7 +142,7 @@ def extend_ifproc(ifproc):
 
     # do this to compare different ra/dec: file vs interp vs astropy
     self.source_coord_sys = self.nc.variables['Header.Source.CoordSys'][0]
-    if self.source_coord_sys != 2:
+    if False and self.source_coord_sys != 2:
         self.lmap = self.ramap_astropy
         self.bmap = self.decmap_astropy
 
@@ -186,6 +186,14 @@ def extend_ifproc(ifproc):
 
     self.close_nc()
 
+def create_map_data_main(ifproc):
+    self = ifproc
+    idx = np.where(self.bufpos == 0)[0]
+    self.map_x = self.map_x[:,idx]
+    self.map_y = self.map_y[:,idx]
+    self.map_p = self.map_p[:,idx]
+    #self.map_n = self.map_n[:,idx]
+    self.map_data = self.map_data[:,idx]
 
 def linepoint(args_dict, view_opt=0):
 
@@ -379,7 +387,7 @@ def linepoint(args_dict, view_opt=0):
     # build the pixel list
     if bs_beams != []:
         pixel_list = bs_beams
-    elif True or tracking_beam == -1 or obspgm == 'On':
+    elif tracking_beam == -1 or obspgm == 'On':
         pixel_list = sum([roach_pixels_all[roach_index] for roach_index in range(len(roach_pixels_all))], [])
     else:
         pixel_list = [tracking_beam]
@@ -407,17 +415,17 @@ def linepoint(args_dict, view_opt=0):
             mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
             return {'plot_file': 'lmtlp_%s.png'%file_ts}
 
-    if IData.receiver == 'Msip1mm':
-        bank_files = [files, files]
-        bank_pixel_list = [[0, 3], [1, 2]]
-        if selected_beam in bank_pixel_list[0]:
-            bank = 0
+        if IData.receiver == 'Msip1mm':
+            bank_files = [files, files]
+            bank_pixel_list = [[0, 3], [1, 2]]
+            if selected_beam in bank_pixel_list[0]:
+                bank = 0
+            else:
+                bank = 1
         else:
-            bank = 1
-    else:
-        bank_files = [[],[]]
-        bank_files[bank] = files
-    print(bank, bank_files)
+            bank_files = [[],[]]
+            bank_files[bank] = files
+        print(bank, bank_files)
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
@@ -646,6 +654,7 @@ def linepoint(args_dict, view_opt=0):
         else:
             fit_circle = 30
         if spec_cont == 'cont':
+            create_map_data_main(IData)
             B = BeamMap(IData,pix_list=pixel_list)
             B.fit_peaks_in_list(fit_circle=fit_circle)
         else:
