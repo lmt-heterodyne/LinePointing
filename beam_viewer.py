@@ -275,7 +275,7 @@ class BeamMapView():
         textstr = textstr +'\n Map Coord %s'%(map_coord.get(B.BData.map_coord, 'Err'))
         if B.BData.xoffset != 0 or B.BData.yoffset != 0:
             textstr = textstr +', Offsets %0.2f %0.2f'%(B.BData.xoffset*B.BData.xlength, B.BData.yoffset*B.BData.ylength)
-        textstr = textstr +('\n Tracking Beam %d'%B.BData.tracking_beam if B.BData.tracking_beam >=0 else 'Tracking Center')
+        textstr = textstr +('\n Tracking Beam %d'%B.BData.tracking_beam if B.BData.tracking_beam >=0 else '\nTracking Center')
         pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
         try:
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
