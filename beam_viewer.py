@@ -200,12 +200,8 @@ class BeamMapView():
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
 
         if apply_grid_corrections:
-            if True or len(B.BData.map_data) == 1:
-                gxl = gx[B.pix_list]
-                gyl = gy[B.pix_list]
-            else:
-                gxl = gx
-                gyl = gy
+            gxl = gx
+            gyl = gy
         else:
             gxl = np.zeros(B.n_pix_list)
             gyl = np.zeros(B.n_pix_list)
@@ -229,23 +225,23 @@ class BeamMapView():
         wi_sum = np.zeros((nx,ny))
         for i in range(B.n_pix_list):
             pixel = B.pix_list[i]
-            if B.n_pix_list == 1:
+            if len(B.BData.map_data) == 1:
                 index = i
             else:
                 index = B.BData.find_map_pixel_index(pixel)
             wdata = np.ones(len(B.BData.map_data[index]))
             try: 
                 print('trying scipy.interpolate.griddata')
-                zi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
-                wi = interp.griddata((map_x[index]-gxl[index],map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+                zi = interp.griddata((map_x[index]-gxl[pixel],map_y[index]-gyl[pixel]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
+                wi = interp.griddata((map_x[index]-gxl[pixel],map_y[index]-gyl[pixel]),wdata,(grid_x, grid_y),method='linear').T
             except Exception as e:
                 print(e)
                 try:
-                    zi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
-                    wi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+                    zi = mlab.griddata(map_x[index]-gxl[pixel],map_y[index]-gyl[pixel],B.BData.map_data[index],xi,yi,interp='linear')
+                    wi = mlab.griddata(map_x[index]-gxl[pixel],map_y[index]-gyl[pixel],wdata,xi,yi,interp='linear')
                 except:
-                    zi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
-                    wi = mlab.griddata(map_x[index]-gxl[index],map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
+                    zi = mlab.griddata(map_x[index]-gxl[pixel],map_y[index]-gyl[pixel],B.BData.map_data[index],xi,yi,interp='nn')
+                    wi = mlab.griddata(map_x[index]-gxl[pixel],map_y[index]-gyl[pixel],wdata,xi,yi,interp='nn')
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
         pl.imshow(zi_sum/wi_sum,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
@@ -292,12 +288,8 @@ class BeamMapView():
             gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
 
         if apply_grid_corrections:
-            if len(B.BData.map_data) == 1:
-                gxl = gx[B.pix_list]
-                gyl = gy[B.pix_list]
-            else:
-                gxl = gx
-                gyl = gy
+            gxl = gx
+            gyl = gy
         else:
             gxl = np.zeros(B.n_pix_list)
             gyl = np.zeros(B.n_pix_list)
@@ -322,16 +314,16 @@ class BeamMapView():
             wdata = np.ones(len(B.BData.map_data[index]))
             try:
                 print('trying scipy.interpolate.griddata')
-                zi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
-                wi = interp.griddata((B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index]),wdata,(grid_x, grid_y),method='linear').T
+                zi = interp.griddata((B.BData.map_x[index]-gxl[pixel],B.BData.map_y[index]-gyl[pixel]),B.BData.map_data[index],(grid_x,grid_y),method='linear').T
+                wi = interp.griddata((B.BData.map_x[index]-gxl[pixel],B.BData.map_y[index]-gyl[pixel]),wdata,(grid_x, grid_y),method='linear').T
             except Exception as e:
                 print(e)
                 try:
-                    zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='linear')
-                    wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='linear')
+                    zi = mlab.griddata(B.BData.map_x[index]-gxl[pixel],B.BData.map_y[index]-gyl[pixel],B.BData.map_data[index],xi,yi,interp='linear')
+                    wi = mlab.griddata(B.BData.map_x[index]-gxl[pixel],B.BData.map_y[index]-gyl[pixel],wdata,xi,yi,interp='linear')
                 except:
-                    zi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],B.BData.map_data[index],xi,yi,interp='nn')
-                    wi = mlab.griddata(B.BData.map_x[index]-gxl[index],B.BData.map_y[index]-gyl[index],wdata,xi,yi,interp='nn')
+                    zi = mlab.griddata(B.BData.map_x[index]-gxl[pixel],B.BData.map_y[index]-gyl[pixel],B.BData.map_data[index],xi,yi,interp='nn')
+                    wi = mlab.griddata(B.BData.map_x[index]-gxl[pixel],B.BData.map_y[index]-gyl[pixel],wdata,xi,yi,interp='nn')
             zi_sum = zi_sum + zi
             wi_sum = wi_sum + wi
 
