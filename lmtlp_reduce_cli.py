@@ -59,8 +59,9 @@ def lmtlp_reduce_cli(host, port, args_dict) :
     print ('results_str =', results_str)
     results_dict = json.loads(results_str)
     status = results_dict['status']
+    plotfile = results_dict.get('plot_file', None)
 
-    if status == 0:
+    if plotfile is not None:
         with open('lmtlp_%s.png'%obsnum, 'wb') as f:
             print ('image file opened')
             while True:
