@@ -16,7 +16,7 @@ def lmtlp_reduce(args_dict) :
     ifproc_file_data = lp_dict.get('ifproc_data', None)
 
     results_dict = dict()
-    if plot_file is not None:
+    if params is not None:
         status = 0
         x = 0
         y = 0
@@ -33,11 +33,9 @@ def lmtlp_reduce(args_dict) :
                 x = numpy.mean(params[:,1])
             if l > 2:
                 y = numpy.mean(params[:,2])
-        results_dict['status'] = status
         results_dict['x'] = x
         results_dict['y'] = y
         results_dict['pk'] = pk
-        results_dict['plot_file'] = plot_file
         results_dict['az_user_off'] = ifproc_file_data.az_user / 206264.8
         results_dict['el_user_off'] = ifproc_file_data.el_user / 206264.8
         results_dict['obspgm'] = ifproc_file_data.obspgm
@@ -50,9 +48,11 @@ def lmtlp_reduce(args_dict) :
         except Exception as e:
             print('----------------', e)
     else:
-        results_dict['status'] = -1
+        status = -1
+    results_dict['status'] = status
+    results_dict['plot_file'] = plot_file
     results_str = json.dumps(results_dict)
-    print(results_str)
+    print('lmtlp_reduce results_str = ', results_str)
     return results_str
 
 if __name__ == '__main__':

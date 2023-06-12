@@ -67,8 +67,9 @@ def allfocus(obsNums, peaks, lp_files, opt):
         params = None
         print('params', params)
         return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
-        
-    f.find_focus()
+
+    use_gaus = True
+    f.find_focus(use_gaus=use_gaus)
     f.fit_focus_model()
     print('lp_params', lp_params)
     print('relative_focus',f.relative_focus_fit)
@@ -89,7 +90,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
 
     FV.set_figure(figure=100)
     FV.open_figure()
-    FV.plot_fits(f,obsNums)
+    FV.plot_fits(f,obsNums,use_gaus=use_gaus)
 
     pl.savefig('lf_fits_%s.png'%file_ts, bbox_inches='tight')
 

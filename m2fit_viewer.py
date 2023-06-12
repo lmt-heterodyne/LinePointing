@@ -32,7 +32,7 @@ class m2fit_viewer():
         """
         pl.ion()
 
-    def plot_fits(self,paramfit,obsNumArg=False,line_stats_all=[],plot_axis=[-200,200,-5,15]):
+    def plot_fits(self,paramfit,obsNumArg=False,line_stats_all=[],plot_axis=[-200,200,-5,15],use_gaus=False):
         """Plots graphs of all data and fits.
 
         paramfit is the input param fit instance with the results.
@@ -110,6 +110,10 @@ class m2fit_viewer():
                      + paramfit.parameters[index,1]*prange
                      + paramfit.parameters[index,2]*prange*prange
                      )
+            if use_gaus == True:
+                def gaus(x,a,x0,sigma):
+                    return a*numpy.exp(-(x-x0)**2/(2*sigma**2))
+                model = gaus(prange, *paramfit.parameters[index])
             if num_sub_rows > 0 and num_sub_cols > 0:
                 inner_grid = gridspec.GridSpecFromSubplotSpec(num_sub_rows, num_sub_cols, subplot_spec=outer_grid[pixel_index], hspace=hspace)
                 ax = pl.subplot(inner_grid[:-1,:])
@@ -119,7 +123,8 @@ class m2fit_viewer():
             if paramfit.m2pos >= 0:
                 ax.plot(paramfit.m2_position,paramfit.data[:,index],'o')
                 ax.plot(prange,model,'r')
-                pl.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
+                if use_gaus == False:
+                  pl.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
                 if paramfit.status < 0:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
                   pl.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(paramfit.data[:,index]), paramfit.msg, bbox=props, color='red')

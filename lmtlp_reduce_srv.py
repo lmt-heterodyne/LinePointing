@@ -47,20 +47,18 @@ class LmtlpReduceSrv :
                 results_dict = json.loads(results_str)
 
                 status = results_dict['status']
-                print (status)
-                if status == 0:
-                    plotfile = results_dict['plot_file']
-                else :
-                    plotfile = None
+                print (('lmtlp_reduce_srv status = ', status))
+                plotfile = results_dict.get('plot_file', None)
 
                 res = np.zeros(1)
                 res[0] = len(results_str)
-                print(('results_str len =', res[0]))
-                print(('results_str =', results_str))
+                print(('lmtlp_reduce_srv results_str len =', res[0]))
+                print(('lmtlp_reduce_srv results_str =', results_str))
                 conn.send(res.tobytes())
                 conn.send(results_str.encode())
                 if plotfile is not None:
                     try:
+                        print(('send plotfile', plotfile))
                         with open(plotfile, 'rb') as f:
                             conn.sendfile(f, 0)
                     except Exception as e:

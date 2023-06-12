@@ -135,7 +135,7 @@ class m2fit():
         self.scans_xpos = []
         self.scans_xpos_all = []
     
-    def find_focus(self):
+    def find_focus(self, use_gaus=False):
         """Uses data loaded in during creation of this instance to fit focus."""
         if self.m2pos < 0: return
 
@@ -155,7 +155,7 @@ class m2fit():
             for scan_id in range(self.nscans):
                 self.scans_xpos_all.append(self.m2_position[scan_id])
                 print('scan_id, mdata', scan_id, self.data[scan_id][index])
-                if True and self.data[scan_id][index] < 0.5*mdata_max[index]:
+                if use_gaus == False and self.data[scan_id][index] < 0.5*mdata_max[index]:
                     continue
                 I.append(self.data[scan_id][index])
                 par.append(self.m2_position[scan_id])
@@ -182,15 +182,32 @@ class m2fit():
             else:
                 ptpinv = numpy.linalg.inv(ptp)
                 self.parameters[index,:] = numpy.dot(ptpinv,ptr)
-                if self.parameters[index,2] != 0:
+                if use_gaus == True:
+                    from scipy.optimize import curve_fit
+                    def gaus(x,a,x0,sigma):
+                        return a*numpy.exp(-(x-x0)**2/(2*sigma**2))
+                    I = numpy.array(I)
+                    par = numpy.array(par)
+                    ymean = max(I)
+                    mean = sum(par*I)/sum(I)
+                    sigma = numpy.sqrt(abs(sum((par-mean)**2*I)/sum(I)))
+                    p0 = [ymean, mean, sigma]
+                    print('gaus p0', p0)
+                    popt,pcov = curve_fit(gaus,par,I,p0)
+                    print('gaus popt ', popt)
+                    self.result_relative[index] = popt[1]
+                    self.parameters[index,0] = popt[0]
+                    self.parameters[index,1] = popt[1]
+                    self.parameters[index,2] = popt[2]
+                elif self.parameters[index,2] != 0:
                     self.result_relative[index] = -self.parameters[index,1]/self.parameters[index,2]/2.
-                    self.result_absolute[index] = self.result_relative[index] + numpy.mean(pcor)
                 else:
                     self.result_relative[index] = 0
                     self.result_absolute[index] = 0
                     self.msg = "Problem in fit"
                     print(self.msg)
                     self.status = -1
+                self.result_absolute[index] = self.result_relative[index] + numpy.mean(pcor)
 
 
     def fit_focus_model(self):

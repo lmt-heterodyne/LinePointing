@@ -19,17 +19,6 @@ def extend_ifproc(ifproc):
     from scipy import interpolate
     if os.path.isfile(self.filename):
         self.nc = netCDF4.Dataset(self.filename)
-    # data arrays
-    self.time = self.nc.variables['Data.TelescopeBackend.TelTime'][:]
-    self.bufpos = self.nc.variables['Data.TelescopeBackend.BufPos'][:]
-    # AzEl map
-    self.azmap = self.nc.variables['Data.TelescopeBackend.TelAzMap'][:]* 206264.8
-    self.elmap = self.nc.variables['Data.TelescopeBackend.TelElMap'][:]* 206264.8
-    self.parang = self.nc.variables['Data.TelescopeBackend.ActParAng'][:]
-    try:
-        self.galang = self.nc.variables['Data.TelescopeBackend.ActGalAng'][:]
-    except:
-        self.galang = np.zeros(len(self.parang))
 
     self.tel_utc = 180/15/np.pi*self.nc.variables['Data.TelescopeBackend.TelUtc'][:][:]
     utdate = self.utdate
@@ -39,7 +28,8 @@ def extend_ifproc(ifproc):
     print([dparser.parse(str(utdate)+' '+str(datetime.timedelta(hours=self.tel_utc[0]))+' UTC', fuzzy=True) for i in range(1)])
     self.sky_time = np.array([dparser.parse(str(utdate)+' '+str(datetime.timedelta(hours=self.tel_utc[i]))+' UTC', fuzzy=True).timestamp() for i in range(len(self.tel_utc))])
 
-    # RaDec map
+    self.ut = self.nc.variables['Data.TelescopeBackend.TelUtc'][:] / 2 / np.pi * 24
+    self.lst = self.nc.variables['Data.TelescopeBackend.TelLst'][:] / 2 / np.pi * 24
     self.ramap_file = (self.nc.variables['Data.TelescopeBackend.SourceRaAct'][:] - self.source_RA) * np.cos(self.source_Dec) * 206264.8
     self.decmap_file = (self.nc.variables['Data.TelescopeBackend.SourceDecAct'][:] - self.source_Dec) * 206264.8
 
@@ -126,43 +116,20 @@ def extend_ifproc(ifproc):
         el_ = tel_alt_tot.value
         ra_ = tel_icrs_astropy.ra.radian
         dec_ = tel_icrs_astropy.dec.radian
-        ut_ = tel_time.ut1
-        lst_ = tel_time.sidereal_time('apparent')
+        ut_ = tel_time.ut1.value
+        lst_ = tel_time.sidereal_time('apparent').value
 
 
     # set the ra/dec map
     #self.ramap = self.ramap_interp
     #self.decmap = self.decmap_interp
-    self.ramap = self.ramap_file
-    self.decmap = self.decmap_file
-
-    # set the l/b map
-    self.lmap = (self.nc.variables['Data.TelescopeBackend.SourceLAct'][:] - self.source_L) * np.cos(self.source_B) * 206264.8
-    self.bmap = (self.nc.variables['Data.TelescopeBackend.SourceBAct'][:] - self.source_B) * 206264.8
-
-    # do this to compare different ra/dec: file vs interp vs astropy
-    self.source_coord_sys = self.nc.variables['Header.Source.CoordSys'][0]
-    if False and self.source_coord_sys != 2:
-        self.lmap = self.ramap_astropy
-        self.bmap = self.decmap_astropy
-
-
-    if self.map_coord == 1:
-        self.xmap = self.ramap
-        self.ymap = self.decmap
-    elif self.map_coord == 2:
-        self.xmap = self.lmap
-        self.ymap = self.bmap
-    else:
-        self.xmap = self.azmap
-        self.ymap = self.elmap
 
     if False:
         def stat_change(d, d_orig, unit, name):
             #dd = (d - d_orig).to_value(unit)
             dd = (d - d_orig)
             dd = dd[np.isfinite(dd)]
-            #print(f"{name} changed with diff ({unit}): min={dd.max()} max={dd.min()} mean={dd.mean()} std={np.std(dd)}")
+            print(f"{name} changed with diff ({unit}): min={dd.max()} max={dd.min()} mean={dd.mean()} std={np.std(dd)}")
         stat_change(self.parang_astropy, self.parang, u.deg, 'ActParAng') 
         stat_change(self.ramap_file, self.ramap_interp, u.arcsec, 'file-interp') 
         stat_change(self.decmap_file, self.decmap_interp, u.arcsec, 'file-interp')
@@ -174,15 +141,25 @@ def extend_ifproc(ifproc):
     if False:
         import matplotlib.pyplot as pl
         sl = np.where(self.bufpos == 0)
-        if False:
-            # traces
-            ax = pl.subplot()
-            ax.plot(self.time[sl],self.ramap_file[sl], 'rx')
-            ax.plot(self.time[sl],self.ramap_interp[sl], 'mx')
-            ax.plot(self.time[sl],self.ramap_astropy[sl], 'yx')
+        # traces
+        ax = pl.subplot()
+        ax.plot(self.time[sl],self.ramap_file[sl], 'r', label='file')
+        ax.plot(self.time[sl],self.ramap_interp[sl], 'm', label='interp')
+        ax.plot(self.time[sl],self.ramap_astropy[sl], 'y', label='astropy')
+        pl.legend()
+        pl.show()
+        ax = pl.subplot()
+        ax.plot(self.time[sl],self.ramap_file[sl]-self.ramap_interp[sl], 'r', label='file-interp')
+        ax.plot(self.time[sl],self.ramap_file[sl]-self.ramap_astropy[sl], 'b', label='file-astropy')
+        pl.legend()
+        pl.show()
+        ax = pl.subplot()
+        ax.plot(self.time[sl],self.ut[sl]-ut_[sl], 'm', label='UT')
+        ax.plot(self.time[sl],self.lst[sl]-lst_[sl], 'g', label='LST')
+        pl.legend()
         pl.show()
         import sys
-        #sys.exit(0)
+        sys.exit(0)
 
     self.close_nc()
 
@@ -191,7 +168,14 @@ def create_map_data_main(ifproc):
     idx = np.where(self.bufpos == 0)[0]
     self.map_x = self.map_x[:,idx]
     self.map_y = self.map_y[:,idx]
+    self.map_az = self.map_az[:,idx]
+    self.map_el = self.map_el[:,idx]
+    self.map_ra = self.map_ra[:,idx]
+    self.map_dec = self.map_dec[:,idx]
+    self.map_l = self.map_l[:,idx]
+    self.map_b = self.map_b[:,idx]
     self.map_p = self.map_p[:,idx]
+    self.map_g = self.map_g[:,idx]
     #self.map_n = self.map_n[:,idx]
     self.map_data = self.map_data[:,idx]
 
@@ -350,6 +334,8 @@ def linepoint(args_dict, view_opt=0):
     # open data file
     IData = IFProcData(ifproc_file)
     extend_ifproc(IData)
+    IData.xmap = IData.azmap
+    IData.ymap = IData.elmap
     
     bs_beams = IData.bs_beams
     map_motion = IData.map_motion
@@ -363,7 +349,7 @@ def linepoint(args_dict, view_opt=0):
     if 'Msip1mm' not in IData.receiver:
         tracking_beam = None
     if tracking_beam == None:
-        tracking_beam = IData.tracking_beam
+        tracking_beam = int(IData.tracking_beam)
     if False and tracking_beam == -1:
         tracking_beam = selected_beam
     if tracking_beam != -1:
@@ -690,8 +676,6 @@ def linepoint(args_dict, view_opt=0):
                 BV.show_peaks(B,apply_grid_corrections=True,show_map_points=selected_beam)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
 
-            ###BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
-
             if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
@@ -724,6 +708,24 @@ def linepoint(args_dict, view_opt=0):
                 BV.open_figure()
                 BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=21)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
+
+            if view_opt & 0x4:
+                BV.set_figure(figure=3)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=0)
+                BV.set_figure(figure=4)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=1)
+                BV.set_figure(figure=5)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=2)
+            if False:
+                BV.set_figure(figure=6)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=11)
+                BV.set_figure(figure=7)
+                BV.open_figure()
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=21)
             if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
@@ -743,25 +745,27 @@ def linepoint(args_dict, view_opt=0):
             if spec_cont == 'cont':
                 BV.set_figure(figure=11)
                 BV.open_figure()
-                BV.sanchez_map(B,[-100,100,-100,100],grid_spacing)
+                BV.sanchez_map(B,[],grid_spacing)
                 BV.show_peaks(B,apply_grid_corrections=False)
             else:
                 # the "sanchez map" shows the array grid on the sky
                 SV.set_figure(figure=11)
                 SV.open_figure()
-                SV.sanchez_map(SData,[-100,100,-100,100],grid_spacing,None,pixel_list=pixel_list)
+                SV.sanchez_map(SData,[],grid_spacing,None,pixel_list=pixel_list)
 
                 # the "map" uses the array grid model to align the pixels
                 SV.set_figure(figure=12)
                 SV.open_figure()
-                SV.map(SData,[-200,200,-200,200],grid_spacing,None,pixel_list=pixel_list)
+                SV.map(SData,[],grid_spacing,None,pixel_list=pixel_list)
 
                 # show the waterfall plot near the peak spectrum
                 SV.set_figure(figure=13)
                 SV.open_figure()
                 SV.waterfall(SData,selected_beam,[-1500,1500],[-1,10],SData.blist,SData. nb)
 
-        pl.show()
+    if view_opt & 0x8:
+        BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
+
 
     print ('plot_file', 'lmtlp_%s.png'%file_ts)
     print ('params', params)
