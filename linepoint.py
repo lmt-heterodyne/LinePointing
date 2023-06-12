@@ -691,22 +691,6 @@ def linepoint(args_dict, view_opt=0):
             #BV.add_subplot(SV.fig)
             BV.map(B,[],grid_spacing,apply_grid_corrections=True)
             BV.show_peaks(B,apply_grid_corrections=True)
-            BV.set_figure(figure=3)
-            BV.open_figure()
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=0)
-            BV.set_figure(figure=4)
-            BV.open_figure()
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=1)
-            BV.set_figure(figure=5)
-            BV.open_figure()
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=2)
-            if False:
-                BV.set_figure(figure=6)
-                BV.open_figure()
-                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=11)
-                BV.set_figure(figure=7)
-                BV.open_figure()
-                BV.map(B,[],grid_spacing,apply_grid_corrections=True,display_coord=21)
             pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
 
             if view_opt & 0x4:
