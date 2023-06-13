@@ -1,7 +1,6 @@
 import sys
 import numpy
 import math
-import matplotlib.pyplot as pl
 import time
 import os
 import numpy as np
@@ -85,19 +84,34 @@ def allfocus(obsNums, peaks, lp_files, opt):
     params[0,1] = f.m2yfocus
     params[0,2] = f.m2zfocus
     params[0,3] = f.m1ZernikeC0
-    
+    print('params 1', params)
+
+    print('open ftt viewer')
     FV = m2fit_viewer()
 
+    print('set figure')
     FV.set_figure(figure=100)
+    print('open figure')
     FV.open_figure()
+    print('plot fits')
     FV.plot_fits(f,obsNums,use_gaus=use_gaus)
+    print('save fits')
+    FV.save_figure('lf_fits_%s.png'%file_ts)
+    print('close fits')
+    FV.close_figure(figure=100)
 
-    pl.savefig('lf_fits_%s.png'%file_ts, bbox_inches='tight')
-
+    print('set figure')
     FV.set_figure(figure=101)
+    print('open figure')
     FV.open_figure()
+    print('plot model')
     FV.plot_focus_model_fit(f,obsNums)
-    pl.savefig('lf_model_%s.png'%file_ts, bbox_inches='tight')
+    print('save model')
+    FV.save_figure('lf_model_%s.png'%file_ts)
+    print('close model')
+    FV.close_figure(figure=101)
+    
+    print('merge')
     merge_png(['lf_fits_%s.png'%file_ts, 'lf_model_%s.png'%file_ts], 'lf_focus_%s.png'%file_ts)
     lp_merge_files += ['lf_fits_%s.png'%file_ts]
     lp_merge_files += ['lf_model_%s.png'%file_ts]
@@ -105,7 +119,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
     merge_focus(lp_merge_params, lp_merge_files)
 
     if opt & 0x1:
-        pl.show()
+        FV.show()
         
     print('params', params)
     return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
