@@ -27,6 +27,18 @@ class m2fit_viewer():
         """
         pl.close(self.figure)
 
+    def close_figure(self, figure=None):
+        """ closes the figure window
+        """
+        if figure is not None:
+          pl.close(figure)
+
+    def save_figure(self, fname):
+        pl.savefig(fname, bbox_inches='tight')
+
+    def show(self):
+        pl.show()
+
     def ion(self):
         """ opens the figure window
         """
