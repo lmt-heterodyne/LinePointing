@@ -52,7 +52,6 @@ if __name__ == '__main__':
     obsNumList = list(range(97764, 97767+1, 1))
     obsNumList = list(range(110010, 110016+1, 1))
     obsNumList = list(range(110020, 110026+1, 1))
-    print(obsNumList)
 
     if len(sys.argv) > 1 and sys.argv[1].startswith('0x'):
         opt = int(sys.argv[1], 0)
@@ -64,11 +63,13 @@ if __name__ == '__main__':
         except:
            pass
     try:
-        obsNumList = ast.literal_eval(sys.argv[-1])
+        if not sys.argv[-1].startswith('0x'):        
+            obsNumList = ast.literal_eval(sys.argv[-1])
     except Exception as e:
         print(e)
         print('using default ObsNumList', obsNumList)
 
+    print(obsNumList)
     line_list = None
     baseline_list = None
     linefocus(obsNumList, opt=opt, line_list=line_list, baseline_list=baseline_list, baseline_fit_order=0, tsys=200, tracking_beam=None)
