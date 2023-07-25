@@ -122,7 +122,15 @@ def allfocus(obsNums, peaks, lp_files, opt):
         FV.show()
         
     print('params', params)
-    return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
+    d = {}
+    d['png'] = 'lf_focus_%s.png'%file_ts
+    d['params'] = params
+    d['status'] = f.status
+    d['msg'] = f.msg
+    d['par'] = [i for i in sorted(f.scans_xpos_all)]
+    d['intensity'] = lp_merge_params
+    d['pos'] = f.m2pos
+    return d
 
 if __name__ == '__main__':
     obsNums = [83578, 83579, 83580, 83581, 83582]
