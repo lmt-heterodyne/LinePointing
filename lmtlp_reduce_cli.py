@@ -15,9 +15,9 @@ def lmtlp_reduce_cli(host, port, args_dict) :
         results_str = lmtlp_reduce(args_dict)
         results_dict = json.loads(results_str)
         status = results_dict['status']
-        x =  results_dict['x']
-        y =  results_dict['y']
-        pk =  results_dict['pk']
+        x =  results_dict.get('x', 0)
+        y =  results_dict.get('y', 0)
+        pk =  results_dict.get('pk', 0)
         plotfile =  results_dict['plot_file']
         image_file = 'lmtlp_%s.png'%str(obsnum)
         print ('lmtlp_plotfile = ', plotfile)
