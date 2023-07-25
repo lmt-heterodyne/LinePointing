@@ -10,7 +10,7 @@ def lmtlp_reduce_cli(host, port, args_dict) :
     print('lmtlp_reduce_cli args_dict = ', args_dict)
     obsnum = args_dict.get('ObsNum')
 
-    if host is None:
+    if host is None or host == 'None':
         print('lmtlp_reduce_cli host is None, run directly')
         results_str = lmtlp_reduce(args_dict)
         results_dict = json.loads(results_str)
