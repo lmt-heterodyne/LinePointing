@@ -42,16 +42,20 @@ def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsy
     print(obsNums)
     print(peaks)
     print(image_files)
-    imagefiles, params, status, msg = allfocus(obsNums, peaks, image_files, opt)
-    print(params)
+    allfocus_results_d = allfocus(obsNums, peaks, image_files, opt)
+    image_file = allfocus_results_d['png']
+    params = allfocus_results_d['params']
+    status = allfocus_results_d['status']
+    msg = allfocus_results_d['msg']
+    print(allfocus_results_d)
 
 if __name__ == '__main__':
     opt = 0
     obsNumList = list(range(94823, 94832+1, 1))
     obsNumList = list(range(99880, 99883+1, 1))
     obsNumList = list(range(97764, 97767+1, 1))
-    obsNumList = list(range(110010, 110016+1, 1))
     obsNumList = list(range(110020, 110026+1, 1))
+    obsNumList = list(range(110010, 110015+1, 1))
 
     if len(sys.argv) > 1 and sys.argv[1].startswith('0x'):
         opt = int(sys.argv[1], 0)
