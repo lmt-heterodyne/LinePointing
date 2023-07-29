@@ -114,7 +114,7 @@ class m2fit_viewer():
                 pixel_index = 0
                 hspace = None
             else:
-                pixel_index = plot_order[pixel_index]-1
+                pixel_index = plot_order[index]-1
                 hspace = 1.0
             if(math.isnan(paramfit.result_relative[index])):
                 continue
