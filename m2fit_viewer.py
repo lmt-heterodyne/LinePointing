@@ -44,7 +44,7 @@ class m2fit_viewer():
         """
         pl.ion()
 
-    def plot_fits(self,paramfit,obsNumArg=False,line_stats_all=[],plot_axis=[-200,200,-5,15],use_gaus=False):
+    def plot_fits(self,paramfit,obsNumArg=False,line_stats_all=[],plot_axis=[-200,200,-5,15],use_gaus=False,row_id=None,col_id=None):
         """Plots graphs of all data and fits.
 
         paramfit is the input param fit instance with the results.
@@ -70,8 +70,8 @@ class m2fit_viewer():
             self.tlabel = paramfit.msg #'Error: Nothing is changing'
             self.xlabel = 'Offset'
             prange = numpy.arange(-1,1.1,.1)
-        pl.xlabel(self.xlabel)
-        pl.ylabel('Intensity')
+        #pl.xlabel(self.xlabel)
+        #pl.ylabel('Intensity')
         prange = numpy.arange(min(paramfit.m2_position)-.1,max(paramfit.m2_position)+.1,.1)
         if len(paramfit.scans_xpos) > 0:
           prange = numpy.arange(min(paramfit.scans_xpos)-.1,max(paramfit.scans_xpos)+.1,.1)
@@ -85,6 +85,12 @@ class m2fit_viewer():
             nrows = ncols = 1
         else:
             nrows = ncols = 4
+            if paramfit.receiver == 'RedshiftReceiver':
+                nrows = len(set(row_id[0]))
+                ncols = len(set(col_id[0]))
+                row0 = int(min(set(row_id[0])))
+                ncols = 6
+                print('rows/cols =' , row_id, col_id, nrows, ncols, row0, paramfit.n)
 
         # inner grid
         if len(line_stats_all) != 0 and len(line_stats_all[0]) != 0:
@@ -106,7 +112,7 @@ class m2fit_viewer():
         else:
             num_sub_rows = num_sub_cols = 0
 
-        if num_sub_rows > 0 and num_sub_cols > 0:
+        if nrows > 0 and ncols > 0:
           outer_grid = gridspec.GridSpec(nrows, ncols)
 
         for index in range(paramfit.n):
@@ -114,7 +120,12 @@ class m2fit_viewer():
                 pixel_index = 0
                 hspace = None
             else:
+              if paramfit.receiver == 'Sequoia':
                 pixel_index = plot_order[index]-1
+              elif paramfit.receiver == 'RedshiftReceiver':
+                pixel_index = (int(row_id[0][index])-row0)*6+int(col_id[0][index])
+              else:
+                pixel_index = index
                 hspace = 1.0
             if(math.isnan(paramfit.result_relative[index])):
                 continue
@@ -130,7 +141,7 @@ class m2fit_viewer():
                 inner_grid = gridspec.GridSpecFromSubplotSpec(num_sub_rows, num_sub_cols, subplot_spec=outer_grid[pixel_index], hspace=hspace)
                 ax = pl.subplot(inner_grid[:-1,:])
             else:
-                ax = pl.subplot(111)
+                ax = pl.subplot(outer_grid[pixel_index])
             
             if paramfit.m2pos >= 0:
                 ax.plot(paramfit.m2_position,paramfit.data[:,index],'o')
@@ -145,6 +156,8 @@ class m2fit_viewer():
                 except:
                   pass
                 for i in range(num_sub_cols):
+                    if len(line_stats_all) == 0:
+                      break
                     line_stats = line_stats_all[i][index]
                     ax = pl.subplot(inner_grid[-1,i])
                     pl.gca().get_xaxis().set_visible(False);
@@ -159,27 +172,62 @@ class m2fit_viewer():
               pl.tight_layout(rect=[0, 0.03, 1, 0.95])
             except:
               pass
-            if obsNumArg == False:
-                titleObsNum = paramfit.obsnum
-            else:
-                titleObsNum = obsNumArg
-            pl.title('ObsNum: %s %s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
+        if obsNumArg == False:
+          titleObsNum = paramfit.obsnum
+        else:
+          titleObsNum = obsNumArg
+        pl.suptitle('ObsNum: %s %s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
 
-    def plot_focus_model_fit(self,paramfit,obsNumArg=False):
+    def plot_focus_model_fit(self,paramfit,obsNumArg=False,row_id=None,col_id=None):
         """Plots data and focus model fit."""
         
-        result_relative = paramfit.result_relative
-        brange = numpy.arange(-0.5*(paramfit.n-1),0.5*(paramfit.n-1)+1,1)
-        brange = numpy.arange(0,paramfit.n,1)
-        the_model = paramfit.relative_focus_fit+(paramfit.focus_slope)*brange
-        pl.plot(brange,result_relative,'o')
-        pl.plot(brange,the_model,'r')
-        if len(brange) == 1:
-            xpos = brange[0]+0.01
-            ypos = result_relative*1.01
+        if paramfit.receiver == 'RedshiftReceiver' or paramfit.receiver == 'Toltec':
+            M = paramfit
+            if paramfit.receiver == 'RedshiftReceiver':
+              band_order = [0,2,1,3,5,4]
+              freq = [75.703906,82.003906,89.396094,94.599906,100.899906,108.292094]
+              freq_0 = (freq[0]+freq[5])/2.
+              d_freq = (freq[5]-freq_0)
+            else:
+              col_id = [[0, 1, 2]]
+              band_order = [0,1,2]
+              freq = [272.54, 214.14, 149.90]
+              freq_0 = (freq[0]+freq[2])/2.
+              d_freq = (freq[2]-freq_0)
+            band_freq = []
+            result_relative = []
+            for index in range(M.n):
+                if(math.isnan(M.result_relative[index])):
+                    continue
+                band_freq.append(freq[band_order[int(col_id[0][index])]])
+                result_relative.append(M.result_relative[index])
+            band_freq = numpy.array(band_freq)
+            result_relative = numpy.array(result_relative)
+            pl.plot(band_freq,result_relative,'o')
+            brange = numpy.arange(-1.2,1.3,.1)
+            f = freq_0+brange*d_freq
+            the_model = M.relative_focus_fit+M.focus_slope*brange
+            pl.plot(f,the_model,'r')
+            pl.xlabel('Frequency (GHz)')
+            if paramfit.receiver == 'Toltec':
+              pl.gca().invert_xaxis()
+              xpos = 200
+            else:
+              xpos = 93
+            ypos = result_relative.max()-0.3*(result_relative.max()-result_relative.min())
         else:
-            xpos = brange[0]+.5
-            ypos = result_relative.max()-0.2*(result_relative.max()-result_relative.min())
+            result_relative = paramfit.result_relative
+            brange = numpy.arange(-0.5*(paramfit.n-1),0.5*(paramfit.n-1)+1,1)
+            brange = numpy.arange(0,paramfit.n,1)
+            the_model = paramfit.relative_focus_fit+(paramfit.focus_slope)*brange
+            pl.plot(brange,result_relative,'o')
+            pl.plot(brange,the_model,'r')
+            if len(brange) == 1:
+                xpos = brange[0]+0.01
+                ypos = result_relative*1.01
+            else:
+                xpos = brange[0]+.5
+                ypos = result_relative.max()-0.2*(result_relative.max()-result_relative.min())
         if paramfit.m2pos == 0:
             self.tlabel = 'M2.Z Offset'
             self.ylabel = 'M2.Z Offset (mm)'
