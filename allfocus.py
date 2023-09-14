@@ -15,8 +15,8 @@ from m2fit_viewer import m2fit_viewer
 from merge_png import merge_png
 from merge_focus import merge_focus
 
-def allfocus(obsNums, peaks, lp_files, opt):
-    print(obsNums, peaks, lp_files, opt)
+def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id):
+    print('allfocus', obsNums, peaks, lp_files, opt, row_id, col_id)
 
     # define time stamp
     obsnum = int(obsNums[-1])
@@ -27,33 +27,17 @@ def allfocus(obsNums, peaks, lp_files, opt):
     lp_params = []
     ifproc_file_data = []
     for i,obsnum in enumerate(obsNums):
-        lp_params_1 = np.zeros((1,1))
-        lp_params_1[0,0] = peaks[i]
-        ifproc_files = lookup_ifproc_file_all(obsnum)
-        print('found', obsnum, ifproc_files)
-        ifproc_file = None
-        for f in ifproc_files:
-            if 'toltec2' in f:
-                continue
-            if not f:
-                print('cannot find ifproc file', f)
-                return -1
-            ifproc_file_quick = IFProcQuick(f)
-            obspgm = ifproc_file_quick.obspgm
-            if obspgm == 'Tune':
-                continue
-            ifproc_file = f
-        if ifproc_file is None:
-            print('cannot find ifproc file in ', ifproc_files)
-            return -1
-        ifproc_file_data_1 = IFProcData(ifproc_file)
-        if ifproc_file_data_1 == None:
-            print('cannot find ifproc data')
-            return -1
-        if ifproc_file_data_1.obspgm == 'Cal':
-            continue
+        if isinstance(peaks[i], list):
+            print('peaks', peaks, len(peaks[i]))
+            lp_params_1 = np.zeros((len(peaks[i]),1))
+            for j in range(len(peaks[i])):
+                lp_params_1[j,0] = peaks[i][j]
+        else:
+            lp_params_1 = np.zeros((1,1))
+            lp_params_1[0,0] = peaks[i]
+        ifproc_file_data_1 = file_data[i]
         if ifproc_file_data_1.obspgm == 'Bs' or ifproc_file_data_1.obspgm == 'Ps' or ifproc_file_data_1.obspgm == 'Map' or ifproc_file_data_1.obspgm == 'Lissajous':
-            lp_merge_params += [float(peaks[i])]
+            lp_merge_params += [float(np.mean(peaks[i]))]
         else:
             lp_merge_params += [1]
         lp_merge_files += [lp_files[i]]
@@ -69,7 +53,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
 
     use_gaus = True
     f.find_focus(use_gaus=use_gaus)
-    f.fit_focus_model()
+    f.fit_focus_model(col_id=col_id)
     print('lp_params', lp_params)
     print('relative_focus',f.relative_focus_fit)
     print('absolute_focus',f.absolute_focus_fit)
@@ -94,7 +78,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
     print('open figure')
     FV.open_figure()
     print('plot fits')
-    FV.plot_fits(f,obsNums,use_gaus=use_gaus)
+    FV.plot_fits(f,obsNums,use_gaus=use_gaus,row_id=row_id,col_id=col_id)
     print('save fits')
     FV.save_figure('lf_fits_%s.png'%file_ts)
     print('close fits')
@@ -105,7 +89,7 @@ def allfocus(obsNums, peaks, lp_files, opt):
     print('open figure')
     FV.open_figure()
     print('plot model')
-    FV.plot_focus_model_fit(f,obsNums)
+    FV.plot_focus_model_fit(f,obsNums,row_id=row_id,col_id=col_id)
     print('save model')
     FV.save_figure('lf_model_%s.png'%file_ts)
     print('close model')
