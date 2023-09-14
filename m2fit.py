@@ -157,6 +157,8 @@ class m2fit():
                 print('scan_id, mdata', scan_id, self.data[scan_id][index])
                 if use_gaus == False and self.data[scan_id][index] < 0.5*mdata_max[index]:
                     continue
+                if self.data[scan_id][index] == 0:
+                    continue
                 I.append(self.data[scan_id][index])
                 par.append(self.m2_position[scan_id])
                 self.scans_xpos.append(self.m2_position[scan_id])
@@ -210,11 +212,20 @@ class m2fit():
                 self.result_absolute[index] = self.result_relative[index] + numpy.mean(pcor)
 
 
-    def fit_focus_model(self):
+    def fit_focus_model(self, col_id=None):
         """Uses best fit focus (Z) for each instance to fit linear focus model."""
-        xband = [index-0.5*(self.n-1) for index in range(self.n)]
+        if self.receiver == 'RedshiftReceiver':
+            xbands = set([int(col_id[0][index]) for index in range(self.n)])
+            xband = [-1,-.2,-.6,.2,1.,.6]
+        elif self.receiver == 'Toltec':
+            col_id = [[0, 1, 2]]
+            xbands = set([int(col_id[0][index]) for index in range(self.n)])
+            xband = [1.1-1.4, 1.4-1.4, 2.0-1.4]
+        else:
+            xbands = [index for index in range(self.n)]
+            xband = [index-0.5*(self.n-1) for index in range(self.n)]
         print('xbands =', xband)
-        if self.n > 1 and len(xband) > 1:
+        if self.n > 1 and len(xbands) > 1:
             print('fit focus')
             ptp = numpy.zeros((2,2))
             ptr = numpy.zeros(2)
@@ -223,8 +234,12 @@ class m2fit():
             for index in range(self.n):
                 if(math.isnan(self.result_relative[index])):
                     continue
+                print('fit_focus_model', index, self.result_relative[index])
                 f[0] = 1.
-                f[1] = xband[index]
+                if self.receiver == 'RedshiftReceiver':
+                    f[1] = xband[int(col_id[0][index])]
+                else:
+                    f[1] = xband[index]
                 for ii in range(2):
                     for jj in range(2):
                         ptp[ii][jj] = ptp[ii][jj] + f[ii]*f[jj]
@@ -239,12 +254,14 @@ class m2fit():
             for index in range(self.n):
                 if(math.isnan(self.result_relative[index])):
                     continue
-                self.resids[index] = self.result_relative[index] - relative_focus_fit[0] - relative_focus_fit[1]*xband[index]
+                if self.receiver == 'RedshiftReceiver':
+                    self.resids[index] = self.result_relative[index] - relative_focus_fit[0] - relative_focus_fit[1]*xband[int(col_id[0][index])]
+                else:
+                    self.resids[index] = self.result_relative[index] - relative_focus_fit[0] - relative_focus_fit[1]*xband[index]
                 resids_squared = resids_squared + self.resids[index]*self.resids[index]
                 actual_n = actual_n + 1
             rms = math.sqrt(resids_squared/actual_n)
             focus_error = math.sqrt(ptpinv[0][0])*rms
-
             self.relative_focus_fit = relative_focus_fit[0]
             self.focus_error = focus_error
             self.absolute_focus_fit = absolute_focus_fit[0]
