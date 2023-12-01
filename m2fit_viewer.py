@@ -112,7 +112,7 @@ class m2fit_viewer():
         else:
             num_sub_rows = num_sub_cols = 0
 
-        if nrows > 0 and ncols > 0:
+        if False and nrows > 0 and ncols > 0:
           outer_grid = gridspec.GridSpec(nrows, ncols)
 
         for index in range(paramfit.n):
@@ -141,7 +141,7 @@ class m2fit_viewer():
                 inner_grid = gridspec.GridSpecFromSubplotSpec(num_sub_rows, num_sub_cols, subplot_spec=outer_grid[pixel_index], hspace=hspace)
                 ax = pl.subplot(inner_grid[:-1,:])
             else:
-                ax = pl.subplot(outer_grid[pixel_index])
+                ax = pl.subplot(111)#outer_grid[pixel_index])
             
             if paramfit.m2pos >= 0:
                 ax.plot(paramfit.m2_position,paramfit.data[:,index],'o')
