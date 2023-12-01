@@ -276,8 +276,11 @@ class BeamMapView():
         textstr = textstr + 'El Offset  %6.4f   HPBW  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]),el_map_hpbw.mean())
         map_coord = {0: 'Az-El', 1: 'Ra-Dec', 2: 'L-B'}
         textstr = textstr +'\n Map Coord %s'%(map_coord.get(B.BData.map_coord, 'Err'))
-        if B.BData.xoffset != 0 or B.BData.yoffset != 0:
-            textstr = textstr +', Offsets %0.2f %0.2f'%(B.BData.xoffset*B.BData.xlength, B.BData.yoffset*B.BData.ylength)
+        try:
+            if B.BData.xoffset != 0 or B.BData.yoffset != 0:
+                textstr = textstr +', Offsets %0.2f %0.2f'%(B.BData.xoffset*B.BData.xlength, B.BData.yoffset*B.BData.ylength)
+        except:
+            pass
         textstr = textstr +('\n Tracking Beam %d'%B.BData.tracking_beam if B.BData.tracking_beam >=0 else '\nTracking Center')
         pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
         try:
