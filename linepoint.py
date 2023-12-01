@@ -129,7 +129,7 @@ def extend_ifproc(ifproc):
             #dd = (d - d_orig).to_value(unit)
             dd = (d - d_orig)
             dd = dd[np.isfinite(dd)]
-            print(f"{name} changed with diff ({unit}): min={dd.max()} max={dd.min()} mean={dd.mean()} std={np.std(dd)}")
+            #print(f"{name} changed with diff ({unit}): min={dd.max()} max={dd.min()} mean={dd.mean()} std={np.std(dd)}")
         stat_change(self.parang_astropy, self.parang, u.deg, 'ActParAng') 
         stat_change(self.ramap_file, self.ramap_interp, u.arcsec, 'file-interp') 
         stat_change(self.decmap_file, self.decmap_interp, u.arcsec, 'file-interp')
