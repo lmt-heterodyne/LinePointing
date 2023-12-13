@@ -774,7 +774,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) > 2:
         try:
-            opt = int(sys.argv[1], 0)
+            opt = int(sys.argv[-2], 0)
             print ('opt =', opt)
         except:
             pass
@@ -824,7 +824,13 @@ if __name__ == '__main__':
         args_dict['TrackingBeam'] = None
         args_dict['Opt'] = opt
         args_dict['Bank'] = 0
-    
+
+        for arg in sys.argv:
+            if '=' in arg:
+                x = arg.split('=')
+                if 'p' in x[0]:
+                    args_dict['TrackingBeam'] = int(x[1])
+                    print('TrackingBeam', args_dict['TrackingBeam'])
         
         lp_dict = linepoint(args_dict, view_opt=opt)
         print(lp_dict)
