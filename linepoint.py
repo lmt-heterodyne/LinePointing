@@ -303,7 +303,7 @@ def linepoint(args_dict, view_opt=0):
             files,nfiles = lookup_roach_files(obsnum)
             if ICal.receiver == 'Msip1mm':
                 bank_files = [files, files]
-                bank_pixel_list = [[0, 3], [1, 2]]
+                bank_pixel_list = [[0, 2], [1, 3]]
             else:
                 bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
                 bank_pixel_list = 2*[list(range(16))]
@@ -365,7 +365,10 @@ def linepoint(args_dict, view_opt=0):
     else:
         roach_list = list(range(4))
 
-    roach_list = [i+(bank*4) for i in roach_list]
+    if 'Msip1mm' not in IData.receiver:
+        roach_list = [i+(bank*4) for i in roach_list]
+    else:
+        roach_list = [0]
 
     # build the roach directory list
     roach_dir_list = [ 'roach%d'%i for i in roach_list]
@@ -403,7 +406,7 @@ def linepoint(args_dict, view_opt=0):
 
         if IData.receiver == 'Msip1mm':
             bank_files = [files, files]
-            bank_pixel_list = [[0, 3], [1, 2]]
+            bank_pixel_list = [[0, 2], [1, 3]]
             if selected_beam in bank_pixel_list[0]:
                 bank = 0
             else:
@@ -411,7 +414,7 @@ def linepoint(args_dict, view_opt=0):
         else:
             bank_files = [[],[]]
             bank_files[bank] = files
-        print(bank, bank_files)
+        print('bank', bank, 'bank_files', bank_files)
 
     # build reduction parameters
     #line_list = [[-27.5,-25.5]]
