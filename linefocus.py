@@ -2,12 +2,13 @@ import ast
 import sys
 import json
 from lmtlp_reduce_cli import lmtlp_reduce_cli
+from lmtslr.ifproc.ifproc import lookup_ifproc_file, IFProcQuick, IFProcData, IFProcCal
 from allfocus import allfocus
 
 def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam):
     obsNums = []
     peaks = []
-    data_files = []
+    file_data = []
     image_files = []
     for i,obsN in enumerate(obsNumList):
       print('look for obsnum', obsN)
@@ -36,13 +37,20 @@ def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsy
       if int(status) < 0:
         return False
       image_file = 'lmtlp_%s.png'%str(obsN)
+      # read the data file to get the data
+      ifproc_file = lookup_ifproc_file(obsN)
+      if not ifproc_file:
+          print('no data file found for', obsN)
+          return False
+      file_data_1 = IFProcData(ifproc_file)
+      file_data.append(file_data_1)
       obsNums.append(obsN)
       peaks.append(peak)
       image_files.append(image_file)
     print(obsNums)
     print(peaks)
     print(image_files)
-    allfocus_results_d = allfocus(obsNums, peaks, image_files, opt)
+    allfocus_results_d = allfocus(obsNums, peaks, image_files, file_data, opt=opt, row_id=None, col_id=None)
     image_file = allfocus_results_d['png']
     params = allfocus_results_d['params']
     status = allfocus_results_d['status']
@@ -56,6 +64,7 @@ if __name__ == '__main__':
     obsNumList = list(range(97764, 97767+1, 1))
     obsNumList = list(range(110020, 110026+1, 1))
     obsNumList = list(range(110010, 110015+1, 1))
+    obsNumList = list(range(110372, 110377+1, 1))
 
     if len(sys.argv) > 1 and sys.argv[1].startswith('0x'):
         opt = int(sys.argv[1], 0)
