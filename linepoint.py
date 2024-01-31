@@ -18,7 +18,7 @@ def extend_ifproc(ifproc):
     import datetime
     from scipy import interpolate
     if os.path.isfile(self.filename):
-        self.nc = netCDF4.Dataset(self.filename)
+        self.nc = netCDF4.Dataset(self.filename, 'a')
 
     self.tel_utc = 180/15/np.pi*self.nc.variables['Data.TelescopeBackend.TelUtc'][:][:]
     utdate = self.utdate
@@ -119,6 +119,26 @@ def extend_ifproc(ifproc):
         ut_ = tel_time.ut1.value
         lst_ = tel_time.sidereal_time('apparent').value
 
+        if False:
+            self.nc.variables['Data.TelescopeBackend.SourceRaAct'][:] = tel_icrs_astropy.ra.radian
+            self.nc.variables['Data.TelescopeBackend.SourceDecAct'][:] = tel_icrs_astropy.dec.radian
+
+            self.nc.close()
+
+        if False:
+            import matplotlib.pyplot as pl
+            if False:
+                pl.plot(self.ramap,self.decmap, 'r')
+                pl.plot(self.ramap_astropy,self.decmap_astropy, 'b')
+            else:
+                pl.plot(self.ramap-self.ramap_astropy, 'r')
+                ax2 = pl.twinx()
+                ax2.plot(self.decmap-self.decmap_astropy, 'b')
+
+            pl.show()
+
+            self.ramap = self.ramap_astropy
+            self.decmap = self.decmap_astropy
 
     # set the ra/dec map
     #self.ramap = self.ramap_interp
@@ -228,6 +248,9 @@ def linepoint(args_dict, view_opt=0):
     print ('receiver', ifproc_file_quick.receiver)
     print ('obspgm', obspgm)
     print ('tracking_beam', tracking_beam)
+
+    # init params to None so we can return if no params
+    params = None
 
     if obspgm == 'Cal':
         ICal = IFProcCal(ifproc_file)
