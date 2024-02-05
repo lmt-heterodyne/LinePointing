@@ -70,7 +70,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id):
     params[0,3] = f.m1ZernikeC0
     print('params 1', params)
 
-    print('open ftt viewer')
+    print('open m2fit_viewer')
     FV = m2fit_viewer()
 
     print('set figure')
