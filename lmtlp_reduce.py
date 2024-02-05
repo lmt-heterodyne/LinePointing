@@ -46,7 +46,7 @@ def lmtlp_reduce(args_dict) :
                     obj = obj.tolist()
                 results_dict[a] = obj
         except Exception as e:
-            print('----------------', e)
+            print('lmtlp_reduce exception', e)
     else:
         status = -1
     results_dict['status'] = status
