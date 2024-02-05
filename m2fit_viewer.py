@@ -83,14 +83,23 @@ class m2fit_viewer():
         # outer grid
         if paramfit.n == 1:
             nrows = ncols = 1
+            row0 = 0
         else:
-            nrows = ncols = 4
+            nrows = 1
+            ncols = paramfit.n
+            row0 = 0
             if paramfit.receiver == 'RedshiftReceiver':
                 nrows = len(set(row_id[0]))
                 ncols = len(set(col_id[0]))
                 row0 = int(min(set(row_id[0])))
                 ncols = 6
-                print('rows/cols =' , row_id, col_id, nrows, ncols, row0, paramfit.n)
+            elif paramfit.receiver == 'Toltec':
+                nrows = 1
+                ncols = 3
+            elif paramfit.receiver == 'Sequoia':
+                nrows = 4
+                ncols = 4
+        print('rows/cols =' , row_id, col_id, nrows, ncols, row0, paramfit.n, paramfit.receiver)
 
         # inner grid
         if len(line_stats_all) != 0 and len(line_stats_all[0]) != 0:
@@ -141,18 +150,18 @@ class m2fit_viewer():
                 inner_grid = gridspec.GridSpecFromSubplotSpec(num_sub_rows, num_sub_cols, subplot_spec=outer_grid[pixel_index], hspace=hspace)
                 ax = pl.subplot(inner_grid[:-1,:])
             else:
-                ax = pl.subplot(111)#outer_grid[pixel_index])
+                ax = pl.subplot(nrows, ncols, pixel_index+1)#outer_grid[pixel_index])
             
             if paramfit.m2pos >= 0:
                 ax.plot(paramfit.m2_position,paramfit.data[:,index],'o')
                 ax.plot(prange,model,'r')
                 if use_gaus == False:
-                  pl.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
+                  ax.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
                 if paramfit.status < 0:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-                  pl.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(paramfit.data[:,index]), paramfit.msg, bbox=props, color='red')
+                  ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(paramfit.data[:,index]), paramfit.msg, bbox=props, color='red')
                 try:
-                  pl.tick_params(axis='both',which='major',labelsize=6)
+                  ax.tick_params(axis='both',which='major',labelsize=6)
                 except:
                   pass
                 for i in range(num_sub_cols):
