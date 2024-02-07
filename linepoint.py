@@ -275,7 +275,7 @@ def linepoint(args_dict, view_opt=0):
                 fp.write("ObsNum %d\n" %(obsnum))
                 fp.write("Time %3.1f\n" %(ICal.time[0]))
 
-        pl.figure(num=3,figsize=(6,6))
+        pl.figure(num=13, figsize=(6,6))
         pl.clf()
         x = ICal.time-ICal.time[0]
         legend = []
@@ -328,14 +328,19 @@ def linepoint(args_dict, view_opt=0):
                 bank_files = [files, files]
                 bank_pixel_list = [[0, 2], [1, 3]]
             else:
-                bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
+                #bank_files = [files[i:i+4] for i in range(0, len(files), 4)] 
+                bank_files = [[f for f in files for i in range(0, 4, 1) if 'roach%d'%i in f],
+                              [f for f in files for i in range(4, 8, 1) if 'roach%d'%i in f]]
                 bank_pixel_list = 2*[list(range(16))]
+            print('bank_files', bank_files)
             fnames = []
             for bank in range(len(bank_files)):
+                if len(bank_files[bank]) == 0:
+                    continue
                 SCal = SpecBankCal(bank_files[bank],ICal,bank=bank,pixel_list=bank_pixel_list[bank])
                 # create viewer
                 SV = SpecCalViewer()
-                SV.set_figure(figure=1+bank)
+                SV.set_figure(figure=27+bank)
                 SV.open_figure()
                 SV.plot_tsys(SCal)
                 fnames += ['lmtlp_%s_%d.png'%(file_ts, bank)]
@@ -437,6 +442,8 @@ def linepoint(args_dict, view_opt=0):
         else:
             bank_files = [[],[]]
             bank_files[bank] = files
+            bank_files = [[f for f in files for i in range(0, 4, 1) if 'roach%d'%i in f],
+                          [f for f in files for i in range(4, 8, 1) if 'roach%d'%i in f]]
         print('bank', bank, 'bank_files', bank_files)
 
     # build reduction parameters
@@ -528,7 +535,10 @@ def linepoint(args_dict, view_opt=0):
                 if IData.receiver == 'Msip1mm':
                     bank_cal_files = [cal_files, cal_files]
                 else:
-                    bank_cal_files = [cal_files[i:i+4] for i in range(0, len(cal_files), 4)] 
+                    #bank_cal_files = [cal_files[i:i+4] for i in range(0, len(cal_files), 4)] 
+                    bank_cal_files = [[f for f in cal_files for i in range(0, 4, 1) if 'roach%d'%i in f],
+                                      [f for f in cal_files for i in range(4, 8, 1) if 'roach%d'%i in f]]
+                print('bank_cal_files', bank_cal_files)
                 SCal = SpecBankCal(bank_cal_files[bank],ICal,pixel_list=pixel_list,bank=bank)
                 check_cal = SCal.test_cal(SData)
                 for ipix in range(SData.npix):
