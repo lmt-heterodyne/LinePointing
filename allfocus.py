@@ -28,7 +28,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id):
     ifproc_file_data = []
     for i,obsnum in enumerate(obsNums):
         if isinstance(peaks[i], list):
-            print('peaks', peaks, len(peaks[i]))
+            print('peaks', peaks[i], len(peaks[i]))
             lp_params_1 = np.zeros((len(peaks[i]),1))
             for j in range(len(peaks[i])):
                 lp_params_1[j,0] = peaks[i][j]
