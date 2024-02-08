@@ -15,9 +15,9 @@ def lmtlp_reduce_cli(host, port, args_dict) :
         results_str = lmtlp_reduce(args_dict)
         results_dict = json.loads(results_str)
         status = results_dict['status']
-        x =  results_dict.get('x', 0)
-        y =  results_dict.get('y', 0)
-        pk =  results_dict.get('pk', 0)
+        azOff =  results_dict.get('azOff', 0)
+        elOff =  results_dict.get('elOff', 0)
+        peak =  results_dict.get('peak', 0)
         plotfile =  results_dict['plot_file']
         image_file = 'lmtlp_%s.png'%str(obsnum)
         print ('lmtlp_plotfile = ', plotfile)
@@ -25,7 +25,7 @@ def lmtlp_reduce_cli(host, port, args_dict) :
         pcopy = subprocess.Popen(["cp", "-p", plotfile, image_file])
         sts = os.waitpid(pcopy.pid, 0)
         if status == 0:
-            result = str.encode('0,{x:1.3f},{y:1.3f},{pk:1.6f}'.format(x=x, y=y, pk=pk))
+            result = str.encode('0,{azOff:1.3f},{elOff:1.3f},{peak:1.6f}'.format(azOff=azOff, elOff=elOff, peak=peak))
         else :
             result = b'-1,0,0,0'
         return results_str

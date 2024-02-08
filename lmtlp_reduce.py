@@ -33,9 +33,9 @@ def lmtlp_reduce(args_dict) :
                 x = numpy.mean(params[:,1])
             if l > 2:
                 y = numpy.mean(params[:,2])
-        results_dict['x'] = x
-        results_dict['y'] = y
-        results_dict['pk'] = pk
+        results_dict['azOff'] = x
+        results_dict['elOff'] = y
+        results_dict['peak'] = pk
         results_dict['az_user_off'] = ifproc_file_data.az_user / 206264.8
         results_dict['el_user_off'] = ifproc_file_data.el_user / 206264.8
         results_dict['obspgm'] = ifproc_file_data.obspgm
