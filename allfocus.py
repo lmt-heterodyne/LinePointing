@@ -44,7 +44,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id):
         lp_params += [lp_params_1]
         ifproc_file_data += [ifproc_file_data_1]
     f = m2fit(lp_params,ifproc_file_data)
-    if f.status < 0:
+    if len(f.status) == 1 and f.status[0] < 0:
         print(f.msg)
         mkMsgImage(pl, obsnum, txt=f.msg, im='lf_focus_%s.png'%file_ts, label='Error', color='r')
         params = None

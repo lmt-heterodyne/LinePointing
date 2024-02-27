@@ -22,24 +22,24 @@ class m2fit():
         m2y = []
         m2x = []
         m1zer0 = []
-        self.status = 0
-        self.msg = 'Ok'
+        self.status = []
+        self.msg = []
         for i,ifproc in enumerate(ifproc_file_data):
             if i != 0:
                 if self.receiver != ifproc.receiver:
-                    self.msg = 'Receiver mismatch %s %s'%(self.receiver, ifproc.receiver)
+                    self.msg.append('Receiver mismatch %s %s'%(self.receiver, ifproc.receiver))
                     print(self.msg)
-                    self.status = -1
+                    self.status.append(-1)
                     return
                 if self.source != ifproc.source:
-                    self.msg = 'Source mismatch %s %s'%(self.source, ifproc.source)
+                    self.msg.append('Source mismatch %s %s'%(self.source, ifproc.source))
                     print(self.msg)
-                    self.status = -1
+                    self.status.append(-1)
                     return
                 if self.obspgm != ifproc.obspgm:
-                    self.msg = 'ObsPgm mismatch %s %s'%(self.obspgm, ifproc.obspgm)
+                    self.msg.append('ObsPgm mismatch %s %s'%(self.obspgm, ifproc.obspgm))
                     print(self.msg)
-                    self.status = -1
+                    self.status.append(-1)
                     return
             m2z.append(ifproc.m2z)
             m2y.append(ifproc.m2y)
@@ -65,33 +65,33 @@ class m2fit():
 
         if (dx == dy and dx == dz and dx == 0 and dzer == 0):
             #nothing's changing, an error should be thrown
-            self.msg = "M2 or Zernike offsets are not changing in these files."
+            self.msg.append("M2 or Zernike offsets are not changing in these files.")
             m2pos = -1
         elif (dx != 0):
             if (dy != 0 or dz != 0 or dzer != 0):
                 #more than one offset changing, throw an error
-                self.msg = "More than one M2 offset is changing in these files."
+                self.msg.append("More than one M2 offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 2
         elif (dy != 0):
             if (dx != 0 or dz != 0 or dzer != 0):
                 #more than one offset changing, throw an error
-                self.msg = "More than one M2 or Zernike offset is changing in these files."
+                self.msg.append("More than one M2 or Zernike offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 1
         elif (dz != 0):
             if (dx != 0 or dy != 0 or dzer != 0):
                 #more than one offset changing, throw an error
-                self.msg = "More than one M2 or Zernike offset is changing in these files."
+                self.msg.append("More than one M2 or Zernike offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 0
         elif (dzer != 0):
             if (dx != 0 or dy != 0 or dz != 0):
                 #more than one offset changing, throw an error
-                self.msg = "More than one M2 or Zernike offset is changing in these files."
+                self.msg.append("More than one M2 or Zernike offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 3
@@ -141,6 +141,7 @@ class m2fit():
 
         mdata_max = numpy.amax(self.data, axis=0)
         print('data', self.data)
+        print('n', self.n)
         print(mdata_max)
         for index in range(self.n):
             ptp = numpy.zeros((3,3))
@@ -154,7 +155,7 @@ class m2fit():
             scan_id_good = 0
             for scan_id in range(self.nscans):
                 self.scans_xpos_all.append(self.m2_position[scan_id])
-                print('scan_id, mdata', scan_id, self.data[scan_id][index])
+                print('scan_id, mdata, half max', scan_id, self.data[scan_id][index], 0.5*mdata_max[index])
                 if use_gaus == False and self.data[scan_id][index] < 0.5*mdata_max[index]:
                     continue
                 if self.data[scan_id][index] == 0:
@@ -178,9 +179,9 @@ class m2fit():
             if len(I) <= 2 or len(set(par)) <= 2:
                 self.result_relative[index] = 0
                 self.result_absolute[index] = 0
-                self.msg = "Only %d data points are above half max"%len(I)
-                print(self.msg)
-                self.status = -1
+                self.msg.append("Only %d data points are above half max"%len(I))
+                self.status.append(-1)
+                print('------------', self.msg)
             else:
                 ptpinv = numpy.linalg.inv(ptp)
                 self.parameters[index,:] = numpy.dot(ptpinv,ptr)
@@ -206,9 +207,9 @@ class m2fit():
                 else:
                     self.result_relative[index] = 0
                     self.result_absolute[index] = 0
-                    self.msg = "Problem in fit"
+                    self.msg.append("Problem in fit")
                     print(self.msg)
-                    self.status = -1
+                    self.status.append(-1)
                 self.result_absolute[index] = self.result_relative[index] + numpy.mean(pcor)
 
 

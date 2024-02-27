@@ -157,7 +157,7 @@ class m2fit_viewer():
                 ax.plot(prange,model,'r')
                 if use_gaus == False:
                   ax.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
-                if paramfit.status < 0:
+                if len(paramfit.status) == paramfit.n and paramfit.status[index] < 0:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
                   ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(paramfit.data[:,index]), paramfit.msg, bbox=props, color='red')
                 try:
