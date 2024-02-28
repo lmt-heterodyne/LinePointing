@@ -34,7 +34,7 @@ class m2fit_viewer():
           pl.close(figure)
 
     def save_figure(self, fname):
-        pl.savefig(fname, bbox_inches='tight')
+        pl.savefig(fname)#, bbox_inches='tight')
 
     def show(self):
         pl.show()
@@ -178,7 +178,8 @@ class m2fit_viewer():
             except:
               pass
             try:
-              pl.tight_layout(rect=[0, 0.03, 1, 0.95])
+              _ = None
+              #pl.tight_layout(rect=[0, 0.03, 1, 0.95])
             except:
               pass
         if obsNumArg == False:
@@ -285,6 +286,7 @@ class m2fit_viewer():
         except:
           pass
         try:
-          pl.tight_layout(rect=[0, 0.03, 1, 0.95])
+          _ = None
+          #pl.tight_layout(rect=[0, 0.03, 1, 0.95])
         except:
           pass
