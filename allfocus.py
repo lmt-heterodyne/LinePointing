@@ -100,7 +100,8 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id):
     lp_merge_files += ['lf_fits_%s.png'%file_ts]
     lp_merge_files += ['lf_model_%s.png'%file_ts]
     lp_merge_files += ['lf_focus_%s.png'%file_ts]
-    merge_focus(lp_merge_params, lp_merge_files)
+    if f.receiver != 'RedshiftReceiver':
+        merge_focus(lp_merge_params, lp_merge_files)
 
     if opt & 0x1:
         FV.show()
