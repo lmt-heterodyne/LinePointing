@@ -69,7 +69,7 @@ if __name__ == '__main__':
     args_dict['BaselineList'] = None
     args_dict['BaselineFitOrder'] = 0
     args_dict['TSys'] = 0
-    args_dict['TrackingBeam'] = 1
+    args_dict['TrackingBeam'] = None
     args_dict['Bank'] = 0
     lmtlp_reduce(args_dict)
     #plt.show()
