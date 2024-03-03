@@ -27,17 +27,17 @@ class m2fit():
         for i,ifproc in enumerate(ifproc_file_data):
             if i != 0:
                 if self.receiver != ifproc.receiver:
-                    self.msg.append('Receiver mismatch %s %s'%(self.receiver, ifproc.receiver))
+                    self.msg.append('Receiver mismatch %d:%s %d:%s'%(self.obsnum, self.receiver, ifproc.obsnum, ifproc.receiver))
                     print(self.msg)
                     self.status.append(-1)
                     return
                 if self.source != ifproc.source:
-                    self.msg.append('Source mismatch %s %s'%(self.source, ifproc.source))
+                    self.msg.append('Source mismatch %d:%s %d:%s'%(self.obsnum, self.source, ifproc.obsnum, ifproc.source))
                     print(self.msg)
                     self.status.append(-1)
                     return
                 if self.obspgm != ifproc.obspgm:
-                    self.msg.append('ObsPgm mismatch %s %s'%(self.obspgm, ifproc.obspgm))
+                    self.msg.append('ObsPgm mismatch %d:%s %d:%s'%(self.obsnum, self.obspgm, ifproc.obsnum, ifproc.obspgm))
                     print(self.msg)
                     self.status.append(-1)
                     return
