@@ -8,6 +8,7 @@ from lmtslr.ifproc.ifproc import IFProcData, IFProcQuick
 from lmtslr.utils.ifproc_file_utils import lookup_ifproc_file_all
 from msg_image import mkMsgImage
 import glob
+import matplotlib.pyplot as pl
 
 from linepoint import linepoint
 from m2fit import m2fit
@@ -45,11 +46,19 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id):
         ifproc_file_data += [ifproc_file_data_1]
     f = m2fit(lp_params,ifproc_file_data)
     if len(f.status) == 1 and f.status[0] < 0:
-        print(f.msg)
-        mkMsgImage(pl, obsnum, txt=f.msg, im='lf_focus_%s.png'%file_ts, label='Error', color='r')
+        print(obsnum, f.msg)
+        mkMsgImage(pl, obsnum, txt=f.msg[0], im='lf_focus_%s.png'%file_ts, label='Error', color='r')
         params = None
-        print('params', params)
-        return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
+        d = {}
+        d['png'] = 'lf_focus_%s.png'%file_ts
+        d['params'] = params
+        d['status'] = f.status
+        d['msg'] = f.msg
+        d['par'] = None
+        d['intensity'] = None
+        d['pos'] = 0
+        return d
+        #return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
 
     use_gaus = False
     f.find_focus(use_gaus=use_gaus)
