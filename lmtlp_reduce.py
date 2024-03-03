@@ -53,6 +53,9 @@ def lmtlp_reduce(args_dict) :
     results_dict['plot_file'] = plot_file
     results_str = json.dumps(results_dict)
     print('lmtlp_reduce results_str = ', results_str)
+    json_file = plot_file.replace('.png', '.json')
+    with open(json_file, "w") as f:
+        json.dump(results_dict, f)
     return results_str
 
 if __name__ == '__main__':
@@ -62,5 +65,11 @@ if __name__ == '__main__':
 
     args_dict = dict()
     args_dict['ObsNum'] = int(sys.argv[1])
+    args_dict['LineList'] = None
+    args_dict['BaselineList'] = None
+    args_dict['BaselineFitOrder'] = 0
+    args_dict['TSys'] = 0
+    args_dict['TrackingBeam'] = 1
+    args_dict['Bank'] = 0
     lmtlp_reduce(args_dict)
-    plt.show()
+    #plt.show()
