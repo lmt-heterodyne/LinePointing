@@ -11,6 +11,7 @@ import time
 import os
 import matplotlib.pyplot as pl
 from msg_image import mkMsgImage
+from pprint import pprint
 
 def extend_ifproc(ifproc):
     self = ifproc
@@ -787,19 +788,20 @@ def linepoint(args_dict, view_opt=0):
         BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
 
 
-    print ('plot_file', 'lmtlp_%s.png'%file_ts)
-    print ('params', params)
-    return {'plot_file': 'lmtlp_%s.png'%file_ts,
-            'params': params,
-            'ifproc_data': IData,
-            'line_stats': line_stats_all,
-            'ifproc_file': ifproc_file,
-            'peak_fit_params': B.peak_fit_params if B is not None else None,
-            'peak_fit_errors': B.peak_fit_errors if B is not None else None,
-            'peak_fit_snr': B.peak_fit_snr if B is not None else None,
-            'clipped': B.clipped if B is not None else None,
-            'pixel_list': pixel_list
+    results_dict = {
+        'plot_file': 'lmtlp_%s.png'%file_ts,
+        'params': params,
+        'ifproc_data': IData,
+        'line_stats': line_stats_all,
+        'ifproc_file': ifproc_file,
+        'peak_fit_params': B.peak_fit_params if B is not None else None,
+        'peak_fit_errors': B.peak_fit_errors if B is not None else None,
+        'peak_fit_snr': B.peak_fit_snr if B is not None else None,
+        'clipped': B.clipped if B is not None else None,
+        'pixel_list': pixel_list
     }
+    pprint(results_dict)
+    return results_dict
 
 if __name__ == '__main__':
     # define options, 0 = write spec file only, 1 = plot, 2 = generate grid
@@ -866,7 +868,6 @@ if __name__ == '__main__':
                     print('TrackingBeam', args_dict['TrackingBeam'])
         
         lp_dict = linepoint(args_dict, view_opt=opt)
-        print(lp_dict)
 
         # show plot
         if opt & 0x1:
