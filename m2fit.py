@@ -213,18 +213,15 @@ class m2fit():
                 self.result_absolute[index] = self.result_relative[index] + numpy.mean(pcor)
 
 
-    def fit_focus_model(self, col_id=None):
+    def fit_focus_model(self, col_id=None, masks=None):
         """Uses best fit focus (Z) for each instance to fit linear focus model."""
         if self.receiver == 'RedshiftReceiver':
             xbands = set([int(col_id[0][index]) for index in range(self.n)])
             xband = [-1,-.2,-.6,.2,1.,.6]
-        elif self.receiver == 'Toltec':
-            col_id = [[0, 1, 2]]
-            xbands = set([int(col_id[0][index]) for index in range(self.n)])
-            xband = [1.1-1.4, 1.4-1.4, 2.0-1.4]
         else:
             xbands = [index for index in range(self.n)]
             xband = [index-0.5*(self.n-1) for index in range(self.n)]
+        print('n =', self.n)
         print('xbands =', xband)
         if self.n > 1 and len(xbands) > 1:
             print('fit focus')
@@ -275,6 +272,19 @@ class m2fit():
             self.absolute_focus_fit = numpy.mean(self.result_absolute)
             self.focus_slope = 0
             self.fit_rms = 0
+        if type(masks) == list and type(masks[0]) == list:
+            print('has masks')
+            if len(set(masks[0])) > 1:
+                for i,m in enumerate(masks[0]):
+                    if m == 1:
+                        print('use result', i)
+                        self.relative_focus_fit = self.result_relative[i]
+                        self.focus_error = 0
+                        self.absolute_focus_fit = self.result_absolute[i]
+                        self.focus_slope = 0
+                        self.fit_rms = 0
+                        break
+                
         if self.m2pos == 0:
             self.m2zfocus = self.relative_focus_fit
         elif self.m2pos == 1:
