@@ -109,7 +109,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
     lp_merge_files += ['lf_fits_%s.png'%file_ts]
     lp_merge_files += ['lf_model_%s.png'%file_ts]
     lp_merge_files += ['lf_focus_%s.png'%file_ts]
-    if f.receiver != 'RedshiftReceiver':
+    if f.receiver != 'RedshiftReceiver' and f.receiver != 'Toltec':
         merge_focus(lp_merge_params, lp_merge_files)
 
     if opt & 0x1:
