@@ -16,8 +16,8 @@ from m2fit_viewer import m2fit_viewer
 from merge_png import merge_png
 from merge_focus import merge_focus
 
-def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id):
-    print('allfocus', obsNums, peaks, lp_files, opt, row_id, col_id)
+def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=None):
+    print('allfocus', obsNums, peaks, lp_files, opt, row_id, col_id, masks)
 
     # define time stamp
     obsnum = int(obsNums[-1])
@@ -62,7 +62,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id):
 
     use_gaus = False
     f.find_focus(use_gaus=use_gaus)
-    f.fit_focus_model(col_id=col_id)
+    f.fit_focus_model(col_id=col_id, masks=masks)
     print('lp_params', lp_params)
     print('relative_focus',f.relative_focus_fit)
     print('absolute_focus',f.absolute_focus_fit)
