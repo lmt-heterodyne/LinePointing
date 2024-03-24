@@ -191,19 +191,14 @@ class m2fit_viewer():
     def plot_focus_model_fit(self,paramfit,obsNumArg=False,row_id=None,col_id=None):
         """Plots data and focus model fit."""
         
-        if paramfit.receiver == 'RedshiftReceiver' or paramfit.receiver == 'Toltec':
+        if paramfit.receiver == 'RedshiftReceiver':
             M = paramfit
-            if paramfit.receiver == 'RedshiftReceiver':
-              band_order = [0,2,1,3,5,4]
-              freq = [75.703906,82.003906,89.396094,94.599906,100.899906,108.292094]
-              freq_0 = (freq[0]+freq[5])/2.
-              d_freq = (freq[5]-freq_0)
-            else:
-              col_id = [[0, 1, 2]]
-              band_order = [0,1,2]
-              freq = [272.54, 214.14, 149.90]
-              freq_0 = (freq[0]+freq[2])/2.
-              d_freq = (freq[2]-freq_0)
+            band_order = [0,2,1,3,5,4]
+            freq = [75.703906,82.003906,89.396094,94.599906,100.899906,108.292094]
+            freq_0 = (freq[0]+freq[5])/2.
+            d_freq = (freq[5]-freq_0)
+            brange = numpy.arange(-1.2,1.3,.1)
+            f = freq_0+brange*d_freq
             band_freq = []
             result_relative = []
             for index in range(M.n):
@@ -214,21 +209,15 @@ class m2fit_viewer():
             band_freq = numpy.array(band_freq)
             result_relative = numpy.array(result_relative)
             pl.plot(band_freq,result_relative,'o')
-            brange = numpy.arange(-1.2,1.3,.1)
-            f = freq_0+brange*d_freq
             the_model = M.relative_focus_fit+M.focus_slope*brange
             pl.plot(f,the_model,'r')
             pl.xlabel('Frequency (GHz)')
-            if paramfit.receiver == 'Toltec':
-              pl.gca().invert_xaxis()
-              xpos = 200
-            else:
-              xpos = 93
+            xpos = 93
             ypos = result_relative.max()-0.3*(result_relative.max()-result_relative.min())
         else:
             result_relative = paramfit.result_relative
             brange = numpy.arange(-0.5*(paramfit.n-1),0.5*(paramfit.n-1)+1,1)
-            brange = numpy.arange(0,paramfit.n,1)
+            #brange = numpy.arange(0,paramfit.n,1)
             the_model = paramfit.relative_focus_fit+(paramfit.focus_slope)*brange
             pl.plot(brange,result_relative,'o')
             pl.plot(brange,the_model,'r')
@@ -236,7 +225,7 @@ class m2fit_viewer():
                 xpos = brange[0]+0.01
                 ypos = result_relative*1.01
             else:
-                xpos = brange[0]+.5
+                xpos = brange[0]+.25
                 ypos = result_relative.max()-0.2*(result_relative.max()-result_relative.min())
         if paramfit.m2pos == 0:
             self.tlabel = 'M2.Z Offset'
