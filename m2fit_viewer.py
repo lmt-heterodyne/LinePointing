@@ -167,6 +167,7 @@ class m2fit_viewer():
                 try:
                   ax.tick_params(axis='x', labelrotation=90)
                 except:
+                  print('cant rotate x-ticks')
                   pass
                 
                 for i in range(num_sub_cols):
@@ -181,6 +182,11 @@ class m2fit_viewer():
             try:
               ax.tick_params(axis='both',which='major',labelsize=6)
             except:
+              pass
+            try:
+              ax.tick_params(axis='x', labelrotation=90)
+            except:
+              print('cant rotate x-ticks')
               pass
             try:
               _ = None
