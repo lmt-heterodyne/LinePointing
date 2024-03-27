@@ -28,9 +28,9 @@ def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsy
       if status < 0:
           image_file = 'lmtlp_%s.png'%str(obsN)
           return None, None, status, 'Error from pointing reduction'
-      peak = results_dict['pk']
-      azOff = results_dict['x']
-      elOff = results_dict['y']
+      peak = results_dict['peak']
+      azOff = results_dict['azOff']
+      elOff = results_dict['elOff']
       azUserOff = results_dict['az_user_off']
       elUserOff = results_dict['el_user_off']
       obsPgm = results_dict['obspgm']
