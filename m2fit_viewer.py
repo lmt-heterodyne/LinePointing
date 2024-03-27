@@ -164,6 +164,11 @@ class m2fit_viewer():
                   ax.tick_params(axis='both',which='major',labelsize=6)
                 except:
                   pass
+                try:
+                  ax.tick_params(axis='x', labelrotation=90)
+                except:
+                  pass
+                
                 for i in range(num_sub_cols):
                     if len(line_stats_all) == 0:
                       break
