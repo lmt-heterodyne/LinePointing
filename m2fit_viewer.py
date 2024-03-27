@@ -44,7 +44,7 @@ class m2fit_viewer():
         """
         pl.ion()
 
-    def plot_fits(self,paramfit,obsNumArg=False,line_stats_all=[],plot_axis=[-200,200,-5,15],use_gaus=False,row_id=None,col_id=None):
+    def plot_fits(self,paramfit,obsNumArg=False,line_stats_all=[],plot_axis=[-200,200,-5,15],use_gaus=False,row_id=None,col_id=None,names=None):
         """Plots graphs of all data and fits.
 
         paramfit is the input param fit instance with the results.
@@ -160,6 +160,9 @@ class m2fit_viewer():
                 if len(paramfit.status) == paramfit.n and paramfit.status[index] < 0:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
                   ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(paramfit.data[:,index]), paramfit.msg, bbox=props, color='red')
+                if type(names) == list and type(names[0]) == list:
+                  props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+                  ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.3*numpy.max(paramfit.data[:,index]), names[0][index], bbox=props, color='red')
                 try:
                   ax.tick_params(axis='both',which='major',labelsize=6)
                 except:
@@ -199,7 +202,7 @@ class m2fit_viewer():
           titleObsNum = obsNumArg
         pl.suptitle('ObsNum: %s %s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
 
-    def plot_focus_model_fit(self,paramfit,obsNumArg=False,row_id=None,col_id=None):
+    def plot_focus_model_fit(self,paramfit,obsNumArg=False,row_id=None,col_id=None,names=None):
         """Plots data and focus model fit."""
         
         if paramfit.receiver == 'RedshiftReceiver':
@@ -232,6 +235,8 @@ class m2fit_viewer():
             the_model = paramfit.relative_focus_fit+(paramfit.focus_slope)*brange
             pl.plot(brange,result_relative,'o')
             pl.plot(brange,the_model,'r')
+            if type(names) == list and type(names[0]) == list:
+              pl.xticks(brange, names[0])
             if len(brange) == 1:
                 xpos = brange[0]+0.01
                 ypos = result_relative*1.01

@@ -16,8 +16,8 @@ from m2fit_viewer import m2fit_viewer
 from merge_png import merge_png
 from merge_focus import merge_focus
 
-def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=None):
-    print('allfocus', obsNums, peaks, lp_files, opt, row_id, col_id, masks)
+def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=None, names=None):
+    print('allfocus', obsNums, peaks, lp_files, opt, row_id, col_id, masks, names)
 
     # define time stamp
     obsnum = int(obsNums[-1])
@@ -87,7 +87,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
     print('open figure')
     FV.open_figure()
     print('plot fits')
-    FV.plot_fits(f,obsNums,use_gaus=use_gaus,row_id=row_id,col_id=col_id)
+    FV.plot_fits(f,obsNums,use_gaus=use_gaus,row_id=row_id,col_id=col_id,names=names)
     print('save fits')
     FV.save_figure('lf_fits_%s.png'%file_ts)
     print('close fits')
@@ -98,7 +98,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
     print('open figure')
     FV.open_figure()
     print('plot model')
-    FV.plot_focus_model_fit(f,obsNums,row_id=row_id,col_id=col_id)
+    FV.plot_focus_model_fit(f,obsNums,row_id=row_id,col_id=col_id,names=names)
     print('save model')
     FV.save_figure('lf_model_%s.png'%file_ts)
     print('close model')
