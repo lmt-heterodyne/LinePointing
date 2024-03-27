@@ -94,8 +94,8 @@ class m2fit_viewer():
                 row0 = int(min(set(row_id[0])))
                 ncols = 6
             elif paramfit.receiver == 'Toltec':
-                nrows = 1
-                ncols = 3
+                nrows = 3
+                ncols = 1
             elif paramfit.receiver == 'Sequoia':
                 nrows = 4
                 ncols = 4
