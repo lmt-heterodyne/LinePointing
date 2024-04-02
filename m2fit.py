@@ -261,10 +261,10 @@ class m2fit():
             ptr = numpy.zeros(2)
             pta = numpy.zeros(2)
             f = numpy.zeros(2)
-            result_avg = numpy.mean(self.result_relative)
+            result_median = numpy.median(self.result_relative)
             result_cutoff = 2.0 * numpy.std(self.result_relative)
             for index in range(self.n):
-                if math.isnan(self.result_relative[index]) or abs(self.result_relative[index] - result_avg) >= result_cutoff:
+                if math.isnan(self.result_relative[index]) or abs(self.result_relative[index] - result_median) >= result_cutoff:
                     print('reject_focus_model', index, self.result_relative[index])
                     continue
                 print('fit_focus_model', index, self.result_relative[index])
