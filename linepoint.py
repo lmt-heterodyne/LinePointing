@@ -422,6 +422,11 @@ def linepoint(args_dict, view_opt=0):
 
     if spec_cont == 'cont':
         print ('continuum reduction')
+        if map_motion == 'Discrete':
+            txt = 'Reducing a grid map in continuum mode'
+            print (txt)
+            mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
+            return {'plot_file': 'lmtlp_%s.png'%file_ts}
         pass
     else:
         print ('spectral line reduction')
