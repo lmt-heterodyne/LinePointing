@@ -293,5 +293,14 @@ class m2fit_viewer():
         try:
           _ = None
           #pl.tight_layout(rect=[0, 0.03, 1, 0.95])
-        except:
+          xlim = pl.gca().get_xlim()
+          ylim = pl.gca().get_ylim()
+          dx = xlim[1]-xlim[0]
+          dy = ylim[1]-ylim[0]
+          xlim = [xlim[0]-0.1*dx, xlim[1]+0.1*dx]
+          ylim = [ylim[0]-0.1*dy, ylim[1]+0.1*dy]
+          pl.gca().set_xlim(xlim)
+          pl.gca().set_ylim(ylim)
+        except Exception as e:
+          print(e)
           pass
