@@ -279,7 +279,10 @@ class m2fit_viewer():
             fitype = 'M1.ZernikeC0'
         else:
             fitype = 'Error'
-        textstr =           'Relative '+fitype+':   ' +str(round(paramfit.relative_focus_fit,4)) + '\n' 
+        if paramfit.receiver == 'Toltec':
+          textstr =           'Relative '+fitype+':   ' +str(['%.4f'%round(x,4) for x in result_relative]).replace("'",  "") + '\n'
+        else:
+          textstr =           'Relative '+fitype+':   ' +str(round(paramfit.relative_focus_fit,4)) + '\n'
         textstr = textstr + fitype+' Error:         ' +str(round(paramfit.focus_error,4)) + '\n' 
         textstr = textstr + fitype+' Slope:       ' +str(round(paramfit.focus_slope,4)) + '\n' 
         textstr = textstr + 'Absolute '+fitype+':  ' +str(round(paramfit.absolute_focus_fit,4)) + '\n' 
