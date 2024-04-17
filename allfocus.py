@@ -71,6 +71,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
     print('m1 zer0',f.m1ZernikeC0)
     print('x ', f.scans_xpos_all)
     lp_merge_params = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_params))]
+    sorted_image_files =  [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_files))]
     lp_merge_files = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_files))]
 
     params = numpy.zeros((1,6))
@@ -121,6 +122,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
     print('params', params)
     d = {}
     d['png'] = 'lf_focus_%s.png'%file_ts
+    d['sorted_image_files'] = sorted_image_files
     d['params'] = params
     d['status'] = f.status
     d['msg'] = f.msg
