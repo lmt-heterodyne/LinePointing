@@ -263,10 +263,12 @@ class m2fit():
             f = numpy.zeros(2)
             result_median = numpy.median(self.result_relative)
             result_cutoff = 2.0 * numpy.std(self.result_relative)
+            good_n = 0
             for index in range(self.n):
                 if math.isnan(self.result_relative[index]) or abs(self.result_relative[index] - result_median) >= result_cutoff:
                     print('reject_focus_model', index, self.result_relative[index])
                     continue
+                good_n += 1
                 print('fit_focus_model', index, self.result_relative[index])
                 f[0] = 1.
                 if self.receiver == 'RedshiftReceiver':
@@ -278,28 +280,35 @@ class m2fit():
                         ptp[ii][jj] = ptp[ii][jj] + f[ii]*f[jj]
                     ptr[ii] = ptr[ii] + f[ii]*self.result_relative[index]
                     pta[ii] = pta[ii] + f[ii]*self.result_absolute[index]
-            ptpinv = numpy.linalg.inv(ptp)
-            relative_focus_fit = numpy.dot(ptpinv,ptr)
-            absolute_focus_fit = numpy.dot(ptpinv,pta)
-            self.resids = numpy.zeros(self.n)
-            resids_squared = 0.
-            actual_n = 0
-            for index in range(self.n):
-                if(math.isnan(self.result_relative[index])):
-                    continue
-                if self.receiver == 'RedshiftReceiver':
-                    self.resids[index] = self.result_relative[index] - relative_focus_fit[0] - relative_focus_fit[1]*xband[int(col_id[0][index])]
-                else:
-                    self.resids[index] = self.result_relative[index] - relative_focus_fit[0] - relative_focus_fit[1]*xband[index]
-                resids_squared = resids_squared + self.resids[index]*self.resids[index]
-                actual_n = actual_n + 1
-            rms = math.sqrt(resids_squared/actual_n)
-            focus_error = math.sqrt(ptpinv[0][0])*rms
-            self.relative_focus_fit = relative_focus_fit[0]
-            self.focus_error = focus_error
-            self.absolute_focus_fit = absolute_focus_fit[0]
-            self.focus_slope = relative_focus_fit[1]
-            self.fit_rms = rms
+            if good_n > 0:
+                ptpinv = numpy.linalg.inv(ptp)
+                relative_focus_fit = numpy.dot(ptpinv,ptr)
+                absolute_focus_fit = numpy.dot(ptpinv,pta)
+                self.resids = numpy.zeros(self.n)
+                resids_squared = 0.
+                actual_n = 0
+                for index in range(self.n):
+                    if(math.isnan(self.result_relative[index])):
+                        continue
+                    if self.receiver == 'RedshiftReceiver':
+                        self.resids[index] = self.result_relative[index] - relative_focus_fit[0] - relative_focus_fit[1]*xband[int(col_id[0][index])]
+                    else:
+                        self.resids[index] = self.result_relative[index] - relative_focus_fit[0] - relative_focus_fit[1]*xband[index]
+                    resids_squared = resids_squared + self.resids[index]*self.resids[index]
+                    actual_n = actual_n + 1
+                rms = math.sqrt(resids_squared/actual_n)
+                focus_error = math.sqrt(ptpinv[0][0])*rms
+                self.relative_focus_fit = relative_focus_fit[0]
+                self.focus_error = focus_error
+                self.absolute_focus_fit = absolute_focus_fit[0]
+                self.focus_slope = relative_focus_fit[1]
+                self.fit_rms = rms
+            else:
+                self.relative_focus_fit = 0
+                self.focus_error = 0
+                self.absolute_focus_fit = 0
+                self.focus_slope = 0
+                self.fit_rms = 0
         elif self.n > 0:
             print('average focus')
             self.relative_focus_fit = numpy.mean(self.result_relative)
