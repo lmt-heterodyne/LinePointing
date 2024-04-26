@@ -52,6 +52,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
         params = None
         d = {}
         d['png'] = 'lf_focus_%s.png'%file_ts
+        d['sorted_image_files'] = []
         d['params'] = params
         d['status'] = f.status
         d['msg'] = f.msg
