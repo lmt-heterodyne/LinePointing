@@ -225,8 +225,9 @@ def linepoint(args_dict, view_opt=0):
     if not ifproc_file:
         txt = 'No ifproc files found for %d'%obsnum
         print (txt)
-        mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
-        return {'plot_file': 'lmtlp_%s.png'%file_ts}
+        #mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
+        #return {'plot_file': 'lmtlp_%s.png'%file_ts}
+        return {'status': -1, 'message': txt}
 
     if view_opt == 0x1234:
         IData = IFProcData(ifproc_file)
@@ -237,7 +238,7 @@ def linepoint(args_dict, view_opt=0):
         pl.title('%d %s el=%lf'%(obsnum,IData.date_obs,IData.elev))
         pl.savefig('%s_azelmap.png'%obsnum, bbox_inches='tight')
         pl.show()
-        return {'plot_file': '%s_azelmap.png'%obsnum}
+        return {'status': 0, 'plot_file': '%s_azelmap.png'%obsnum}
 
     # probe the ifproc file for obspgm
     ifproc_file_quick = IFProcQuick(ifproc_file)
@@ -353,7 +354,7 @@ def linepoint(args_dict, view_opt=0):
         
         params = np.zeros((1,1))
         params[0,0] = np.mean(ICal.tsys)
-        return {'plot_file': 'lmtlp_%s.png'%file_ts, 'params' : params, 'ifproc_data': ICal}
+        return {'status': 0, 'plot_file': 'lmtlp_%s.png'%file_ts, 'params' : params, 'ifproc_data': ICal}
 
     # not a Cal
     # not a Cal
@@ -425,8 +426,9 @@ def linepoint(args_dict, view_opt=0):
         if map_motion == 'Discrete':
             txt = 'Reducing a grid map in continuum mode'
             print (txt)
-            mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
-            return {'plot_file': 'lmtlp_%s.png'%file_ts}
+            #mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
+            #return {'plot_file': 'lmtlp_%s.png'%file_ts}
+            return {'status': -1, 'message': txt}
         pass
     else:
         print ('spectral line reduction')
@@ -435,8 +437,9 @@ def linepoint(args_dict, view_opt=0):
         if not files:
             txt = 'No roach files found for %d in %s' % (obsnum,str(roach_dir_list))
             print (txt)
-            mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
-            return {'plot_file': 'lmtlp_%s.png'%file_ts}
+            #mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
+            #return {'plot_file': 'lmtlp_%s.png'%file_ts}
+            return {'status': -1, 'message': txt}
 
         if IData.receiver == 'Msip1mm':
             bank_files = [files, files]
@@ -794,6 +797,7 @@ def linepoint(args_dict, view_opt=0):
 
 
     results_dict = {
+        'status': 0,
         'plot_file': 'lmtlp_%s.png'%file_ts,
         'params': params,
         'ifproc_data': IData,
