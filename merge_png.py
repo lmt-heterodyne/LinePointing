@@ -20,8 +20,13 @@ def merge_png(image_files, newfile):
         x_offset = 0
         y_offset = 0
         for im in images:
-            new_im.paste(im.resize(
-                (int(max_width), int(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (int(x_offset), int(y_offset)))
+            try:
+                new_im.paste(im.resize(
+                    (int(max_width), int(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (int(x_offset), int(y_offset)))
+            except:
+                new_im.paste(im.resize(
+                    (int(max_width), int(im.size[1]*max_width/im.size[0])), Image.LANCZOS), (int(x_offset), int(y_offset)))
+                
             y_offset += im.size[1]*max_width/im.size[0]
 
         new_im.save(newfile)
