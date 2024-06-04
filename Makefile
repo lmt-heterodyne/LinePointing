@@ -1,5 +1,5 @@
 clean:
-	rm -f *~ *.pyc *.png
+	rm -f *~ *.pyc *.png *.json *.html
 	rm -fr __pycache__
 	rm -f vlbi1mm_tsys.html
 
