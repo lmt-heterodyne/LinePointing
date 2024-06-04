@@ -42,6 +42,9 @@ class BeamMapView():
         """
         pl.close(self.figure)
 
+    def savefig(self, fname):
+        pl.savefig(fname, bbox_inches='tight')
+
     def show_fit(self,B,ipix):
         """ plots the scan of data and the best fit model.
             B is the BeamMap with data and model
