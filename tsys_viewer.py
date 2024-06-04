@@ -14,7 +14,7 @@ class TsysView():
     def __init__(self,figure=1):
         self.figure = pl.figure(num=13, figsize=(6,6))
 
-    def plot_tsys(self,ICal):
+    def plot_tsys_levels(self,ICal):
         pl.clf()
         x = ICal.time-ICal.time[0]
         legend = []
