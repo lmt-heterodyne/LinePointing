@@ -60,4 +60,6 @@ class TsysView():
 
     def savefig(self, fname):
         pl.savefig(fname, bbox_inches='tight')
-        
+
+    def show(self):
+        pl.show()
