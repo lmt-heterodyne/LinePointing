@@ -1,6 +1,7 @@
 import textwrap
 
-def mkMsgImage(pl, obsnum, txt, im, label, color='k', bg_img=None) :
+def mkMsgImage(obsnum, txt, im, label, color='k', bg_img=None) :
+    import matplotlib.pyplot as pl
 
     if bg_img is not None:
         import matplotlib.image as img
