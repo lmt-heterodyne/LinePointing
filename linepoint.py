@@ -1,17 +1,13 @@
 import numpy as np
 from lmtslr.spec.spec import SpecBankData, SpecBankCal
-from lmtslr.viewer.spec_viewer import SpecBankViewer, SpecCalViewer
 from lmtslr.ifproc.ifproc import lookup_ifproc_file, IFProcQuick, IFProcData, IFProcCal
 from lmtslr.utils.roach_file_utils import find_roach_from_pixel, lookup_roach_files, create_roach_list
 import sys
 from beam import BeamMap
-from beam_viewer import BeamMapView
-from merge_png import merge_png
 import time
 import os
-import matplotlib.pyplot as pl
-from msg_image import mkMsgImage
 from pprint import pprint
+#from msg_image import mkMsgImage
 
 def extend_ifproc(ifproc):
     self = ifproc
@@ -216,27 +212,42 @@ def linepoint(args_dict, view_opt=0):
     
     # define time stamp
     file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
+    file_ts = '%d_%d_%d'%(obsnum, obsnum, obsnum)
 
     # define roach_pixels_all
     roach_pixels_all = [[i+j*4 for i in range(4)] for j in range(4)]
+
+    viewers = []
+    if True or args_dict.get('plotly', False):
+        from plotly_viewer import SpecBankViewer, SpecCalViewer
+        from plotly_viewer import BeamMapView
+        from plotly_viewer import TsysView
+        from plotly_viewer import PlotlyViewer
+        from plotly_viewer import merge_png
+        from plotly_viewer import config_plotly_viewer
+        config_plotly_viewer(not args_dict.get('plotly', False))
+    else:
+        from lmtslr.viewer.spec_viewer import SpecBankViewer, SpecCalViewer
+        from beam_viewer import BeamMapView
+        from tsys_viewer import TsysView
+        from merge_png import merge_png
 
     # read the ifproc file to get the data and the tracking beam
     ifproc_file = lookup_ifproc_file(obsnum)
     if not ifproc_file:
         txt = 'No ifproc files found for %d'%obsnum
         print (txt)
-        #mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
-        #return {'plot_file': 'lmtlp_%s.png'%file_ts}
         return {'status': -1, 'message': txt}
 
     if view_opt == 0x1234:
+        import matplotlib.pyplot as pl
         IData = IFProcData(ifproc_file)
         pl.clf()
         pl.plot(IData.azmap, IData.elmap)
         pl.xlabel('AzMap (")')
         pl.ylabel('ElMap (")')
         pl.title('%d %s el=%lf'%(obsnum,IData.date_obs,IData.elev))
-        pl.savefig('%s_azelmap.png'%obsnum, bbox_inches='tight')
+        pl.savefig('%s_azelmap.png'%obsnum)
         pl.show()
         return {'status': 0, 'plot_file': '%s_azelmap.png'%obsnum}
 
@@ -277,50 +288,12 @@ def linepoint(args_dict, view_opt=0):
                 fp.write("ObsNum %d\n" %(obsnum))
                 fp.write("Time %3.1f\n" %(ICal.time[0]))
 
-        pl.figure(num=13, figsize=(6,6))
-        pl.clf()
-        x = ICal.time-ICal.time[0]
-        legend = []
-        if False:
-            for ipix in range(ICal.npix):
-                legend.append('%2d %6.1f'%(ipix,ICal.tsys[ipix]))
-                y = ICal.level[:,ipix]
-                pl.plot(x,y,'.')
-            pl.legend(legend,prop={'size': 10})
-        else:
-            if ICal.npix >= 16:
-                ncols = 4
-            else:
-                ncols = 1
-            nrows = int(ICal.npix/ncols)
-            plot_scale = 0.0
-            for ipix in range(ICal.npix):
-                if ICal.tsys[ipix] < 500:
-                    plot_scale = max(plot_scale, np.max(ICal.level[:,ipix]))
-            #colors = pl.rcParams["axes.prop_cycle"]()
-            colors = pl.rcParams['axes.prop_cycle']
-            colors = [c['color'] for c in colors]
-            plot_order = [1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16]
-            for ipix in range(ICal.npix):
-                if ncols == 1:
-                    ipix1 = ipix+1
-                else:
-                    ipix1 = plot_order[(ipix%len(plot_order))]+int(ipix/len(plot_order))*len(plot_order) #ipix+1)
-                ax = pl.subplot(nrows, ncols, ipix1)
-                ax.tick_params(axis='both', which='major', labelsize=6)
-                ax.tick_params(axis='both', which='minor', labelsize=6)
-                label = '%2d %6.1f'%(ipix,ICal.tsys[ipix])
-                legend.append(label)
-                y = ICal.level[:,ipix]
-                #color = next(colors)['color']
-                color = colors[ipix%len(colors)]
-                ax.plot(x,y,'.', color=color)
-                plot_scale = np.mean(ICal.level[:,ipix])+np.min(ICal.level[:,ipix])
-                ax.text(x[-1]/2, plot_scale/2, label, verticalalignment='center', horizontalalignment='center', zorder=10)
-                if False and plot_scale != 0:
-                    ax.set_ylim(0, plot_scale * 1.1)
-        pl.suptitle("TSys %s ObsNum: %d"%(ICal.receiver,ICal.obsnum))
-        pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
+        TV = TsysView()
+        viewers.append(TV)
+        TV.plot_tsys_levels(ICal)
+        TV.savefig('lmtlp_2_%s.png'%file_ts)
+        if view_opt & 0x1:
+            TV.show()
 
         if spec_cont == 'cont':
             merge_png(['lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
@@ -342,11 +315,14 @@ def linepoint(args_dict, view_opt=0):
                 SCal = SpecBankCal(bank_files[bank],ICal,bank=bank,pixel_list=bank_pixel_list[bank])
                 # create viewer
                 SV = SpecCalViewer()
+                viewers.append(SV)
                 SV.set_figure(figure=27+bank)
                 SV.open_figure()
                 SV.plot_tsys(SCal)
                 fnames += ['lmtlp_%s_%d.png'%(file_ts, bank)]
-                pl.savefig(fnames[-1], bbox_inches='tight')
+                SV.savefig(fnames[-1])
+                if view_opt & 0x1:
+                    SV.show()
 
             # merge plots
             print(fnames)
@@ -354,7 +330,17 @@ def linepoint(args_dict, view_opt=0):
         
         params = np.zeros((1,1))
         params[0,0] = np.mean(ICal.tsys)
-        return {'status': 0, 'plot_file': 'lmtlp_%s.png'%file_ts, 'params' : params, 'ifproc_data': ICal}
+        results_dict = {
+            'status': 0,
+            'plot_file': 'lmtlp_%s.png'%file_ts,
+            'params' : params,
+            'ifproc_data': ICal
+        }
+        if args_dict.get('plotly', False):
+            results_dict['plotly_fig'] = [j for v in viewers for j in v.to_json()]
+
+        pprint(results_dict)
+        return results_dict
 
     # not a Cal
     # not a Cal
@@ -363,11 +349,12 @@ def linepoint(args_dict, view_opt=0):
     
     # open data file
     IData = IFProcData(ifproc_file)
-    extend_ifproc(IData)
+    ## don't extend, not needed
+    ##extend_ifproc(IData)
     IData.xmap = IData.azmap
     IData.ymap = IData.elmap
     
-    bs_beams = IData.bs_beams
+    bs_beams = list(IData.bs_beams)
     map_motion = IData.map_motion
     line_velocity = IData.velocity
     reduce_type = 2
@@ -426,8 +413,6 @@ def linepoint(args_dict, view_opt=0):
         if map_motion == 'Discrete':
             txt = 'Reducing a grid map in continuum mode'
             print (txt)
-            #mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
-            #return {'plot_file': 'lmtlp_%s.png'%file_ts}
             return {'status': -1, 'message': txt}
         pass
     else:
@@ -437,8 +422,6 @@ def linepoint(args_dict, view_opt=0):
         if not files:
             txt = 'No roach files found for %d in %s' % (obsnum,str(roach_dir_list))
             print (txt)
-            #mkMsgImage(pl, obsnum, txt=txt, im='lmtlp_%s.png'%file_ts, label='Error', color='r')
-            #return {'plot_file': 'lmtlp_%s.png'%file_ts}
             return {'status': -1, 'message': txt}
 
         if IData.receiver == 'Msip1mm':
@@ -597,6 +580,7 @@ def linepoint(args_dict, view_opt=0):
 
         # create viewer
         SV = SpecBankViewer()
+        viewers.append(SV)
 
         # bs
         if obspgm == 'Bs':
@@ -667,7 +651,9 @@ def linepoint(args_dict, view_opt=0):
             SV.plot_peak_spectrum(SData,selected_beam,plot_axis,SData.blist,SData.nb,line_list,baseline_list)
 
         # save spectra plot
-        pl.savefig('lmtlp_%s.png'%file_ts, bbox_inches='tight')
+        SV.savefig('lmtlp_%s.png'%file_ts)
+        if view_opt & 0x1:
+            SV.show()
 
         # write a combined ifproc/roach file
         #SW = spec_bank_writer()
@@ -709,6 +695,7 @@ def linepoint(args_dict, view_opt=0):
                 params[ipix,2] = B.peak_fit_params[ipix,3]
                 params[ipix,3] = pixel_list[ipix]
         BV = BeamMapView()
+        viewers.append(BV)
         BV.print_pixel_fits(B)
 
         if map_motion == 'Discrete':
@@ -719,13 +706,17 @@ def linepoint(args_dict, view_opt=0):
             BV.map(B,[],grid_spacing,apply_grid_corrections=True)
             if spec_cont != 'cont':
                 BV.show_peaks(B,apply_grid_corrections=True,show_map_points=selected_beam)
-            pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
+            BV.savefig('lmtlp_2_%s.png'%file_ts)
+            if view_opt & 0x1:
+                BV.show()
 
             if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
                 BV.show_fit(B,selected_beam)
-                pl.savefig('lmtlp_%s.png'%file_ts, bbox_inches='tight')
+                BV.savefig('lmtlp_%s.png'%file_ts)
+                if view_opt & 0x1:
+                    BV.show()
             # merge plots
             merge_png(['lmtlp_%s.png'%file_ts, 'lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
 
@@ -736,7 +727,9 @@ def linepoint(args_dict, view_opt=0):
             #BV.add_subplot(SV.fig)
             BV.map(B,[],grid_spacing,apply_grid_corrections=True)
             BV.show_peaks(B,apply_grid_corrections=True)
-            pl.savefig('lmtlp_2_%s.png'%file_ts, bbox_inches='tight')
+            BV.savefig('lmtlp_2_%s.png'%file_ts)
+            if view_opt & 0x1:
+                BV.show()
 
             if view_opt & 0x4:
                 BV.set_figure(figure=3)
@@ -759,7 +752,9 @@ def linepoint(args_dict, view_opt=0):
                 BV.set_figure(figure=10)
                 BV.open_figure()
                 BV.show_fit(B,selected_beam)
-                pl.savefig('lmtlp_%s.png'%file_ts, bbox_inches='tight')
+                BV.savefig('lmtlp_%s.png'%file_ts)
+                if view_opt & 0x1:
+                    BV.show()
             # merge plots
             merge_png(['lmtlp_%s.png'%file_ts, 'lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
     
@@ -795,7 +790,6 @@ def linepoint(args_dict, view_opt=0):
     if view_opt & 0x8:
         BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
 
-
     results_dict = {
         'status': 0,
         'plot_file': 'lmtlp_%s.png'%file_ts,
@@ -807,9 +801,13 @@ def linepoint(args_dict, view_opt=0):
         'peak_fit_errors': B.peak_fit_errors if B is not None else None,
         'peak_fit_snr': B.peak_fit_snr if B is not None else None,
         'clipped': B.clipped if B is not None else None,
-        'pixel_list': pixel_list
+        'pixel_list': pixel_list,
     }
-    pprint(results_dict)
+
+    if args_dict.get('plotly', False):
+        results_dict['plotly_fig'] = [j for v in viewers for j in v.to_json()]
+
+    #pprint(results_dict)
     return results_dict
 
 if __name__ == '__main__':
@@ -863,11 +861,15 @@ if __name__ == '__main__':
         args_dict['SpecOrCont'] = 'Cont' if opt & 0x1000 else 'Spec'
         args_dict['LineList'] = None
         args_dict['BaselineList'] = None
+        #args_dict['LineList'] = [[-5,15]]
+        #args_dict['BaselineList'] = [[-100,-10],[20,100]]
         args_dict['BaselineFitOrder'] = 0
         args_dict['TSys'] = 0
         args_dict['TrackingBeam'] = None
         args_dict['Opt'] = opt
         args_dict['Bank'] = 0
+        if opt & 0x100:
+            args_dict['plotly'] = True
 
         for arg in sys.argv:
             if '=' in arg:
@@ -879,7 +881,8 @@ if __name__ == '__main__':
         lp_dict = linepoint(args_dict, view_opt=opt)
 
         # show plot
-        if opt & 0x1:
+        if False and opt & 0x1:
+            import matplotlib.pyplot as pl
             pl.show()
     else:
         print("obsnum %d not valid" % obsNum)
