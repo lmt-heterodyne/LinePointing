@@ -44,7 +44,7 @@ class PlotlyViewer():
     def set_figure(self,figure):
         self.figure = figure
 
-    def open_figure(self, nrows=1, ncols=1):
+    def open_figure(self, nrows=1, ncols=1, specs=None):
         if with_matplotlib:
             pl.figure(self.figure)
             pl.clf()
@@ -52,6 +52,7 @@ class PlotlyViewer():
             self.fig = make_subplots(
                 rows=nrows, cols=ncols,
                 shared_xaxes=False,
+                specs=specs,
                 subplot_titles=[" "]*ncols*nrows,
             )
             self.figures[self.figure] = self.fig
@@ -284,7 +285,8 @@ class PlotlyViewer():
         else:
             nrows = ylen
             ncols = xlen
-            self.open_figure(nrows=nrows, ncols=ncols)
+            self.open_figure(nrows=nrows, ncols=ncols,
+                             specs=[[{"secondary_y": True}]*ncols]*nrows)
             for index in range(plen):
                 plot_index = a[index]
                 row = int(plot_index/nrows)+1
@@ -297,6 +299,17 @@ class PlotlyViewer():
                         y=y,
                         showlegend=False,
                     ),
+                    row=row, col=col,
+                )
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=[0.5 * (plot_axis[0] + plot_axis[1])], 
+                        y=[S.map_data[pixel_index][index]],
+                        mode="markers",
+                        line=dict(color='black'),
+                        showlegend=False,
+                    ),
+                    secondary_y=True,
                     row=row, col=col,
                 )
                 if plot_line_list is not None:
@@ -321,22 +334,18 @@ class PlotlyViewer():
                     showgrid=True,
                     row=row, col=col
                 )
+                self.fig.update_yaxes(
+                    range=[plot_axis2[2], plot_axis2[3]],
+                    secondary_y=True,
+                    showgrid=False,
+                    row=row, col=col
+                )
                 title = '%5.2f %5.2f %5.2f'%(S.map_x[pixel_index][index], 
                                              S.map_y[pixel_index][index], 
                                              S.map_data[pixel_index][index])
                 idx = (row-1)*ncols+(col-1)
                 font_size = 14
                 self.fig.layout.annotations[idx].update(text=title, font_size=font_size)
-                self.fig.add_trace(
-                    go.Scatter(
-                        x=[0.5 * (plot_axis[0] + plot_axis[1])], 
-                        y=[S.map_data[pixel_index][index]],
-                        mode="markers",
-                        line=dict(color='black'),
-                        showlegend=False,
-                    ),
-                    row=row, col=col,
-                )
             title = 'ObsNum %d: %s %s %sGHz\n Pixel %d'%(S.obsnum, S.receiver,
                                                          S.source, S.line_rest_frequency, pixel)
             font_size = 16
@@ -558,16 +567,39 @@ class PlotlyViewer():
             none
         """
         plot_order = [1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16]
-        for ipix in range(S.npix):
-            pixel_id = S.roach_pixel_ids[ipix]
-            ax = pl.subplot(4, 4, plot_order[pixel_id])
-            ax.tick_params(axis='both', which='major', labelsize=6)
-            ax.tick_params(axis='both', which='minor', labelsize=6)
-            ax.plot(S.roach[ipix].on_spectrum)
-            l = len(S.roach[ipix].on_spectrum)
-            pl.xticks(np.arange(0, l+1, l/4))
-        pl.suptitle('%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, 
-            S.receiver, S.line_rest_frequency))
+        if with_matplotlib:
+            for ipix in range(S.npix):
+                pixel_id = S.roach_pixel_ids[ipix]
+                ax = pl.subplot(4, 4, plot_order[pixel_id])
+                ax.tick_params(axis='both', which='major', labelsize=6)
+                ax.tick_params(axis='both', which='minor', labelsize=6)
+                ax.plot(S.roach[ipix].on_spectrum)
+                l = len(S.roach[ipix].on_spectrum)
+                pl.xticks(np.arange(0, l+1, l/4))
+            pl.suptitle('%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, 
+                S.receiver, S.line_rest_frequency))
+        else:
+            nrows = 4
+            ncols = 4
+            self.open_figure(nrows=nrows, ncols=ncols)
+            for ipix in range(S.npix):
+                pixel_id = S.roach_pixel_ids[ipix]
+                col = int(pixel_id/ncols)+1
+                row = (pixel_id%nrows)+1
+                self.fig.add_trace(
+                    go.Scatter(
+                        y=S.roach[ipix].on_spectrum,
+                        showlegend=False,
+                    ),
+                    row=row, col=col,
+                )
+            title = '%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, 
+                S.receiver, S.line_rest_frequency)
+            font_size = 16
+            width = max(1200, ncols*300)
+            height = max(1200, nrows*300)
+            self.fig.update_layout(title=title, title_x=0.5, font_size=font_size, width=width, height=height)
+            self.fig.update_layout(margin=dict(t=200))
 
     def plot_ps(self, S, baseline_order, plot_axis=[-200, 200, -0.5, 2.0], 
                 line_stats_all=[], plot_line_list=None, plot_baseline_list=None):
