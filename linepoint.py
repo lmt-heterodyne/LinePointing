@@ -339,7 +339,13 @@ def linepoint(args_dict, view_opt=0):
         if args_dict.get('plotly', False):
             results_dict['plotly_fig'] = [j for v in viewers for j in v.to_json()]
 
-        pprint({k:v for k,v in results_dict.items() if k not in ('plotly_fig')})
+        if results_dict is not None:
+            results_d1 = {}
+            for k,v in results_dict.items():
+                if k != 'plotly_fig':
+                    results_d1[k] = v
+            pprint(results_d1)
+        #pprint({k:v for k,v in results_dict.items() if k not in ('plotly_fig')})
         return results_dict
 
     # not a Cal
