@@ -37,7 +37,7 @@ def config_plotly_viewer(w):
     
 class PlotlyViewer():
     def __init__(self, figure=1):
-        print(f'with_matplotlib = {with_matplotlib}')
+        print('with_matplotlib', with_matplotlib)
         self.set_figure(figure)
         self.figures = {}
 
@@ -1548,7 +1548,7 @@ def merge_png(image_files, newfile):
         rows = len(image_files)
         rows = 2
         cols = 1
-        print(f'rows = {rows}, cols = {cols}')
+        print('rows =', rows, 'cols = ', cols)
         fig = make_subplots(
             shared_xaxes = False,
             rows=rows,
@@ -1559,7 +1559,7 @@ def merge_png(image_files, newfile):
             row = i+1
             col = 1
             fig1 = pio.read_json(f.replace('.png', '.json'))
-            print(f'row = {row}')
+            print('row =', row)
             for d in fig1.data:
                 fig.add_trace(d,
                               row=row,
