@@ -335,6 +335,7 @@ def linepoint(args_dict, view_opt=0):
             'plot_file': 'lmtlp_%s.png'%file_ts,
             'params' : params,
             'ifproc_data': ICal,
+            'date_obs': ICal.date_obs,
             'source': ICal.source,
         }
         if args_dict.get('plotly', False):
@@ -809,6 +810,7 @@ def linepoint(args_dict, view_opt=0):
         'peak_fit_snr': B.peak_fit_snr if B is not None else None,
         'clipped': B.clipped if B is not None else None,
         'pixel_list': pixel_list,
+        'date_obs': IData.date_obs,
         'source': IData.source,
         'line_list': line_list,
         'baseline_list': baseline_list,
