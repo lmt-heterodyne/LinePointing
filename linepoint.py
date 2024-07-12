@@ -334,7 +334,8 @@ def linepoint(args_dict, view_opt=0):
             'status': 0,
             'plot_file': 'lmtlp_%s.png'%file_ts,
             'params' : params,
-            'ifproc_data': ICal
+            'ifproc_data': ICal,
+            'source': ICal.source,
         }
         if args_dict.get('plotly', False):
             results_dict['plotly_fig'] = [j for v in viewers for j in v.to_json()]
@@ -808,11 +809,19 @@ def linepoint(args_dict, view_opt=0):
         'peak_fit_snr': B.peak_fit_snr if B is not None else None,
         'clipped': B.clipped if B is not None else None,
         'pixel_list': pixel_list,
+        'source': IData.source,
+        'line_list': line_list,
+        'baseline_list': baseline_list,
     }
 
     if args_dict.get('plotly', False):
         results_dict['plotly_fig'] = [j for v in viewers for j in v.to_json()]
 
+    results_d1 = {}
+    for k,v in results_dict.items():
+        if k != 'plotly_fig':
+            results_d1[k] = v
+    pprint(results_d1)
     #pprint(results_dict)
     return results_dict
 
