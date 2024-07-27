@@ -16,6 +16,7 @@ class m2fit():
         self.source = ifproc_file_data[0].source
         self.obsnum = ifproc_file_data[0].obsnum
         self.obspgm = ifproc_file_data[0].obspgm
+        self.obsnums = []
 
         # determine x,y,z or zernike
         m2z = []
@@ -136,6 +137,7 @@ class m2fit():
         self.m2_position = numpy.zeros(self.nscans)
         self.m2_pcor = numpy.zeros(self.nscans)
         self.elev = numpy.zeros(self.nscans)
+        self.obsnums = numpy.zeros(self.nscans)
         for i,ifproc in enumerate(ifproc_file_data):
             if self.m2pos == 0:
                 ave = ifproc.m2z
@@ -161,6 +163,7 @@ class m2fit():
 
             self.m2_position[i] = ave
             self.m2_pcor[i] = pcor
+            self.obsnums[i] = ifproc.obsnum
         self.parameters = numpy.zeros((self.n,3))
         self.result_relative = numpy.zeros(self.n)
         self.result_absolute = numpy.zeros(self.n)
