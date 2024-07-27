@@ -20,8 +20,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
     print('allfocus', obsNums, peaks, lp_files, opt, row_id, col_id, masks, names)
 
     # define time stamp
-    obsnum = int(obsNums[-1])
-    file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
+    file_ts = '%d_%d_%d'%(max(obsNums), int(time.time()*1000), os.getpid())
 
     lp_merge_files = []
     lp_merge_params = []
