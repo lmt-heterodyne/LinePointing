@@ -157,7 +157,7 @@ class m2fit_viewer():
                 ax.plot(prange,model,'r')
                 for i in range(len(paramfit.m2_position)):
                   ax.text(paramfit.m2_position[i],paramfit.data[i,index],
-                          "%d"%paramfit.obsnums[i])
+                          "%d"%paramfit.obsnums[i], fontsize=6)
                 if use_gaus == False:
                   ax.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
                 if len(paramfit.status) == paramfit.n and paramfit.status[index] < 0:
