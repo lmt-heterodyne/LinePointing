@@ -16,13 +16,35 @@ from m2fit_viewer import m2fit_viewer
 from merge_png import merge_png
 from merge_focus import merge_focus
 
-def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=None, names=None):
-    print('allfocus', obsNums, peaks, lp_files, opt, row_id, col_id, masks, names)
+def allfocus(allfocus_list, opt=0):
+    obsNums = [d.get('obsnum', -1) for d in allfocus_list]
+    peaks = [d.get('peak', 0) for d in allfocus_list]
+    image_files = [d.get('image_file', None) for d in allfocus_list]
+    file_data = [d.get('file_data', None) for d in allfocus_list]
+    row_id = [d.get('chassis_id', 0) for d in allfocus_list]
+    col_id = [d.get('board_id', 0) for d in allfocus_list]
+    masks = [d.get('mask', None) for d in allfocus_list]
+    names = [d.get('name', None) for d in allfocus_list]
+
+    print('===================================')
+    print('allfocus')
+    print('obsnums', obsNums)
+    print('peaks', peaks)
+    print('image_files', image_files)
+    print('row_id', row_id)
+    print('col_id', col_id)
+    print('masks', masks)
+    print('names', names)
+    print('opt', opt)
+    allfocus_results_d = {}
+    allfocus_results_d['obsnum'] = obsNums
+    allfocus_results_d['image_files'] = image_files
+    
 
     # define time stamp
     file_ts = '%d_%d_%d'%(max(obsNums), int(time.time()*1000), os.getpid())
 
-    lp_merge_files = []
+    lp_merge_image_files = []
     lp_merge_params = []
     lp_params = []
     ifproc_file_data = []
@@ -40,7 +62,7 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
             lp_merge_params += [float(np.mean(peaks[i]))]
         else:
             lp_merge_params += [1]
-        lp_merge_files += [lp_files[i]]
+        lp_merge_image_files += [image_files[i]]
         lp_params += [lp_params_1]
         ifproc_file_data += [ifproc_file_data_1]
     f = m2fit(lp_params,ifproc_file_data)
@@ -49,16 +71,15 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
         print(obsnum, f.msg)
         mkMsgImage(pl, obsnum, txt=f.msg[0], im='lf_focus_%s.png'%file_ts, label='Error', color='r')
         params = None
-        d = {}
-        d['png'] = 'lf_focus_%s.png'%file_ts
-        d['sorted_image_files'] = []
-        d['params'] = params
-        d['status'] = f.status
-        d['msg'] = f.msg
-        d['par'] = None
-        d['intensity'] = None
-        d['pos'] = 0
-        return d
+        allfocus_results_d['png'] = 'lf_focus_%s.png'%file_ts
+        allfocus_results_d['sorted_image_files'] = []
+        allfocus_results_d['params'] = params
+        allfocus_results_d['status'] = f.status
+        allfocus_results_d['msg'] = f.msg
+        allfocus_results_d['par'] = None
+        allfocus_results_d['intensity'] = None
+        allfocus_results_d['pos'] = 0
+        return allfocus_results_d
         #return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
 
     use_gaus = False
@@ -71,8 +92,8 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
     print('m1 zer0',f.m1ZernikeC0)
     print('x ', f.scans_xpos_all)
     lp_merge_params = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_params))]
-    sorted_image_files =  [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_files))]
-    lp_merge_files = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_files))]
+    sorted_image_files =  [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_image_files))]
+    lp_merge_image_files = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_image_files))]
 
     params = numpy.zeros((1,6))
     params[0,0] = f.m2xfocus
@@ -110,26 +131,25 @@ def allfocus(obsNums, peaks, lp_files, file_data, opt, row_id, col_id, masks=Non
     
     print('merge')
     merge_png(['lf_fits_%s.png'%file_ts, 'lf_model_%s.png'%file_ts], 'lf_focus_%s.png'%file_ts)
-    lp_merge_files += ['lf_fits_%s.png'%file_ts]
-    lp_merge_files += ['lf_model_%s.png'%file_ts]
-    lp_merge_files += ['lf_focus_%s.png'%file_ts]
+    lp_merge_image_files += ['lf_fits_%s.png'%file_ts]
+    lp_merge_image_files += ['lf_model_%s.png'%file_ts]
+    lp_merge_image_files += ['lf_focus_%s.png'%file_ts]
     if f.receiver != 'RedshiftReceiver' and f.receiver != 'Toltec':
-        merge_focus(lp_merge_params, lp_merge_files)
+        merge_focus(lp_merge_params, lp_merge_image_files)
 
     if opt & 0x1:
         FV.show()
         
     print('params', params)
-    d = {}
-    d['png'] = 'lf_focus_%s.png'%file_ts
-    d['sorted_image_files'] = sorted_image_files
-    d['params'] = params
-    d['status'] = f.status
-    d['msg'] = f.msg
-    d['par'] = [i for i in sorted(f.scans_xpos_all)]
-    d['intensity'] = lp_merge_params
-    d['pos'] = f.m2pos
-    return d
+    allfocus_results_d['png'] = 'lf_focus_%s.png'%file_ts
+    allfocus_results_d['sorted_image_files'] = sorted_image_files
+    allfocus_results_d['params'] = params
+    allfocus_results_d['status'] = f.status
+    allfocus_results_d['msg'] = f.msg
+    allfocus_results_d['par'] = [i for i in sorted(f.scans_xpos_all)]
+    allfocus_results_d['intensity'] = lp_merge_params
+    allfocus_results_d['pos'] = f.m2pos
+    return allfocus_results_d
 
 if __name__ == '__main__':
     obsNums = [83578, 83579, 83580, 83581, 83582]
