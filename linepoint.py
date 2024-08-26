@@ -371,7 +371,7 @@ def linepoint(args_dict, view_opt=0):
     selected_beam = 10
 
     # check if tracking a specific pixel to modify the roach list and the selected_beam
-    if 'Msip1mm' not in IData.receiver:
+    if False and 'Msip1mm' not in IData.receiver:
         tracking_beam = None
     if tracking_beam == None:
         tracking_beam = int(IData.tracking_beam)
@@ -772,6 +772,8 @@ def linepoint(args_dict, view_opt=0):
             BV.set_figure(figure=10)
             BV.open_figure()
             BV.show_fit(B,selected_beam)
+            if view_opt & 0x1:
+                BV.show()
 
         if map_motion == 'Continuous':
             if spec_cont == 'cont':
@@ -779,6 +781,8 @@ def linepoint(args_dict, view_opt=0):
                 BV.open_figure()
                 BV.sanchez_map(B,[],grid_spacing)
                 BV.show_peaks(B,apply_grid_corrections=False)
+                if view_opt & 0x1:
+                    BV.show()
             else:
                 # the "sanchez map" shows the array grid on the sky
                 SV.set_figure(figure=11)
@@ -794,6 +798,8 @@ def linepoint(args_dict, view_opt=0):
                 SV.set_figure(figure=13)
                 SV.open_figure()
                 SV.waterfall(SData,selected_beam,[-1500,1500],[-1,10],SData.blist,SData. nb)
+                if view_opt & 0x1:
+                    SV.show()
 
     if view_opt & 0x8:
         BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
