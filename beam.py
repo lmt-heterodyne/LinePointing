@@ -57,6 +57,7 @@ class BeamMap():
             pix_list is list of pixel id's to be analyzed
         '''
         self.BData = BData
+        self.BData.ifproc = BData
         self.npix = BData.npix
         self.elev = BData.elev
         self.tracking_beam = BData.tracking_beam
