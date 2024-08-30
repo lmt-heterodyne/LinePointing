@@ -1149,8 +1149,8 @@ class PlotlyViewer():
             gxl = gx
             gyl = gy
         else:
-            gxl = np.zeros(B.n_pix_list)
-            gyl = np.zeros(B.n_pix_list)
+            gxl = np.zeros(len(gx))
+            gyl = np.zeros(len(gy))
             
         if not map_region:
             map_region = [0, 0, 0, 0]
