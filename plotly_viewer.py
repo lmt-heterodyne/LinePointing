@@ -400,7 +400,7 @@ class PlotlyViewer():
         pl.xlabel('Velocity (km/s)')
                 
 
-    def sanchez_map(self, S, map_region, grid_spacing, plot_range, 
+    def sanchez_map1(self, S, map_region, grid_spacing, plot_range, 
                     pixel_list=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]):
         """
         Makes a "Sanchez Map" with all pixels displayed on sky in their
@@ -454,7 +454,7 @@ class PlotlyViewer():
         pl.ylabel('dEl (")')
         pl.suptitle('Spectral Line Sanchez Map: %d'%(S.obsnum))
         
-    def map(self, S, map_region, grid_spacing, plot_range, 
+    def map1(self, S, map_region, grid_spacing, plot_range, 
             pixel_list=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]):
         """
         Aligns the individual maps for each pixel according to a 
