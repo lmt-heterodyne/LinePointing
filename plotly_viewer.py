@@ -1217,7 +1217,7 @@ class PlotlyViewer():
         textstr = textstr +('\n Tracking Beam %d'%B.BData.tracking_beam if B.BData.tracking_beam >=0 else '\nTracking Center')
         peak_amplitude = B.peak_fit_params[np.nonzero(isGood),0]
         peak_error = B.peak_fit_errors[np.nonzero(isGood),0]
-        textstr = textstr +('   Peak Amplitude %0.2f (%0.2f)'%(peak_amplitude,peak_error))
+        textstr = textstr +('   Peak Amplitude %0.2f (%0.2f)'%(np.mean(peak_amplitude),np.mean(peak_error)))
         textstr = textstr +('\nM2 (%0.2f, %0.2f, %0.2f)'%(B.BData.ifproc.m2x,B.BData.ifproc.m2x,B.BData.ifproc.m2z))
         textstr = textstr +('   M1 (%0.2f)'%(B.BData.ifproc.zc0))
         if with_matplotlib:
