@@ -181,7 +181,7 @@ class PlotlyViewer():
         if with_matplotlib:
             pl.xlabel('Velocity (km/s)')
             pl.suptitle('ObsNum %d: %s %s %sGHz\n Pixel %d Peak Spectrum[%d] = %0.2f'%(
-                S.obsnum, S.receiver, S.source, S.line_rest_frequency, pixel, ispec, mx))
+                S.obsnum, S.receiver, S.source, S.sky_frequency, pixel, ispec, mx))
             pl.axis(plot_axis)
         else:
             self.fig.update_xaxes(
@@ -196,7 +196,7 @@ class PlotlyViewer():
                 row=row, col=col,
             )
             title='ObsNum %d: %s %s %sGHz<br>Pixel %d Peak Spectrum[%d] = %0.2f'%(
-                S.obsnum, S.receiver, S.source, S.line_rest_frequency, pixel, ispec, mx)
+                S.obsnum, S.receiver, S.source, S.sky_frequency, pixel, ispec, mx)
             idx = 0
             font_size = 16
             self.fig.layout.annotations[idx].update(text=title, font_size=font_size)
@@ -281,7 +281,7 @@ class PlotlyViewer():
                 ax2.axis(plot_axis2)
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
             pl.suptitle('ObsNum %d: %s %s %sGHz\n Pixel %d'%(S.obsnum, S.receiver,
-                S.source, S.line_rest_frequency, pixel))
+                S.source, S.sky_frequency, pixel))
         else:
             nrows = ylen
             ncols = xlen
@@ -347,7 +347,7 @@ class PlotlyViewer():
                 font_size = 14
                 self.fig.layout.annotations[idx].update(text=title, font_size=font_size)
             title = 'ObsNum %d: %s %s %sGHz\n Pixel %d'%(S.obsnum, S.receiver,
-                                                         S.source, S.line_rest_frequency, pixel)
+                                                         S.source, S.sky_frequency, pixel)
             font_size = 16
             width = max(1000, ncols*200)
             height = max(1000, nrows*200)
@@ -577,7 +577,7 @@ class PlotlyViewer():
                 l = len(S.roach[ipix].on_spectrum)
                 pl.xticks(np.arange(0, l+1, l/4))
             pl.suptitle('%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, 
-                S.receiver, S.line_rest_frequency))
+                S.receiver, S.sky_frequency))
         else:
             nrows = 4
             ncols = 4
@@ -594,7 +594,7 @@ class PlotlyViewer():
                     row=row, col=col,
                 )
             title = '%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, 
-                S.receiver, S.line_rest_frequency)
+                S.receiver, S.sky_frequency)
             font_size = 16
             width = max(1200, ncols*300)
             height = max(1200, nrows*300)
@@ -657,7 +657,7 @@ class PlotlyViewer():
                         horizontalalignment='left', verticalalignment='top', 
                         fontsize=6)
             pl.suptitle('%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, 
-                S.receiver, S.line_rest_frequency))
+                S.receiver, S.sky_frequency))
         else:
             nrows = 4
             ncols = 4
@@ -710,7 +710,7 @@ class PlotlyViewer():
                 title += 'V=%8.3f RMS=%8.3f'%(line_stats.xmean, 
                                               line_stats.rms)
                 self.fig.layout.annotations[idx].update(text=title, font_size=font_size)
-            title = '%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, S.receiver, S.line_rest_frequency)
+            title = '%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, S.receiver, S.sky_frequency)
             font_size = 16
             width = max(1200, ncols*300)
             height = max(1200, nrows*300)
@@ -761,7 +761,7 @@ class PlotlyViewer():
                     horizontalalignment='left', verticalalignment='top', 
                     fontsize=10)
             pl.suptitle('%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, 
-                S.receiver, S.line_rest_frequency))
+                S.receiver, S.sky_frequency))
         else:
             self.fig.add_trace(
                 go.Scatter(
@@ -788,7 +788,7 @@ class PlotlyViewer():
             idx = 0
             font_size = 16
             title = '%s: ObsNum %d\n%s %s GHz'%(S.obspgm, S.obsnum, 
-                                                S.receiver, S.line_rest_frequency)
+                                                S.receiver, S.sky_frequency)
             title += '<br>'
             title += '%2d/%2d I=%8.3f(%8.3f)'%(S.roach_pixel_ids[0], 
                                                S.roach_pixel_ids[1], line_stats.yint, line_stats.yerr)
@@ -896,10 +896,10 @@ class PlotlyViewer():
                     self.fig.layout.annotations[idx].update(text=title, font_size=font_size)
         if with_matplotlib:
             pl.suptitle('TSys: ObsNum %d\n%s %s GHz, bank %d'%(S.obsnum, S.receiver, 
-                                                               S.line_rest_frequency, S.bank))
+                                                               S.sky_frequency, S.bank))
         else:
             title = 'TSys: ObsNum %d\n%s %s GHz, bank %d'%(S.obsnum, S.receiver, 
-                                                           S.line_rest_frequency, S.bank)
+                                                           S.sky_frequency, S.bank)
             font_size = 16
             width = max(400, ncols*300)
             height = max(200, nrows*200)
@@ -1060,7 +1060,7 @@ class PlotlyViewer():
         el_map_offset = B.peak_fit_params[np.nonzero(isGood),3]
         textstr =           'Az Offset  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list])) + '\n' 
         textstr = textstr + 'El Offset  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]))
-        pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
+        pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.sky_frequency,textstr)) 
         try:
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
         except:
@@ -1221,7 +1221,7 @@ class PlotlyViewer():
         textstr = textstr +('\nM2 (%0.2f, %0.2f, %0.2f)'%(B.BData.ifproc.m2x,B.BData.ifproc.m2x,B.BData.ifproc.m2z))
         textstr = textstr +('   M1 (%0.2f)'%(B.BData.ifproc.zc0))
         if with_matplotlib:
-            pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
+            pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.sky_frequency,textstr)) 
             try:
                 pl.tight_layout(rect=[0, 0.03, 1, 0.9])
             except:
@@ -1254,7 +1254,7 @@ class PlotlyViewer():
                 scaleratio=1,
                 row=row, col=col,
             )
-            title = 'ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)
+            title = 'ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.sky_frequency,textstr)
             title='<br>'.join(title.split('\n'))
             idx = 0
             font_size = 16
@@ -1358,7 +1358,7 @@ class PlotlyViewer():
         el_map_offset = B.peak_fit_params[np.nonzero(isGood),3]
         textstr =           'Az Offset  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list])) + '\n' 
         textstr = textstr + 'El Offset  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]))
-        pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.line_rest_frequency,textstr)) 
+        pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.sky_frequency,textstr)) 
         try:
             pl.tight_layout(rect=[0, 0.03, 1, 0.9])
         except:
