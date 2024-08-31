@@ -325,8 +325,6 @@ def linepoint(args_dict, view_opt=0):
                 SV.plot_tsys(SCal)
                 fnames += ['lmtlp_%s_%d.png'%(file_ts, bank)]
                 SV.savefig(fnames[-1])
-                if view_opt & 0x1:
-                    SV.show()
 
             # merge plots
             print(fnames)
@@ -344,6 +342,9 @@ def linepoint(args_dict, view_opt=0):
         }
         if args_dict.get('plotly', False):
             results_dict['plotly_fig'] = [j for v in viewers for j in v.to_json()]
+        if view_opt & 0x1:
+            for v in viewers:
+                v.show()
 
         if results_dict is not None:
             results_d1 = {}
@@ -664,8 +665,6 @@ def linepoint(args_dict, view_opt=0):
 
         # save spectra plot
         SV.savefig('lmtlp_%s.png'%file_ts)
-        if view_opt & 0x1:
-            SV.show()
 
         # write a combined ifproc/roach file
         #SW = spec_bank_writer()
@@ -719,16 +718,12 @@ def linepoint(args_dict, view_opt=0):
             if spec_cont != 'cont':
                 BV.show_peaks(B,apply_grid_corrections=True,show_map_points=selected_beam)
             BV.savefig('lmtlp_2_%s.png'%file_ts)
-            if view_opt & 0x1:
-                BV.show()
 
             if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
                 BV.show_fit(B,selected_beam)
                 BV.savefig('lmtlp_%s.png'%file_ts)
-                if view_opt & 0x1:
-                    BV.show()
             # merge plots
             merge_png(['lmtlp_%s.png'%file_ts, 'lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
 
@@ -740,8 +735,6 @@ def linepoint(args_dict, view_opt=0):
             BV.map(B,[],grid_spacing,apply_grid_corrections=True)
             BV.show_peaks(B,apply_grid_corrections=True)
             BV.savefig('lmtlp_2_%s.png'%file_ts)
-            if view_opt & 0x1:
-                BV.show()
 
             if view_opt & 0x4:
                 BV.set_figure(figure=3)
@@ -765,19 +758,10 @@ def linepoint(args_dict, view_opt=0):
                 BV.open_figure()
                 BV.show_fit(B,selected_beam)
                 BV.savefig('lmtlp_%s.png'%file_ts)
-                if view_opt & 0x1:
-                    BV.show()
             # merge plots
             merge_png(['lmtlp_%s.png'%file_ts, 'lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
     
     if view_opt & 0x2:
-        if obspgm == 'Map' or obspgm == 'Lissajous':
-            # show the fit to the data
-            BV.set_figure(figure=10)
-            BV.open_figure()
-            BV.show_fit(B,selected_beam)
-            if view_opt & 0x1:
-                BV.show()
 
         if map_motion == 'Continuous':
             if spec_cont == 'cont':
@@ -785,25 +769,24 @@ def linepoint(args_dict, view_opt=0):
                 BV.open_figure()
                 BV.sanchez_map(B,[],grid_spacing)
                 BV.show_peaks(B,apply_grid_corrections=False)
-                if view_opt & 0x1:
-                    BV.show()
+                BV.set_figure(figure=12)
+                BV.open_figure()
+                BV.grid_map(B,[],grid_spacing)
             else:
                 # the "sanchez map" shows the array grid on the sky
                 SV.set_figure(figure=11)
                 SV.open_figure()
-                SV.sanchez_map(SData,[],grid_spacing,None,pixel_list=pixel_list)
+                SV.sanchez_map1(SData,[],grid_spacing,None,pixel_list=pixel_list)
 
                 # the "map" uses the array grid model to align the pixels
                 SV.set_figure(figure=12)
                 SV.open_figure()
-                SV.map(SData,[],grid_spacing,None,pixel_list=pixel_list)
+                SV.map1(SData,[],grid_spacing,None,pixel_list=pixel_list)
 
                 # show the waterfall plot near the peak spectrum
                 SV.set_figure(figure=13)
                 SV.open_figure()
                 SV.waterfall(SData,selected_beam,[-1500,1500],[-1,10],SData.blist,SData. nb)
-                if view_opt & 0x1:
-                    SV.show()
 
     if view_opt & 0x8:
         BV.map3d(B,[],grid_spacing,apply_grid_corrections=True)
@@ -828,6 +811,10 @@ def linepoint(args_dict, view_opt=0):
 
     if args_dict.get('plotly', False):
         results_dict['plotly_fig'] = [j for v in viewers for j in v.to_json()]
+
+    if view_opt & 0x1:
+        for v in viewers:
+            v.show()
 
     results_d1 = {}
     for k,v in results_dict.items():
