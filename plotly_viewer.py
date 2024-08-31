@@ -1067,6 +1067,69 @@ class PlotlyViewer():
             pass
         pl.colorbar()
 
+    def grid_map(self,B,map_region,grid_spacing):
+        """ makes a "Sanchez Plot" of the beams on the sky
+            B is BeamMap object with data and fits
+            map_region is the extent of the map: [low left, low right, high left, high right] (arcsec)
+            grid_spacing is the size of the map cells (arcsec)
+        """
+        g = Grid(B.BData.receiver)
+        gx,gy = g.azel(B.BData.elev/180.*np.pi,B.BData.tracking_beam)
+        if not map_region:
+            map_region = [0, 0, 0, 0]
+            map_region[0] = 1.1*(B.BData.map_x[0]).min()
+            map_region[1] = 1.1*(B.BData.map_x[0]).max()
+            map_region[2] = 1.1*(B.BData.map_y[0]).min()
+            map_region[3] = 1.1*(B.BData.map_y[0]).max()
+            #np.set_printoptions(threshold=sys.maxsize)
+            #print(map_x, map_y)
+            print ('map_region', map_region)
+        nx = int((map_region[1]-map_region[0])/grid_spacing)+1
+        ny = int((map_region[3]-map_region[2])/grid_spacing)+1
+        nx = ny = min(nx, ny)
+        xi = np.linspace(map_region[0],map_region[1],nx)
+        yi = np.linspace(map_region[2],map_region[3],ny)
+        grid_x, grid_y = np.mgrid[map_region[0]:map_region[1]:complex(nx), map_region[2]:map_region[3]:complex(ny)]
+        zi_sum = np.zeros((nx,ny))
+        plot_order = [1,5,9,13,
+                      2,6,10,14,
+                      3,7,11,15,
+                      4,8,12,16]
+        plot_order = plot_order+[x+16 for x in plot_order]
+        for i1,i2 in enumerate(plot_order):#range(len(B.BData.map_data)):#range(B.n_pix_list):
+            i = i2-1
+            ax = pl.subplot(8, 4, i1+1)
+            #pixel = B.pix_list[i]
+            #index = B.BData.find_map_pixel_index(pixel)
+            index = i
+            try:
+                print('trying scipy.interpolate.griddata')
+                zi = interp.griddata((B.BData.map_x[index],B.BData.map_y[index]),B.BData.map_data[index],(grid_x,grid_y),method='linear',fill_value=B.BData.map_data[index].min()).T
+            except Exception as e:
+                print(e)
+                zi = mlab.griddata(B.BData.map_x[index],B.BData.map_y[index],B.BData.map_data[index],xi,yi,interp='linear')
+            zi_sum = zi_sum + zi
+            im = ax.imshow(zi,interpolation='bicubic',cmap=pl.cm.jet,origin='lower',extent=map_region)
+            pl.colorbar(im, ax=ax)
+            ax.text(0,0,'%d'%i)
+        #pl.axis('equal')
+        #pl.grid()
+        #pl.xlabel('X (")')
+        #pl.ylabel('Y (")')
+        isGood = np.zeros((B.n_pix_list))
+        isGood = (B.peak_fit_status[:] != 5)
+        az_map_offset = B.peak_fit_params[np.nonzero(isGood),1]
+        el_map_offset = B.peak_fit_params[np.nonzero(isGood),3]
+        textstr =           'Az Offset  %6.4f'%(az_map_offset.mean()-np.mean(gx[B.pix_list])) + '\n' 
+        textstr = textstr + 'El Offset  %6.4f'%(el_map_offset.mean()-np.mean(gy[B.pix_list]))
+        pl.suptitle('ObsNum %d: %s %s %sGHz\n %s'%(B.obsnum,B.BData.receiver,B.BData.source,B.BData.sky_frequency,textstr)) 
+        try:
+            #pl.tight_layout(rect=[0, 0.03, 1, 0.9])
+            x = 1
+        except:
+            pass
+        #pl.colorbar()
+
     def map(self,B,map_region,grid_spacing,apply_grid_corrections=False,display_coord=None):
         """ map aligns all maps on the sky using nominal grid and averages the maps
             B is BeamMap object with data and fits
