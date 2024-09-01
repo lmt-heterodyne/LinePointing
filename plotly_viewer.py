@@ -1039,8 +1039,9 @@ class PlotlyViewer():
         yi = np.linspace(map_region[2],map_region[3],ny)
         grid_x, grid_y = np.mgrid[map_region[0]:map_region[1]:complex(nx), map_region[2]:map_region[3]:complex(ny)]
         zi_sum = np.zeros((nx,ny))
-        for i in range(B.n_pix_list):
-            pixel = B.pix_list[i]
+        for i in range(len(B.BData.map_data)): #range(B.n_pix_list):
+            pixel = i
+            #pixel = B.pix_list[i]
             index = B.BData.find_map_pixel_index(pixel)
             try:
                 print('trying scipy.interpolate.griddata')
