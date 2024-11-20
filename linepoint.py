@@ -462,12 +462,12 @@ def linepoint(args_dict, view_opt=0):
             line_list = [[-30+line_velocity,30+line_velocity]]
             print ('line_list from default', line_list)
         else:
-            print ('line_list from ifproc', line_list)
+            print ('line_list from ifproc', line_list, type(line_list))
     else:
-        if not any(isinstance(el, list) for el in line_list):
-            print ('modify line_list to be a list of lists')
-            line_list = [line_list]
-        print ('line_list from arg', line_list)
+        print ('line_list from arg', line_list, type(line_list))
+    if not any(isinstance(el, list) for el in line_list):
+        print ('modify line_list to be a list of lists')
+        line_list = [line_list]
         
     # get baseline_list from arg then from ifproc data file then from default
     if not baseline_list or not [item for sublist in baseline_list for item in sublist]:
@@ -875,7 +875,7 @@ if __name__ == '__main__':
         args_dict['SpecOrCont'] = 'Cont' if opt & 0x1000 else 'Spec'
         args_dict['LineList'] = None
         args_dict['BaselineList'] = None
-        #args_dict['LineList'] = [[-5,15]]
+        args_dict['LineList'] = [-5,15]
         #args_dict['BaselineList'] = [[-100,-10],[20,100]]
         args_dict['BaselineFitOrder'] = 0
         args_dict['TSys'] = 0
