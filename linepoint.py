@@ -455,6 +455,14 @@ def linepoint(args_dict, view_opt=0):
     #line_list = [[-27.5,-25.5]]
 
     # get line_list from arg then from ifproc data file then from default
+    if not isinstance(line_list, list):
+        txt = 'line list \"' +line_list +'\" is not a list for %d'%obsnum
+        print (txt)
+        return {'status': -1, 'message': txt}
+    if not isinstance(baseline_list, list):
+        txt = 'baseline list \"' +baseline_list +'\" is not a list for %d'%obsnum
+        print (txt)
+        return {'status': -1, 'message': txt}
     if not line_list or (all(isinstance(x, list) for x in line_list) and not [item for sublist in line_list for item in sublist]):
         line_list = IData.line_list
         print ('line_list in file', line_list)
