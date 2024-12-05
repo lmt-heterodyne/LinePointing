@@ -54,7 +54,7 @@ def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsy
     image_file = allfocus_results_d['png']
     params = allfocus_results_d['params']
     status = allfocus_results_d['status']
-    msg = allfocus_results_d['msg']
+    msg = allfocus_results_d['message']
     print(allfocus_results_d)
 
 if __name__ == '__main__':
