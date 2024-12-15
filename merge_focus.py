@@ -45,7 +45,10 @@ def merge_focus(mags, files):
         x_offset = 0
         y_offset = 0
         im = fit_images[0]
-        new_im.paste(im.resize((int(max_width), int(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (x_offset,y_offset))
+        try:
+            new_im.paste(im.resize((int(max_width), int(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (x_offset,y_offset))
+        except:
+            new_im.paste(im.resize((int(max_width), int(im.size[1]*max_width/im.size[0]))), (x_offset,y_offset))
 
         x_offset = thumb_offset-thumb_size/2
         y_offset += im.size[1]*max_width/im.size[0]+thumb_y_offset
@@ -60,13 +63,19 @@ def merge_focus(mags, files):
                 thumb_height = thumb_size
             if thumb_height <= 0:
                 thumb_height = 1
-            new_im.paste(im.resize((int(math.ceil(thumb_width)), int(math.ceil(thumb_height))), Image.ANTIALIAS), (int(math.ceil(x_offset-thumb_width/2)), int(math.ceil(y_offset-thumb_height))))
+            try:
+                new_im.paste(im.resize((int(math.ceil(thumb_width)), int(math.ceil(thumb_height))), Image.ANTIALIAS), (int(math.ceil(x_offset-thumb_width/2)), int(math.ceil(y_offset-thumb_height))))
+            except:
+                new_im.paste(im.resize((int(math.ceil(thumb_width)), int(math.ceil(thumb_height)))), (int(math.ceil(x_offset-thumb_width/2)), int(math.ceil(y_offset-thumb_height))))
             x_offset += thumb_offset
 
         x_offset = 0
         #y_offset += thumb_offset
         im = fit_images[1]
-        new_im.paste(im.resize((int(math.ceil(max_width)), int(math.ceil(im.size[1]*max_width/im.size[0]))), Image.ANTIALIAS), (int(math.ceil(x_offset)), int(math.ceil(y_offset))))
+        try:
+            new_im.paste(im.resize((int(math.ceil(max_width)), int(math.ceil(im.size[1]*max_width/im.size[0]))), Image.ANTIALIAS), (int(math.ceil(x_offset)), int(math.ceil(y_offset))))
+        except:
+            new_im.paste(im.resize((int(math.ceil(max_width)), int(math.ceil(im.size[1]*max_width/im.size[0])))), (int(math.ceil(x_offset)), int(math.ceil(y_offset))))
 
         new_im.save(new_file)
         #os.system('rm -f %s'%zip(image_files))
