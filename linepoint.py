@@ -215,8 +215,8 @@ def linepoint(args_dict, view_opt=0):
     print('args = ', obsnum, spec_cont, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam, opt, bank)
     
     # define time stamp
-    file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
     file_ts = '%d_%d_%d'%(obsnum, obsnum, obsnum)
+    file_ts = '%d_%d_%d'%(obsnum, int(time.time()*1000), os.getpid())
 
     # define roach_pixels_all
     roach_pixels_all = [[i+j*4 for i in range(4)] for j in range(4)]
