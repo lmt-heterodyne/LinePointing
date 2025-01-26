@@ -13,7 +13,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
-import matplotlib.colors
+import matplotlib.colors as mcolors
 ##from mpl_toolkits.mplot3d import Axes3D
 import scipy.interpolate as interp
 from beam import *
@@ -366,7 +366,7 @@ class BeamMapView():
         # this breaks when grid has nan
         with_norm_colormap = False
         if with_norm_colormap:
-            norm =  matplotlib.colors.Normalize(vmin=np.min(zi), vmax=np.max(zi))
+            norm =  mcolors.Normalize(vmin=np.min(zi), vmax=np.max(zi))
             my_col = pl.cm.jet(norm(zi))
             surf = ax.plot_surface(xm, ym, zi, rstride=1, cstride=1, facecolors=my_col, linewidth=1, antialiased=True)
             m = pl.cm.ScalarMappable(cmap=pl.cm.jet, norm=norm)

@@ -4,7 +4,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
-import matplotlib.colors
+import matplotlib.colors as mcolors
 ##from mpl_toolkits.mplot3d import Axes3D
 import scipy.interpolate as interp
 from beam import *
