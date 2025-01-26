@@ -81,7 +81,7 @@ def allfocus(allfocus_list, opt=0):
         return allfocus_results_d
         #return 'lf_focus_%s.png'%file_ts,params,f.status,f.msg
 
-    use_gaus = False
+    use_gaus = True
     f.find_focus(use_gaus=use_gaus)
     f.fit_focus_model(col_id=col_id, masks=masks)
     print('lp_params', lp_params)
