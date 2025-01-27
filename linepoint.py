@@ -208,6 +208,8 @@ def linepoint(args_dict, view_opt=0):
     opt = (args_dict.get('Opt', 0))
     bank = (args_dict.get('Bank', 0)) 
 
+    if tracking_beam is not None and type(tracking_beam) == str and tracking_beam == "null":
+        tracking_beam = None
     if tracking_beam is not None and tracking_beam > 15 and spec_cont == 'spec':
         tracking_beam -= 16
         bank = 1
