@@ -6,6 +6,7 @@ import math
 from scipy.optimize import leastsq
 from lmtslr.grid.grid import *
 import sys
+import traceback
 
 def fit_array_function(param,xdata):
     """ compute model function for grid fitting
@@ -98,18 +99,28 @@ class BeamMap():
             hpbw = 15.
         v0 = np.array([theMax,xp,hpbw,yp,hpbw])
         spec_list = np.where(np.sqrt((self.BData.map_x[index]-xp)**2 + (self.BData.map_y[index]-yp)**2) < fit_circle)
-        #print(spec_list)
+        print('spec_list (sqrt(x*x+y*y) < fit_circle)', spec_list)
         scan = self.BData.map_data[index][:]
-        #for i in spec_list:
-            #print(i,self.BData.map_x[index][i],self.BData.map_y[index][i],scan[i])
-        lsq_fit,lsq_cov,lsq_inf,lsq_msg,lsq_success = leastsq(compute_the_residuals,
-                                                              v0,
-                                                              args=(self.BData.map_x[index][spec_list],
-                                                                    self.BData.map_y[index][spec_list],
-                                                                    scan[spec_list]),
-                                                              full_output=1)
-        residuals = compute_the_residuals(lsq_fit,self.BData.map_x[index][spec_list],self.BData.map_y[index][spec_list],scan[spec_list])
-        chisq = np.dot(residuals.transpose(),residuals)
+        for i in spec_list:
+            print('spec_list data', i,self.BData.map_x[index][i],self.BData.map_y[index][i],scan[i])
+        print('v0', v0)
+        try:
+            lsq_fit,lsq_cov,lsq_inf,lsq_msg,lsq_success = leastsq(compute_the_residuals,
+                                                                  v0,
+                                                                  args=(self.BData.map_x[index][spec_list],
+                                                                        self.BData.map_y[index][spec_list],
+                                                                        scan[spec_list]),
+                                                                  full_output=1)
+            residuals = compute_the_residuals(lsq_fit,self.BData.map_x[index][spec_list],self.BData.map_y[index][spec_list],scan[spec_list])
+            chisq = np.dot(residuals.transpose(),residuals)
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+            lsq_cov = None
+            lsq_fit = 0
+            lsq_msg = str(e)
+            lsq_success = 999
+            chisq = 0
         npts = self.BData.map_n[index]
         if lsq_cov is None:
             lsq_err = 0
