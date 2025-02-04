@@ -81,7 +81,7 @@ class m2fit_viewer():
         plot_order = [1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16];
 
         # outer grid
-        if paramfit.n == 1:
+        if paramfit.n == 1 or paramfit.receiver == 'Toltec':
             nrows = ncols = 1
             row0 = 0
         else:
@@ -138,6 +138,7 @@ class m2fit_viewer():
                 hspace = 1.0
             if(math.isnan(paramfit.result_relative[index])):
                 continue
+            data = paramfit.data[:,index]
             model = (paramfit.parameters[index,0]
                      + paramfit.parameters[index,1]*prange
                      + paramfit.parameters[index,2]*prange*prange
@@ -146,26 +147,42 @@ class m2fit_viewer():
                 def gaus(x,a,x0,sigma):
                     return a*numpy.exp(-(x-x0)**2/(2*sigma**2))
                 model = gaus(prange, *paramfit.parameters[index])
+            
+            if False and paramfit.receiver == 'Toltec':
+              # normalize data and model
+              min_data = numpy.min(data)
+              max_data = numpy.max(data)
+              range_data = max_data-min_data
+              data = (data - min_data) / range_data
+              model = (model - min_data) / range_data
             if num_sub_rows > 0 and num_sub_cols > 0:
                 inner_grid = gridspec.GridSpecFromSubplotSpec(num_sub_rows, num_sub_cols, subplot_spec=outer_grid[pixel_index], hspace=hspace)
                 ax = pl.subplot(inner_grid[:-1,:])
             else:
-                ax = pl.subplot(nrows, ncols, pixel_index+1)#outer_grid[pixel_index])
-            
+                if paramfit.receiver == 'Toltec' and pixel_index == 0 or paramfit.receiver != 'Toltec':
+                    ax = pl.subplot(nrows, ncols, pixel_index+1)#outer_grid[pixel_index])
             if paramfit.m2pos >= 0:
-                ax.plot(paramfit.m2_position,paramfit.data[:,index],'o')
-                ax.plot(prange,model,'r')
-                for i in range(len(paramfit.m2_position)):
-                  ax.text(paramfit.m2_position[i],paramfit.data[i,index],
-                          "%d"%paramfit.obsnums[i], fontsize=6)
+                if type(names) == list and type(names[0]) == list:
+                  ax.plot(paramfit.m2_position,data,'o',label=names[0][index])
+                  color = ax.lines[-1].get_color()
+                  ax.plot(prange,model,color=color)
+                else:
+                  ax.plot(paramfit.m2_position,data,'o')
+                  ax.plot(prange,model,'r')
+                if False:
+                    for i in range(len(paramfit.m2_position)):
+                      ax.text(paramfit.m2_position[i],data,
+                              "%d"%paramfit.obsnums[i], fontsize=6)
                 if use_gaus == False:
-                  ax.axhline(y=.5*numpy.max(paramfit.data[:,index]), color='b')
+                  ax.axhline(y=.5*numpy.max(data), color='b')
                 if len(paramfit.status) == paramfit.n and paramfit.status[index] < 0:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-                  ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(paramfit.data[:,index]), paramfit.msg, bbox=props, color='red')
+                  if False:
+                      ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(data), paramfit.msg, bbox=props, color='red')
                 if type(names) == list and type(names[0]) == list:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-                  ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.3*numpy.max(paramfit.data[:,index]), names[0][index], bbox=props, color='red')
+                  if False:
+                      ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.3*numpy.max(data), names[0][index], bbox=props, color='red')
                 try:
                   ax.tick_params(axis='both',which='major',labelsize=6)
                 except:
@@ -203,7 +220,8 @@ class m2fit_viewer():
           titleObsNum = paramfit.obsnum
         else:
           titleObsNum = obsNumArg
-        pl.suptitle('ObsNum: %s %s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
+        pl.legend()
+        pl.suptitle('ObsNum: %s\n%s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
 
     def plot_focus_model_fit(self,paramfit,obsNumArg=False,row_id=None,col_id=None,names=None):
         """Plots data and focus model fit."""
