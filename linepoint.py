@@ -385,6 +385,8 @@ def linepoint(args_dict, view_opt=0):
     if False and tracking_beam == -1:
         tracking_beam = selected_beam
     if tracking_beam != -1:
+        if 'Msip1mm' in IData.receiver and tracking_beam > 3:
+            tracking_beam = 0
         selected_beam = tracking_beam
         if bs_beams != []:
             roach_list = []
