@@ -522,6 +522,7 @@ def linepoint(args_dict, view_opt=0):
         # create the spec_bank object. This reads all the roaches in the list "files"
         print(files, bank_files[bank], pixel_list)
         SData = SpecBankData(bank_files[bank],IData,pixel_list=pixel_list,bank=bank)
+        #SData = SpecBankData(bank_files[bank],IData,pixel_list=pixel_list,bank=bank,time_offset=[-1.03]*16)
 
         # set the pixel list to the pixels from the files we could find
         print ('unmodified pixel_list = ', pixel_list)
@@ -885,7 +886,7 @@ if __name__ == '__main__':
         args_dict['SpecOrCont'] = 'Cont' if opt & 0x1000 else 'Spec'
         args_dict['LineList'] = None
         args_dict['BaselineList'] = None
-        args_dict['LineList'] = [-5,15]
+        #args_dict['LineList'] = [-5,15]
         #args_dict['BaselineList'] = [[-100,-10],[20,100]]
         args_dict['BaselineFitOrder'] = 0
         args_dict['TSys'] = 0
