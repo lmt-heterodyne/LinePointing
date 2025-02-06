@@ -81,7 +81,7 @@ class m2fit_viewer():
         plot_order = [1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16];
 
         # outer grid
-        if paramfit.n == 1 or paramfit.receiver == 'Toltec':
+        if paramfit.n == 1 or paramfit.receiver == 'Toltec' or paramfit.receiver == 'Msip1mmX':
             nrows = ncols = 1
             row0 = 0
         else:
@@ -147,7 +147,6 @@ class m2fit_viewer():
                 def gaus(x,a,x0,sigma):
                     return a*numpy.exp(-(x-x0)**2/(2*sigma**2))
                 model = gaus(prange, *paramfit.parameters[index])
-            
             if False and paramfit.receiver == 'Toltec':
               # normalize data and model
               min_data = numpy.min(data)
@@ -159,8 +158,9 @@ class m2fit_viewer():
                 inner_grid = gridspec.GridSpecFromSubplotSpec(num_sub_rows, num_sub_cols, subplot_spec=outer_grid[pixel_index], hspace=hspace)
                 ax = pl.subplot(inner_grid[:-1,:])
             else:
-                if paramfit.receiver == 'Toltec' and pixel_index == 0 or paramfit.receiver != 'Toltec':
-                    ax = pl.subplot(nrows, ncols, pixel_index+1)#outer_grid[pixel_index])
+              if (paramfit.receiver == 'Toltec' or paramfit.receiver == 'Msip1mmX') and pixel_index == 0 or (paramfit.receiver != 'Toltec' and paramfit.receiver != 'Msip1mmX'):
+                ax = pl.subplot(nrows, ncols, pixel_index+1)#outer_grid[pixel_index])
+            
             if paramfit.m2pos >= 0:
                 if type(names) == list and type(names[0]) == list:
                   ax.plot(paramfit.m2_position,data,'o',label=names[0][index])
@@ -175,14 +175,12 @@ class m2fit_viewer():
                               "%d"%paramfit.obsnums[i], fontsize=6)
                 if use_gaus == False:
                   ax.axhline(y=.5*numpy.max(data), color='b')
-                if len(paramfit.status) == paramfit.n and paramfit.status[index] < 0:
+                if False and len(paramfit.status) == paramfit.n and paramfit.status[index] < 0:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-                  if False:
-                      ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(data), paramfit.msg, bbox=props, color='red')
-                if type(names) == list and type(names[0]) == list:
+                  ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(data), paramfit.msg, bbox=props, color='red')
+                if False and type(names) == list and type(names[0]) == list:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-                  if False:
-                      ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.3*numpy.max(data), names[0][index], bbox=props, color='red')
+                  ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.3*numpy.max(data), names[0][index], bbox=props, color='red')
                 try:
                   ax.tick_params(axis='both',which='major',labelsize=6)
                 except:
@@ -236,13 +234,16 @@ class m2fit_viewer():
             f = freq_0+brange*d_freq
             band_freq = []
             result_relative = []
+            result_absolute = []
             for index in range(M.n):
                 if(math.isnan(M.result_relative[index])):
                     continue
                 band_freq.append(freq[band_order[int(col_id[0][index])]])
                 result_relative.append(M.result_relative[index])
+                result_absolute.append(M.result_absolute[index])
             band_freq = numpy.array(band_freq)
             result_relative = numpy.array(result_relative)
+            result_absolute = numpy.array(result_absolute)
             pl.plot(band_freq,result_relative,'o')
             the_model = M.relative_focus_fit+M.focus_slope*brange
             pl.plot(f,the_model,'r')
@@ -251,6 +252,7 @@ class m2fit_viewer():
             ypos = result_relative.max()-0.3*(result_relative.max()-result_relative.min())
         else:
             result_relative = paramfit.result_relative
+            result_absolute = paramfit.result_absolute
             brange = numpy.arange(-0.5*(paramfit.n-1),0.5*(paramfit.n-1)+1,1)
             #brange = numpy.arange(0,paramfit.n,1)
             the_model = paramfit.relative_focus_fit+(paramfit.focus_slope)*brange
@@ -300,13 +302,14 @@ class m2fit_viewer():
             fitype = 'M1.ZernikeC0'
         else:
             fitype = 'Error'
-        if paramfit.receiver == 'Toltec':
+        if paramfit.mode == 'list':
           textstr =           'Relative '+fitype+':   ' +str(['%.4f'%round(x,4) for x in result_relative]).replace("'",  "") + '\n'
+          textstr +=           'Absolute '+fitype+':   ' +str(['%.4f'%round(x,4) for x in result_absolute]).replace("'",  "") + '\n'
         else:
-          textstr =           'Relative '+fitype+':   ' +str(round(paramfit.relative_focus_fit,4)) + '\n'
+          textstr =           'Relative '+fitype+':   ' +str(round(numpy.mean(paramfit.relative_focus_fit),4)) + '\n'
+          textstr = textstr + 'Absolute '+fitype+':  ' +str(round(numpy.mean(paramfit.absolute_focus_fit),4)) + '\n' 
         textstr = textstr + fitype+' Error:         ' +str(round(paramfit.focus_error,4)) + '\n' 
         textstr = textstr + fitype+' Slope:       ' +str(round(paramfit.focus_slope,4)) + '\n' 
-        textstr = textstr + 'Absolute '+fitype+':  ' +str(round(paramfit.absolute_focus_fit,4)) + '\n' 
         textstr = textstr + 'Fit RMS:                ' +str(round(paramfit.fit_rms,4))
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
         pl.text(xpos, ypos, textstr, bbox=props, color='red')
