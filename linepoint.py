@@ -224,6 +224,7 @@ def linepoint(args_dict, view_opt=0):
     roach_pixels_all = [[i+j*4 for i in range(4)] for j in range(4)]
 
     viewers = []
+    plot_files = []
     if True or args_dict.get('plotly', False):
         from plotly_viewer import SpecBankViewer, SpecCalViewer
         from plotly_viewer import BeamMapView
@@ -378,6 +379,8 @@ def linepoint(args_dict, view_opt=0):
     selected_beam = 10
 
     # check if tracking a specific pixel to modify the roach list and the selected_beam
+    if 'Msip1mmX' in IData.receiver:
+        tracking_beam = -1
     if False and 'Msip1mm' not in IData.receiver:
         tracking_beam = None
     if tracking_beam == None:
@@ -412,6 +415,8 @@ def linepoint(args_dict, view_opt=0):
         pixel_list = bs_beams
     elif tracking_beam == -1 or obspgm == 'On':
         pixel_list = sum([roach_pixels_all[roach_index] for roach_index in range(len(roach_pixels_all))], [])
+        if IData.receiver == 'Msip1mm':
+            pixel_list = list(range(4))
     else:
         pixel_list = [tracking_beam]
 
@@ -674,7 +679,23 @@ def linepoint(args_dict, view_opt=0):
             # show the peak spectrum
             SV.set_figure(figure=1)
             SV.open_figure()
-            SV.plot_peak_spectrum(SData,selected_beam,plot_axis,SData.blist,SData.nb,line_list,baseline_list)
+            if IData.receiver == "Msip1mmX":
+                fnames = []
+                for sb in range(4):
+                    SV1 = SpecBankViewer()                    
+                    SV1.set_figure(figure=sb)
+                    SV1.open_figure()
+                    SV1.plot_peak_spectrum(SData,sb,plot_axis,SData.blist,SData.nb,line_list,baseline_list)
+                    fname = 'lmtlp_%s_%d.png'%(file_ts,sb)
+                    SV1.savefig(fname)
+                    fnames.append(fname)
+                    plot_files.append(fname)
+                fname = 'lmtlp_%s_all.png'%(file_ts)
+                merge_png(fnames, fname, direction='v', resize=False)
+                SV.load_image(fname)
+                SV.savefig('lmtlp_%s_x.png'%file_ts)
+            else:
+                SV.plot_peak_spectrum(SData,selected_beam,plot_axis,SData.blist,SData.nb,line_list,baseline_list)
 
         # save spectra plot
         SV.savefig('lmtlp_%s.png'%file_ts)
@@ -745,8 +766,24 @@ def linepoint(args_dict, view_opt=0):
             BV.set_figure(figure=2)
             BV.open_figure()
             #BV.add_subplot(SV.fig)
-            BV.map(B,[],grid_spacing,apply_grid_corrections=True)
-            BV.show_peaks(B,apply_grid_corrections=True)
+            if IData.receiver == "Msip1mmX":
+                fnames = []
+                for sb in range(4):
+                    BV1 = BeamMapView()                    
+                    BV1.set_figure(figure=sb)
+                    BV1.open_figure()
+                    BV1.map(B,[],grid_spacing,apply_grid_corrections=True,plot_pixel=sb)
+                    BV1.show_peaks(B,apply_grid_corrections=True,plot_pixel=sb)
+                    fname = 'lmtlp_2_%s_%d.png'%(file_ts,sb)
+                    BV1.savefig(fname)
+                    fnames.append(fname)
+                    plot_files.append(fname)
+                fname = 'lmtlp_2_%s_all.png'%(file_ts)
+                merge_png(fnames, fname, direction='v', resize=False)
+                BV.load_image(fname)
+            else:
+                BV.map(B,[],grid_spacing,apply_grid_corrections=True)
+                BV.show_peaks(B,apply_grid_corrections=True)
             BV.savefig('lmtlp_2_%s.png'%file_ts)
 
             if view_opt & 0x4:
@@ -769,10 +806,28 @@ def linepoint(args_dict, view_opt=0):
             if spec_cont == 'cont':
                 BV.set_figure(figure=10)
                 BV.open_figure()
-                BV.show_fit(B,selected_beam)
+                if IData.receiver == "Msip1mmX":
+                    fnames = []
+                    for sb in range(4):
+                        BV1 = BeamMapView()                    
+                        BV1.set_figure(figure=sb)
+                        BV1.open_figure()
+                        BV1.show_fit(B,sb)
+                        fname = 'lmtlp_2_%s_%d.png'%(file_ts,sb)
+                        BV1.savefig(fname)
+                        fnames.append(fname)
+                        plot_files.append(fname)
+                    fname = 'lmtlp_2_%s_all.png'%(file_ts)
+                    merge_png(fnames, fname, direction='v', resize=False)
+                    BV.load_image(fname)
+                else:
+                    BV.show_fit(B,selected_beam)
                 BV.savefig('lmtlp_%s.png'%file_ts)
             # merge plots
-            merge_png(['lmtlp_%s.png'%file_ts, 'lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
+            if len(plot_files) == 0:
+                merge_png(['lmtlp_%s.png'%file_ts, 'lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
+            else:
+                merge_png(plot_files, 'lmtlp_%s.png'%file_ts)
     
     if view_opt & 0x2:
 
