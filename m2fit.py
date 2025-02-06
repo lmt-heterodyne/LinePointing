@@ -253,12 +253,23 @@ class m2fit():
         if self.receiver == 'RedshiftReceiver':
             xbands = set([int(col_id[0][index]) for index in range(self.n)])
             xband = [-1,-.2,-.6,.2,1.,.6]
-        else:
+        elif False:
             xbands = [index for index in range(self.n)]
             xband = [index-0.5*(self.n-1) for index in range(self.n)]
+        else:
+            xband = [None]
+            xbands = [None]
         print('n =', self.n)
         print('xbands =', xband)
-        if self.n > 1 and len(xbands) > 1:
+        fit_receivers = ['RedshiftReceiver']
+        list_receivers = ['Toltec', 'Msip1mmX']
+        if self.receiver in fit_receivers: 
+            self.mode = 'fit'
+        elif self.receiver in list_receivers:
+            self.mode = 'list'
+        else:
+            self.mode = 'avg'
+        if self.mode == 'fit': #self.n > 1 and len(xbands) > 1:
             print('fit focus')
             ptp = numpy.zeros((2,2))
             ptr = numpy.zeros(2)
@@ -301,37 +312,40 @@ class m2fit():
                     actual_n = actual_n + 1
                 rms = math.sqrt(resids_squared/actual_n)
                 focus_error = math.sqrt(ptpinv[0][0])*rms
-                self.relative_focus_fit = relative_focus_fit[0]
+                self.relative_focus_fit = [relative_focus_fit[0]]
                 self.focus_error = focus_error
-                self.absolute_focus_fit = absolute_focus_fit[0]
+                self.absolute_focus_fit = [absolute_focus_fit[0]]
                 self.focus_slope = relative_focus_fit[1]
                 self.fit_rms = rms
             else:
-                self.relative_focus_fit = 0
+                self.relative_focus_fit = [0]
                 self.focus_error = 0
-                self.absolute_focus_fit = 0
+                self.absolute_focus_fit = [0]
                 self.focus_slope = 0
                 self.fit_rms = 0
-        elif self.n > 0:
-            print('average focus')
-            self.relative_focus_fit = numpy.mean(self.result_relative)
+        elif self.mode == 'list':
+            self.relative_focus_fit = self.result_relative
             self.focus_error = 0
-            self.absolute_focus_fit = numpy.mean(self.result_absolute)
+            self.absolute_focus_fit = self.result_absolute
             self.focus_slope = 0
             self.fit_rms = 0
-        if type(masks) == list and type(masks[0]) == list:
-            print('has masks')
-            if len(set(masks[0])) > 1:
-                for i,m in enumerate(masks[0]):
-                    if m == 1:
-                        print('use result', i)
-                        self.relative_focus_fit = self.result_relative[i]
-                        self.focus_error = 0
-                        self.absolute_focus_fit = self.result_absolute[i]
-                        self.focus_slope = 0
-                        self.fit_rms = 0
-                        break
-                
+        elif self.mode == 'avg': #self.n > 0:
+            print('average focus')
+            self.relative_focus_fit = [numpy.mean(self.result_relative)]
+            self.focus_error = 0
+            self.absolute_focus_fit = [numpy.mean(self.result_absolute)]
+            self.focus_slope = 0
+            self.fit_rms = 0
+
+        print('relative_focus_fit', self.relative_focus_fit)
+        zero = [0]*len(self.relative_focus_fit)
+        self.m2zfocus = zero
+        self.m2yfocus = zero
+        self.m2xfocus = zero
+        self.m1ZernikeC0 = zero
+        self.m2tipfocus = zero
+        self.m2tiltfocus = zero
+        
         if self.m2pos == 0:
             self.m2zfocus = self.relative_focus_fit
         elif self.m2pos == 1:
