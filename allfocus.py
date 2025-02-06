@@ -94,13 +94,17 @@ def allfocus(allfocus_list, opt=0):
     sorted_image_files =  [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_image_files))]
     lp_merge_image_files = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_image_files))]
 
-    params = numpy.zeros((1,6))
-    params[0,0] = f.m2xfocus
-    params[0,1] = f.m2yfocus
-    params[0,2] = f.m2zfocus
-    params[0,3] = f.m1ZernikeC0
-    params[0,4] = f.m2tipfocus
-    params[0,5] = f.m2tiltfocus
+    if type(f.m2xfocus) == list:
+        l_l = len(f.m2xfocus)
+    else:
+        l_l = 1
+    params = numpy.zeros((l_l,6))
+    params[:,0] = f.m2xfocus
+    params[:,1] = f.m2yfocus
+    params[:,2] = f.m2zfocus
+    params[:,3] = f.m1ZernikeC0
+    params[:,4] = f.m2tipfocus
+    params[:,5] = f.m2tiltfocus
     print('params 1', params)
 
     print('open m2fit_viewer')
@@ -133,7 +137,7 @@ def allfocus(allfocus_list, opt=0):
     lp_merge_image_files += ['lf_fits_%s.png'%file_ts]
     lp_merge_image_files += ['lf_model_%s.png'%file_ts]
     lp_merge_image_files += ['lf_focus_%s.png'%file_ts]
-    if f.receiver != 'RedshiftReceiver' and f.receiver != 'Toltec':
+    if f.receiver != 'RedshiftReceiver' and f.receiver != 'Toltec' and f.receiver != 'Msip1mmX':
         merge_focus(lp_merge_params, lp_merge_image_files)
 
     if opt & 0x1:
