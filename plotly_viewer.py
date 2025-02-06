@@ -968,7 +968,7 @@ class PlotlyViewer():
                 height=800,
             )
 
-    def show_peaks(self,B,apply_grid_corrections=False,show_map_ids=True,show_map_points=-1):
+    def show_peaks(self,B,apply_grid_corrections=False,show_map_ids=True,show_map_points=-1,plot_pixel=None):
         """ plots and identifies the peak positions in the BeamMap fits
             B is the BeamMap object with the data and fit results
             apply_grid_corrections=True will use the nominal grid to offset positions
@@ -1131,7 +1131,7 @@ class PlotlyViewer():
             pass
         #pl.colorbar()
 
-    def map(self,B,map_region,grid_spacing,apply_grid_corrections=False,display_coord=None):
+    def map(self,B,map_region,grid_spacing,apply_grid_corrections=False,display_coord=None,plot_pixel=None):
         """ map aligns all maps on the sky using nominal grid and averages the maps
             B is BeamMap object with data and fits
             map_region is the extent of the map: [low left, low right, high left, high right] (arcsec)
@@ -1235,6 +1235,8 @@ class PlotlyViewer():
         wi_sum = np.zeros((nx,ny))
         for i in range(B.n_pix_list):
             pixel = B.pix_list[i]
+            if plot_pixel is not None and pixel != plot_pixel:
+                continue
             if len(map_data) == 1:
                 index = i
             else:
@@ -1583,7 +1585,17 @@ class PlotlyViewer():
                 self.fig.update_layout(title=title, title_x=0.5, font_size=font_size, width=width, height=height)
         if True:
             return
-    
+
+    def load_image(self, fname):
+        if with_matplotlib:
+            import matplotlib.image as mpimg
+            image = mpimg.imread(fname)
+            pl.clf()
+            pl.axis('off')
+            pl.imshow(image)
+        else:
+            pass
+
 class SpecViewer(PlotlyViewer):
     def __init__(self):
         PlotlyViewer.__init__(self)
@@ -1604,10 +1616,10 @@ class SpecBankViewer(PlotlyViewer):
     def __init__(self):
         PlotlyViewer.__init__(self)
 
-def merge_png(image_files, newfile):
+def merge_png(image_files, newfile, direction='v', resize=True):
     if with_matplotlib:
         from merge_png import merge_png
-        merge_png(image_files, newfile)
+        merge_png(image_files, newfile, direction, resize)
     else:
         if True: return
         import plotly.io as pio
@@ -1669,3 +1681,5 @@ def merge_png(image_files, newfile):
             print(figs.layout)
         except:
             pass
+
+        
