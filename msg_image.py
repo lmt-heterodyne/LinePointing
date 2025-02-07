@@ -12,7 +12,7 @@ def mkMsgImage(obsnum, txt, im, label, color='k', bg_img=None) :
         pl.imshow(bg)
         msg = '{label}:\n{txt}\nObsNum: {obsnum}'.format(label=label, txt=txt, obsnum=obsnum)
         print(msg)
-        ax.text(bg.shape[1]/4, bg.shape[0], msg, color = color, fontsize=50, rotation=90)#, wrap=True)
+        ax.text(bg.shape[1]/10, bg.shape[0]/2, msg, color = color, fontsize=50, wrap=True)
     else:
         fig = pl.figure(figsize = (10,10))
         pl.subplots_adjust(left=0, right=1, bottom=0, top=1)
