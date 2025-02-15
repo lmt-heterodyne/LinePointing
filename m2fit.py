@@ -179,6 +179,8 @@ class m2fit():
         print('n', self.n)
         print(mdata_max)
         for index in range(self.n):
+            msg = 'Ok'
+            status = 0
             ptp = numpy.zeros((3,3))
             ptr = numpy.zeros(3)
             f = numpy.zeros(3)
@@ -193,7 +195,7 @@ class m2fit():
                 print('scan_id, mdata, half max', scan_id, self.data[scan_id][index], 0.5*mdata_max[index])
                 if use_gaus == False and self.data[scan_id][index] < 0.5*mdata_max[index]:
                     continue
-                if self.data[scan_id][index] == 0:
+                if False and self.data[scan_id][index] == 0:
                     continue
                 I.append(self.data[scan_id][index])
                 par.append(self.m2_position[scan_id])
@@ -214,9 +216,8 @@ class m2fit():
             if len(I) <= 2 or len(set(par)) <= 2:
                 self.result_relative[index] = 0
                 self.result_absolute[index] = 0
-                self.msg.append("Only %d data points are above half max"%len(I))
-                self.status.append(-1)
-                print('------------', self.msg)
+                msg = "Only %d data points are above half max"%len(I)
+                status = -1
             else:
                 ptpinv = numpy.linalg.inv(ptp)
                 self.parameters[index,:] = numpy.dot(ptpinv,ptr)
@@ -231,22 +232,30 @@ class m2fit():
                     sigma = numpy.sqrt(abs(sum((par-mean)**2*I)/sum(I)))
                     p0 = [ymean, mean, sigma]
                     print('gaus p0', p0)
-                    popt,pcov = curve_fit(gaus,par,I,p0)
-                    print('gaus popt ', popt)
-                    self.result_relative[index] = popt[1]
-                    self.parameters[index,0] = popt[0]
-                    self.parameters[index,1] = popt[1]
-                    self.parameters[index,2] = popt[2]
+                    try:
+                        popt,pcov = curve_fit(gaus,par,I,p0)
+                        print('gaus popt ', popt)
+                        self.result_relative[index] = popt[1]
+                        self.parameters[index,0] = popt[0]
+                        self.parameters[index,1] = popt[1]
+                        self.parameters[index,2] = popt[2]
+                    except Exception as e:
+                        self.result_relative[index] = 0
+                        self.result_absolute[index] = 0
+                        msg = "Problem in fit, exception: " +str(e)
+                        status = -1
                 elif self.parameters[index,2] != 0:
                     self.result_relative[index] = -self.parameters[index,1]/self.parameters[index,2]/2.
                 else:
                     self.result_relative[index] = 0
                     self.result_absolute[index] = 0
-                    self.msg.append("Problem in fit")
-                    print(self.msg)
-                    self.status.append(-1)
+                    msg = "Problem in fit"
+                    status = -1
                 self.result_absolute[index] = self.result_relative[index] + numpy.mean(pcor)
-
+            self.msg.append(msg)
+            self.status.append(status)
+            print('------------', self.msg)
+            print('------------', self.status)
 
     def fit_focus_model(self, col_id=None, masks=None):
         """Uses best fit focus (Z) for each instance to fit linear focus model."""
@@ -279,11 +288,13 @@ class m2fit():
             result_cutoff = 2.0 * numpy.std(self.result_relative)
             good_n = 0
             for index in range(self.n):
-                if math.isnan(self.result_relative[index]) or abs(self.result_relative[index] - result_median) >= result_cutoff:
-                    print('reject_focus_model', index, self.result_relative[index])
+                if math.isnan(self.result_relative[index]) or abs(self.result_relative[index] - result_median) >= result_cutoff or self.status[index] < 0:
+                    if self.status[index] == 0:
+                        self.status[index] = -2
+                    print('reject_focus_model', index, self.result_relative[index], self.status[index])
                     continue
                 good_n += 1
-                print('fit_focus_model', index, self.result_relative[index])
+                print('fit_focus_model', index, self.result_relative[index], self.status[index])
                 f[0] = 1.
                 if self.receiver == 'RedshiftReceiver':
                     f[1] = xband[int(col_id[0][index])]
