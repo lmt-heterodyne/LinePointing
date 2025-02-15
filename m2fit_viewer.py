@@ -143,6 +143,8 @@ class m2fit_viewer():
                      + paramfit.parameters[index,1]*prange
                      + paramfit.parameters[index,2]*prange*prange
                      )
+            status = paramfit.status[index]
+            msg = paramfit.msg[index]
             if use_gaus == True:
                 def gaus(x,a,x0,sigma):
                     return a*numpy.exp(-(x-x0)**2/(2*sigma**2))
@@ -175,6 +177,10 @@ class m2fit_viewer():
                               "%d"%paramfit.obsnums[i], fontsize=6)
                 if use_gaus == False:
                   ax.axhline(y=.5*numpy.max(data), color='b')
+                if status < 0:
+                  msg = 'Bad fit'
+                  props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+                  ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(data), msg, bbox=props, color='red')
                 if False and len(paramfit.status) == paramfit.n and paramfit.status[index] < 0:
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
                   ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(data), paramfit.msg, bbox=props, color='red')
@@ -190,7 +196,6 @@ class m2fit_viewer():
                 except:
                   print('cant rotate x-ticks')
                   pass
-                
                 for i in range(num_sub_cols):
                     if len(line_stats_all) == 0:
                       break
@@ -291,7 +296,7 @@ class m2fit_viewer():
             titleObsNum = paramfit.obsnum
         else:
             titleObsNum = obsNumArg
-        pl.suptitle('ObsNum: %s %s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
+        pl.suptitle('ObsNum: %s\n%s %s %s\n%s'%(titleObsNum,paramfit.obspgm,paramfit.receiver.strip(),paramfit.source.strip(),self.tlabel))
         if paramfit.m2pos == 2:
             fitype = 'M2.X'
         elif paramfit.m2pos == 1:
