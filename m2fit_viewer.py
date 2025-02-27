@@ -164,12 +164,22 @@ class m2fit_viewer():
                 ax = pl.subplot(nrows, ncols, pixel_index+1)#outer_grid[pixel_index])
             
             if paramfit.m2pos >= 0:
+                if status < 0:
+                  if status == -2:
+                    msg = ' Outlier'
+                  else:
+                    msg = ' No fit'
+                else:
+                  msg = ''
                 if type(names) == list and type(names[0]) == list:
-                  ax.plot(paramfit.m2_position,data,'o',label=names[0][index])
+                  ax.plot(paramfit.m2_position,data,'o',label=names[0][index]+msg)
                   color = ax.lines[-1].get_color()
                   ax.plot(prange,model,color=color)
                 else:
-                  ax.plot(paramfit.m2_position,data,'o')
+                  if msg != '':
+                    ax.plot(paramfit.m2_position,data,'o',label=msg)
+                  else:
+                    ax.plot(paramfit.m2_position,data,'o')
                   ax.plot(prange,model,'r')
                 if False:
                     for i in range(len(paramfit.m2_position)):
@@ -177,8 +187,11 @@ class m2fit_viewer():
                               "%d"%paramfit.obsnums[i], fontsize=6)
                 if use_gaus == False:
                   ax.axhline(y=.5*numpy.max(data), color='b')
-                if status < 0:
-                  msg = 'Bad fit'
+                if False and status < 0:
+                  if status == -2:
+                    msg = 'Outlier'
+                  else:
+                    msg = 'No fit'
                   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
                   ax.text(numpy.min(paramfit.m2_position)+0.1*(numpy.max(paramfit.m2_position)-numpy.min(paramfit.m2_position)), 0.5*numpy.max(data), msg, bbox=props, color='red')
                 if False and len(paramfit.status) == paramfit.n and paramfit.status[index] < 0:
