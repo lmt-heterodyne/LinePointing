@@ -94,10 +94,14 @@ def allfocus(allfocus_list, opt=0):
     sorted_image_files =  [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_image_files))]
     lp_merge_image_files = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_image_files))]
 
+    print(f"{type(f.m2xfocus)=}")
     if type(f.m2xfocus) == list:
         l_l = len(f.m2xfocus)
+    elif type(f.m2xfocus) == numpy.ndarray:
+        l_l = np.shape(f.m2xfocus)[0]
     else:
         l_l = 1
+    print(f"{l_l=}")
     params = numpy.zeros((l_l,6))
     params[:,0] = f.m2xfocus
     params[:,1] = f.m2yfocus
