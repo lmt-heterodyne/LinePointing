@@ -268,6 +268,13 @@ def linepoint(args_dict, view_opt=0):
     # get obspgm
     obspgm = ifproc_file_quick.obspgm
 
+    if ifproc_file_quick.receiver == 'Sequoia':
+        line_list = None
+        baseline_list = None
+        baseline_fit_order = 0
+        tsys = None
+        tracking_beam = None
+
     print ('obsnum', obsnum)
     print ('receiver', ifproc_file_quick.receiver)
     print ('obspgm', obspgm)
