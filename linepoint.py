@@ -211,6 +211,10 @@ def linepoint(args_dict, view_opt=0):
     if tracking_beam is not None and type(tracking_beam) == str and tracking_beam == "null":
         tracking_beam = None
     if tracking_beam is not None and tracking_beam > 15 and spec_cont == 'spec':
+        if tracking_beam > 31:
+            txt = 'tracking beam %d out of range'%tracking_beam
+            print (txt)
+            return {'status': -1, 'message': txt}
         tracking_beam -= 16
         bank = 1
 
