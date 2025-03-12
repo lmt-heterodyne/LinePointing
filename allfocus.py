@@ -57,6 +57,7 @@ def allfocus(allfocus_list, opt=0):
             lp_params_1 = np.zeros((1,1))
             lp_params_1[0,0] = peaks[i]
         ifproc_file_data_1 = file_data[i]
+        print(i, obsnum, 'obspgm', ifproc_file_data_1.obspgm)
         if ifproc_file_data_1.obspgm == 'Bs' or ifproc_file_data_1.obspgm == 'Ps' or ifproc_file_data_1.obspgm == 'Map' or ifproc_file_data_1.obspgm == 'Lissajous':
             lp_merge_params += [float(np.mean(peaks[i]))]
         else:
