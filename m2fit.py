@@ -24,7 +24,7 @@ class m2fit():
         m2x = []
         m2tip = []
         m2tilt = []
-        m1zer0 = []
+        m1zer = []
         self.status = []
         self.msg = []
         for i,ifproc in enumerate(ifproc_file_data):
@@ -49,82 +49,87 @@ class m2fit():
             m2x.append(ifproc.m2x)
             m2tip.append(ifproc.m2tip)
             m2tilt.append(ifproc.m2tilt)
-            m1zer0.append(ifproc.m1ZernikeC0)
+            m1zer.append(ifproc.m1ZernikeC)
         
         m2z = numpy.array(m2z)
         m2y = numpy.array(m2y)
         m2x = numpy.array(m2x)
         m2tip = numpy.array(m2tip)
         m2tilt = numpy.array(m2tilt)
-        m1zer0 = numpy.array(m1zer0)
+        m1zer = numpy.array(m1zer).T
         print('m2x', m2x)
         print('m2y', m2y)
         print('m2z', m2z)
         print('m2tip', m2tip)
         print('m2tilt', m2tilt)
-        print('m1zer0', m1zer0)
+        print('m1zer', m1zer)
         dx = max(m2x)-min(m2x)
         dy = max(m2y)-min(m2y)
         dz = max(m2z)-min(m2z)
         dtip = max(m2tip)-min(m2tip)
         dtilt = max(m2tilt)-min(m2tilt)
-        dzer = max(m1zer0)-min(m1zer0)
+        dzer = [max(m1z)-min(m1z) for m1z in m1zer]
         self.m2xfocus = numpy.mean(m2x)
         self.m2yfocus = numpy.mean(m2y)
         self.m2zfocus = numpy.mean(m2z)
         self.m2tipfocus = numpy.mean(m2tip)
         self.m2tiltfocus = numpy.mean(m2tilt)
-        self.m1ZernikeC0 = numpy.mean(m1zer0)
+        self.m1ZernikeC = numpy.mean(m1zer)
 
-        if (dx == 0 and dy == 0 and dz == 0 and dtip == 0 and dtilt == 0 and dzer == 0):
+        dzer_all_zero = all(v == 0 for v in dzer)
+        dzer_any_not_zero = any(v != 0 for v in dzer)
+        dzer_one_not_zero = len(numpy.nonzero(dzer)) == 1
+        self.m1ZerIdx = 0
+        if (dx == 0 and dy == 0 and dz == 0 and dtip == 0 and dtilt == 0 and dzer_all_zero):
             #nothing's changing, an error should be thrown
             self.msg.append("M2 or Zernike offsets are not changing in these files.")
             m2pos = -1
         elif (dx != 0):
-            if (dy != 0 or dz != 0 or dtip != 0 or dtilt != 0 or dzer != 0):
+            if (dy != 0 or dz != 0 or dtip != 0 or dtilt != 0 or dzer_any_not_zero):
                 #more than one offset changing, throw an error
                 self.msg.append("More than one M2 offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 2
         elif (dy != 0):
-            if (dx != 0 or dz != 0 or dtip != 0 or dtilt != 0 or dzer != 0):
+            if (dx != 0 or dz != 0 or dtip != 0 or dtilt != 0 or dzer_any_not_zero):
                 #more than one offset changing, throw an error
                 self.msg.append("More than one M2 or Zernike offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 1
         elif (dz != 0):
-            if (dx != 0 or dy != 0 or dtip != 0 or dtilt != 0 or dzer != 0):
+            if (dx != 0 or dy != 0 or dtip != 0 or dtilt != 0 or dzer_any_not_zero):
                 #more than one offset changing, throw an error
                 self.msg.append("More than one M2 or Zernike offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 0
         elif (dtip != 0):
-            if (dx != 0 or dy != 0 or dz != 0 or dtilt != 0 or dzer != 0):
+            if (dx != 0 or dy != 0 or dz != 0 or dtilt != 0 or dzer_any_not_zero):
                 #more than one offset changing, throw an error
                 self.msg.append("More than one M2 or Zernike offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 4
         elif (dtilt != 0):
-            if (dx != 0 or dy != 0 or dz != 0 or dtip != 0 or dzer != 0):
+            if (dx != 0 or dy != 0 or dz != 0 or dtip != 0 or dzer_any_not_zero):
                 #more than one offset changing, throw an error
                 self.msg.append("More than one M2 or Zernike offset is changing in these files.")
                 m2pos = -1
             else:
                 m2pos = 5
-        elif (dzer != 0):
-            if (dx != 0 or dy != 0 or dz != 0 or dtip != 0 or dtilt != 0):
+        elif dzer_any_not_zero:
+            if (dx != 0 or dy != 0 or dz != 0 or dtip != 0 or dtilt != 0 or not dzer_one_not_zero):
                 #more than one offset changing, throw an error
                 self.msg.append("More than one M2 or Zernike offset is changing in these files.")
                 m2pos = -1
             else:
+                self.m1ZerIdx = numpy.nonzero(dzer)[0][0]
                 m2pos = 3
 
         self.m2pos = m2pos
-        m2posLabel = {-1: 'Error', 0: 'Z', 1: 'Y', 2: 'X', 3: 'A', 4: 'Tip', 5: 'Tilt'}
+        m2posLabel = {-1: 'Error', 0: 'Z', 1: 'Y', 2: 'X', 3: f"M1Z_{self.m1ZerIdx}", 4: 'Tip', 5: 'Tilt'}
         print('changing param:', m2posLabel[m2pos])
 
         self.nscans = len(lp_params)
@@ -149,7 +154,7 @@ class m2fit():
                 ave = ifproc.m2x
                 pcor = ifproc.m2xPcor
             elif self.m2pos == 3:
-                ave = ifproc.m1ZernikeC0
+                ave = ifproc.m1ZernikeC[self.m1ZerIdx]
                 pcor = 0
             elif self.m2pos == 4:
                 ave = ifproc.m2tip
@@ -353,7 +358,7 @@ class m2fit():
         self.m2zfocus = zero
         self.m2yfocus = zero
         self.m2xfocus = zero
-        self.m1ZernikeC0 = zero
+        self.m1ZernikeC = zero
         self.m2tipfocus = zero
         self.m2tiltfocus = zero
         
@@ -364,7 +369,7 @@ class m2fit():
         elif self.m2pos == 2:
             self.m2xfocus = self.relative_focus_fit
         elif self.m2pos == 3:
-            self.m1ZernikeC0 = self.relative_focus_fit
+            self.m1ZernikeC = self.relative_focus_fit
         elif self.m2pos == 4:
             self.m2tipfocus = self.relative_focus_fit
         elif self.m2pos == 5:

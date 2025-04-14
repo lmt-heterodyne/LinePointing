@@ -63,8 +63,8 @@ class m2fit_viewer():
             self.xlabel = 'M2.X offset (mm)'
             prange = numpy.arange(-36,36.1,.1)
         elif paramfit.m2pos == 3:
-            self.tlabel = 'M1.ZernikeC0'
-            self.xlabel = 'M1.ZernikeC0 (um)'
+            self.tlabel = f"M1.ZernikeC_{paramfit.m1ZerIdx}"
+            self.xlabel = f"M1.ZernikeC_{paramfit.m1ZerIdx} (um)"
             prange = numpy.arange(-1000,1000,10)
         else:
             self.tlabel = paramfit.msg #'Error: Nothing is changing'
@@ -297,8 +297,8 @@ class m2fit_viewer():
             self.ylabel = 'M2.X Offset (mm)'
             prange = numpy.arange(-36,36.1,.1)
         elif paramfit.m2pos == 3:
-            self.tlabel = 'M1.ZernikeC0'
-            self.ylabel = 'M1.ZernikeC0 (um)'
+            self.tlabel = f"M1.ZernikeC_{paramfit.m1ZerIdx}"
+            self.ylabel = f"M1.ZernikeC_{paramfit.m1ZerIdx} (um)"
             prange = numpy.arange(-1000,1000,10)
         else:
             self.tlabel = paramfit.msg #'Error: Nothing is changing'

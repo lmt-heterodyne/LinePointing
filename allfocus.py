@@ -89,7 +89,7 @@ def allfocus(allfocus_list, opt=0):
     print('relative_focus',f.relative_focus_fit)
     print('absolute_focus',f.absolute_focus_fit)
     print('m2 x y z tip tilt',f.m2xfocus,f.m2yfocus,f.m2zfocus,f.m2tipfocus,f.m2tiltfocus)
-    print('m1 zer0',f.m1ZernikeC0)
+    print('m1 zer',f.m1ZerIdx, f.m1ZernikeC)
     print('x ', f.scans_xpos_all)
     lp_merge_params = [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_params))]
     sorted_image_files =  [i for _,i in sorted(zip(f.scans_xpos_all,lp_merge_image_files))]
@@ -103,13 +103,14 @@ def allfocus(allfocus_list, opt=0):
     else:
         l_l = 1
     print(f"{l_l=}")
-    params = numpy.zeros((l_l,6))
+    params = numpy.zeros((l_l,7))
     params[:,0] = f.m2xfocus
     params[:,1] = f.m2yfocus
     params[:,2] = f.m2zfocus
-    params[:,3] = f.m1ZernikeC0
+    params[:,3] = f.m1ZernikeC
     params[:,4] = f.m2tipfocus
     params[:,5] = f.m2tiltfocus
+    params[:,6] = f.m1ZerIdx
     print('params 1', params)
 
     print('open m2fit_viewer')
