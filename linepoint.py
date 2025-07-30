@@ -349,7 +349,7 @@ def linepoint(args_dict, view_opt=0):
 
         status = 0
         message = ''
-        if params[0,0] < 0 or params[0,0] > 300:
+        if params[0,0] < 0 or params[0,0] > 500:
             status = -1
             message = "Bad T Sys"
         results_dict = {
