@@ -345,9 +345,16 @@ def linepoint(args_dict, view_opt=0):
             merge_png(fnames+['lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
         
         params = np.zeros((1,1))
-        params[0,0] = np.mean(ICal.tsys)
+        params[0,0] = np.mean(ICal.tsys[np.isfinite(ICal.tsys)])
+
+        status = 0
+        message = ''
+        if params[0,0] < 0 or params[0,0] > 300:
+            status = -1
+            message = "Bad T Sys"
         results_dict = {
-            'status': 0,
+            'status': status,
+            'message': message,
             'plot_file': 'lmtlp_%s.png'%file_ts,
             'params' : params,
             'ifproc_data': ICal,
