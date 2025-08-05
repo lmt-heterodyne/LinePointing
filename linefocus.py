@@ -1,15 +1,12 @@
 import ast
 import sys
 import json
-from lmtlp_reduce_cli import lmtlp_reduce_cli
+from lp_reduce_cli import lp_reduce_cli
 from lmtslr.ifproc.ifproc import lookup_ifproc_file, IFProcQuick, IFProcData, IFProcCal
 from allfocus import allfocus
 
 def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsys, tracking_beam):
-    obsNums = []
-    peaks = []
-    file_data = []
-    image_files = []
+    results_list = []
     for i,obsN in enumerate(obsNumList):
       print('look for obsnum', obsN)
       args_dict = dict()
@@ -21,36 +18,24 @@ def linefocus(obsNumList, opt, line_list, baseline_list, baseline_fit_order, tsy
       args_dict['TSys'] = tsys
       args_dict['TrackingBeam'] = tracking_beam
       args_dict['Opt'] = opt
-      results_str = lmtlp_reduce_cli(None, 0, args_dict)
+      results_str = lp_reduce_cli(None, 0, args_dict)
       print(results_str)
       results_dict = json.loads(results_str)
       status = results_dict['status']
-      if status < 0:
+      if int(status) < 0:
           image_file = 'lmtlp_%s.png'%str(obsN)
           return None, None, status, 'Error from pointing reduction'
-      peak = results_dict['peak']
-      azOff = results_dict['azOff']
-      elOff = results_dict['elOff']
-      azUserOff = results_dict['az_user_off']
-      elUserOff = results_dict['el_user_off']
-      obsPgm = results_dict['obspgm']
-      if int(status) < 0:
-        return False
-      image_file = 'lmtlp_%s.png'%str(obsN)
+      image_file = 'lp_%s.png'%str(obsN)
       # read the data file to get the data
       ifproc_file = lookup_ifproc_file(obsN)
       if not ifproc_file:
           print('no data file found for', obsN)
           return False
       file_data_1 = IFProcData(ifproc_file)
-      file_data.append(file_data_1)
-      obsNums.append(obsN)
-      peaks.append(peak)
-      image_files.append(image_file)
-    print(obsNums)
-    print(peaks)
-    print(image_files)
-    allfocus_results_d = allfocus(obsNums, peaks, image_files, file_data, opt=opt, row_id=None, col_id=None)
+      results_dict['file_data'] = file_data_1
+      results_dict['image_file'] = image_file
+      results_list.append(results_dict)
+    allfocus_results_d = allfocus(results_list)
     image_file = allfocus_results_d['png']
     params = allfocus_results_d['params']
     status = allfocus_results_d['status']
@@ -86,6 +71,4 @@ if __name__ == '__main__':
     line_list = None
     baseline_list = None
     linefocus(obsNumList, opt=opt, line_list=line_list, baseline_list=baseline_list, baseline_fit_order=0, tsys=200, tracking_beam=None)
-    import matplotlib.pyplot as pl
-    pl.show()
 
