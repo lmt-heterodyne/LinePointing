@@ -853,7 +853,7 @@ class PlotlyViewer():
                 #ipix1 = plot_order[(pixel_id%len(plot_order))]+int(ipix/len(plot_order))*len(plot_order)
                 col = int(pixel_id/ncols)+1
                 row = (pixel_id%nrows)+1
-            print(ipix, pixel_id, ipix1, pixel_id, row, col)
+            #print(ipix, pixel_id, ipix1, pixel_id, row, col)
             if with_matplotlib:
                 ax = pl.subplot(nrows, ncols, ipix1)
                 ax.tick_params(axis='both', which='major', labelsize=6)
