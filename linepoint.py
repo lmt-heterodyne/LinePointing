@@ -315,6 +315,7 @@ def linepoint(args_dict, view_opt=0):
 
         if spec_cont == 'cont':
             merge_png(['lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
+            tsys = ICal.tsys
         else:
             files,nfiles = lookup_roach_files(obsnum)
             if ICal.receiver == 'Msip1mm':
@@ -327,10 +328,13 @@ def linepoint(args_dict, view_opt=0):
                 bank_pixel_list = 2*[list(range(16))]
             print('bank_files', bank_files)
             fnames = []
+            tsys = []
             for bank in range(len(bank_files)):
                 if len(bank_files[bank]) == 0:
                     continue
                 SCal = SpecBankCal(bank_files[bank],ICal,bank=bank,pixel_list=bank_pixel_list[bank])
+                for ipix in range(SCal.npix):
+                    tsys.append(SCal.roach[ipix].tsys)
                 # create viewer
                 SV = SpecCalViewer()
                 viewers.append(SV)
@@ -339,14 +343,20 @@ def linepoint(args_dict, view_opt=0):
                 SV.plot_tsys(SCal)
                 fnames += ['lmtlp_%s_%d.png'%(file_ts, bank)]
                 SV.savefig(fnames[-1])
+            tsys = np.array(tsys)
 
             # merge plots
             print(fnames)
             merge_png(fnames+['lmtlp_2_%s.png'%file_ts], 'lmtlp_%s.png'%file_ts)
         
-        params = np.zeros((1,1))
-        params[0,0] = np.mean(ICal.tsys[np.isfinite(ICal.tsys)])
 
+        print('====tsys=======')
+        print(tsys)
+        print(np.isfinite(tsys))
+        print(tsys[np.isfinite(tsys)])
+        print(np.mean(tsys[np.isfinite(tsys)]))
+        params = np.zeros((1,1))
+        params[0,0] = np.mean(tsys[np.isfinite(tsys)])
         status = 0
         message = ''
         if params[0,0] < 0 or params[0,0] > 500:
