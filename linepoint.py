@@ -359,7 +359,7 @@ def linepoint(args_dict, view_opt=0):
         params[0,0] = np.mean(tsys[np.isfinite(tsys)])
         status = 0
         message = ''
-        if params[0,0] < 0 or params[0,0] > 500:
+        if np.any(tsys < 0) or np.any(tsys > 500):
             status = -1
             message = "Bad T Sys"
         results_dict = {
