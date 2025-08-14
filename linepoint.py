@@ -352,6 +352,12 @@ def linepoint(args_dict, view_opt=0):
 
         print('====tsys=======')
         print(tsys)
+        # mask out pixels 13 and 29
+        if len(tsys) >= 13:
+            tsys[13] = 0
+        if len(tsys) >= 29:
+            tsys[29] = 0
+        print(tsys)
         print(np.isfinite(tsys))
         print(tsys[np.isfinite(tsys)])
         print(np.mean(tsys[np.isfinite(tsys)]))
