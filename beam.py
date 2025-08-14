@@ -99,11 +99,13 @@ class BeamMap():
             hpbw = 15.
         v0 = np.array([theMax,xp,hpbw,yp,hpbw])
         spec_list = np.where(np.sqrt((self.BData.map_x[index]-xp)**2 + (self.BData.map_y[index]-yp)**2) < fit_circle)
-        print('spec_list (sqrt(x*x+y*y) < fit_circle)', spec_list)
+        if False:
+            print('spec_list (sqrt(x*x+y*y) < fit_circle)', spec_list)
         scan = self.BData.map_data[index][:]
-        for i in spec_list:
-            print('spec_list data', i,self.BData.map_x[index][i],self.BData.map_y[index][i],scan[i])
-        print('v0', v0)
+        if False:
+            for i in spec_list:
+                print('spec_list data', i,self.BData.map_x[index][i],self.BData.map_y[index][i],scan[i])
+            print('v0', v0)
         try:
             lsq_fit,lsq_cov,lsq_inf,lsq_msg,lsq_success = leastsq(compute_the_residuals,
                                                                   v0,
