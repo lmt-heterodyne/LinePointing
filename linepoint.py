@@ -361,13 +361,16 @@ def linepoint(args_dict, view_opt=0):
         print(np.isfinite(tsys))
         print(tsys[np.isfinite(tsys)])
         print(np.mean(tsys[np.isfinite(tsys)]))
+        print(np.where(tsys < 0))
+        print(np.where(tsys > 500))
         params = np.zeros((1,1))
         params[0,0] = np.mean(tsys[np.isfinite(tsys)])
         status = 0
         message = ''
         if np.any(tsys < 0) or np.any(tsys > 500):
             status = -1
-            message = "Bad T Sys"
+            message = "Bad TSys"
+            message += f", Pixels {np.where(np.logical_or(tsys < 0, tsys > 500))[0].tolist()}"
         results_dict = {
             'status': status,
             'message': message,
