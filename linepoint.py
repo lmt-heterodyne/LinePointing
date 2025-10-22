@@ -357,17 +357,21 @@ def linepoint(args_dict, view_opt=0):
             tsys[13] = 0
         if len(tsys) >= 29:
             tsys[29] = 0
-        print(tsys)
-        print(np.isfinite(tsys))
-        print(tsys[np.isfinite(tsys)])
-        print(np.mean(tsys[np.isfinite(tsys)]))
-        print(np.where(tsys < 0))
-        print(np.where(tsys > 500))
+        print(f"{tsys=}")
+        print(f"{np.isfinite(tsys)=}")
+        print(f"{tsys[np.isfinite(tsys)]=}")
+        print(f"{len(tsys[np.isfinite(tsys)])=}")
+        print(f"{np.mean(tsys[np.isfinite(tsys)])=}")
+        print(f"{np.where(tsys < 0)=}")
+        print(f"{np.where(tsys > 500)=}")
         params = np.zeros((1,1))
         params[0,0] = np.mean(tsys[np.isfinite(tsys)])
         status = 0
         message = ''
-        if np.any(tsys < 0) or np.any(tsys > 500):
+        if len(tsys[np.isfinite(tsys)]) == 0:
+            status = -1
+            message = "Bad TSys, all nan"
+        elif np.any(tsys < 0) or np.any(tsys > 500):
             status = -1
             message = "Bad TSys"
             message += f", Pixels {np.where(np.logical_or(tsys < 0, tsys > 500))[0].tolist()}"
