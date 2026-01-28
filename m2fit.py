@@ -182,7 +182,7 @@ class m2fit():
         mdata_max = numpy.amax(self.data, axis=0)
         print('data', self.data)
         print('n', self.n)
-        print(mdata_max)
+        print('mdata_max', mdata_max)
         for index in range(self.n):
             msg = 'Ok'
             status = 0
@@ -195,12 +195,17 @@ class m2fit():
             pcor = []
             print('index, mdata_max', index, mdata_max[index])
             scan_id_good = 0
+            data_median = numpy.median(self.data[:][index])
+            data_cutoff = 3.0 * numpy.std(self.data[:][index])
             for scan_id in range(self.nscans):
                 self.scans_xpos_all.append(self.m2_position[scan_id])
-                print('scan_id, mdata, half max', scan_id, self.data[scan_id][index], 0.5*mdata_max[index])
+                print('scan_id, obsnum, mdata, half max, median, cutoff', scan_id, self.obsnums[scan_id], self.data[scan_id][index], 0.5*mdata_max[index], data_median, data_cutoff)
                 if use_gaus == False and self.data[scan_id][index] < 0.5*mdata_max[index]:
                     continue
                 if False and self.data[scan_id][index] == 0:
+                    continue
+                if abs(self.data[scan_id][index] - data_median) >= data_cutoff:
+                    print('skip', scan_id, self.obsnums[scan_id], self.data[scan_id][index], data_median, abs(self.data[scan_id][index] - data_median),  data_cutoff)
                     continue
                 I.append(self.data[scan_id][index])
                 par.append(self.m2_position[scan_id])
