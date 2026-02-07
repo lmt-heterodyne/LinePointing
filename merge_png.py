@@ -3,23 +3,29 @@ import sys
 import traceback
 from PIL import Image, ImageDraw, ImageFont
 from matplotlib import font_manager
+import subprocess
 
-def merge_png(image_files, newfile, direction='v', resize=True):
+def merge_png(image_files, newfile, direction='v', resize=True, width=None, height=None):
     try:
         print ('merge_png', image_files, newfile)
         images = list(map(Image.open, image_files))
         widths, heights = zip(*(i.size for i in images))
 
         if direction == 'v':
-            max_width = max(widths)
-            total_height = 0
+            new_width = max(widths)
+            new_height = 0
+            if width is not None:
+                new_width = width
             for im in images:
                 if resize:
-                    total_height = total_height + im.size[1]*max_width/im.size[0]
+                    new_height = new_height + im.size[1]*new_width/im.size[0]
                 else:
-                    total_height = total_height + im.size[1]
+                    new_height = new_height + im.size[1]
+            if height is not None:
+                new_height = height
 
-            new_im = Image.new('RGB', (int(max_width), int(total_height)))
+            new_im = Image.new('RGB', (int(new_width), int(new_height)))
+
 
             x_offset = 0
             y_offset = 0
@@ -27,24 +33,28 @@ def merge_png(image_files, newfile, direction='v', resize=True):
                 if resize:
                     try:
                         new_im.paste(im.resize(
-                            (int(max_width), int(im.size[1]*max_width/im.size[0])), Image.ANTIALIAS), (int(x_offset), int(y_offset)))
+                            (int(new_width), int(im.size[1]*new_width/im.size[0])), Image.ANTIALIAS), (int(x_offset), int(y_offset)))
                     except:
                         new_im.paste(im.resize(
-                            (int(max_width), int(im.size[1]*max_width/im.size[0])), Image.LANCZOS), (int(x_offset), int(y_offset)))
-                    y_offset += im.size[1]*max_width/im.size[0]
+                            (int(new_width), int(im.size[1]*new_width/im.size[0])), Image.LANCZOS), (int(x_offset), int(y_offset)))
+                    y_offset += im.size[1]*new_width/im.size[0]
                 else:
                     new_im.paste(im, (int(x_offset), int(y_offset)))
                     y_offset += im.size[1]
         else:
-            max_height = max(heights)
-            total_width = 0
+            new_height = max(heights)
+            if height is not None:
+                new_height = height
+            new_width = 0
             for im in images:
                 if resize:
-                    total_width = total_width + im.size[0]*max_height/im.size[1]
+                    new_width = new_width + im.size[0]*new_height/im.size[1]
                 else:
-                    total_width = total_width + im.size[0]
-
-            new_im = Image.new('RGB', (int(total_width), int(max_height)))
+                    new_width = new_width + im.size[0]
+            if width is not None:
+                new_width = width
+           
+            new_im = Image.new('RGB', (int(new_width), int(new_height)))
 
             x_offset = 0
             y_offset = 0
@@ -52,12 +62,12 @@ def merge_png(image_files, newfile, direction='v', resize=True):
                 if resize:
                     try:
                         new_im.paste(im.resize(
-                            (int(im.size[0]*max_height/im.size[1]), int(max_height))), (int(x_offset), int(y_offset)))
+                            (int(im.size[0]*new_height/im.size[1]), int(new_height))), (int(x_offset), int(y_offset)))
                     except:
                         new_im.paste(im.resize(
-                            (int(im.size[0]*max_height/im.size[1]), int(max_height))), (int(x_offset), int(y_offset)))
+                            (int(im.size[0]*new_height/im.size[1]), int(new_height))), (int(x_offset), int(y_offset)))
 
-                    x_offset += im.size[0]*max_height/im.size[1]
+                    x_offset += im.size[0]*new_height/im.size[1]
                 else:
                     new_im.paste(im, (int(x_offset), int(y_offset)))
                     x_offset += im.size[0]
@@ -94,7 +104,7 @@ def watermark_diagonal_text(input_image_path, output_image_path, text, angle=45,
     left, top, right, bottom = draw.textbbox((0, 0), text, font=font)
     text_width = right - left
     text_height = bottom - top
-    position = ((width - text_width) / 2, (height - text_height) / 3)
+    position = ((width - text_width) / 2, (height - text_height) / 2)
     alpha_value = int(255 * opacity)
     draw.text(position, text, font=font, fill=(255, 0, 0, alpha_value)) # 'ms' anchors the middle of the text to the xy coordinates
 
