@@ -267,12 +267,13 @@ class PlotlyViewer():
                     for l in plot_baseline_list:
                         ax.axvspan(l[0], l[1], alpha=0.1, color='r')
                 ax.axis(plot_axis)
-                ax.text(plot_axis[0] + 0.1 * (plot_axis[1] - plot_axis[0]), 
-                        plot_axis[3] - 0.2 * (plot_axis[3] - plot_axis[2]), 
-                        '%5.2f %5.2f %5.2f'%(S.map_x[pixel_index][index], 
-                                             S.map_y[pixel_index][index], 
-                                             S.map_data[pixel_index][index]), 
-                                             size='6')
+                if False:
+                    ax.text(plot_axis[0] + 0.1 * (plot_axis[1] - plot_axis[0]), 
+                            plot_axis[3] - 0.2 * (plot_axis[3] - plot_axis[2]), 
+                            '%5.2f\n%5.2f\n%5.2f'%(S.map_x[pixel_index][index], 
+                                                 S.map_y[pixel_index][index], 
+                                                 S.map_data[pixel_index][index]), 
+                                                 size='6')
                 ax2 = ax.twinx()
                 ax2.tick_params(axis='both', which='major', labelsize=6)
                 ax2.tick_params(axis='both', which='minor', labelsize=6)
