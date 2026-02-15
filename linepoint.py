@@ -738,6 +738,30 @@ def linepoint(args_dict, view_opt=0):
                 SV.load_image(fname)
                 SV.savefig('lmtlp_%s_x.png'%file_ts)
             else:
+                result1 = np.isnan(SData.map_data).all()
+                if result1:
+                    status = -1
+                    message = "Bad data, all nan"
+                    B = None
+                    results_dict = {
+                        'status': status,
+                        'message': message,
+                        'params': params,
+                        'ifproc_data': IData,
+                        'line_stats': line_stats_all,
+                        'ifproc_file': ifproc_file,
+                        'peak_fit_params': B.peak_fit_params if B is not None else None,
+                        'peak_fit_errors': B.peak_fit_errors if B is not None else None,
+                        'peak_fit_snr': B.peak_fit_snr if B is not None else None,
+                        'clipped': B.clipped if B is not None else None,
+                        'pixel_list': pixel_list,
+                        'date_obs': IData.date_obs,
+                        'source': IData.source,
+                        'line_list': line_list,
+                        'baseline_list': baseline_list,
+                    }
+                    pprint(results_dict)
+                    return results_dict
                 SV.plot_peak_spectrum(SData,selected_beam,plot_axis,SData.blist,SData.nb,line_list,baseline_list)
 
         # save spectra plot
