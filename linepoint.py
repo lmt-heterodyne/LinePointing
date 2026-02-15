@@ -385,6 +385,7 @@ def linepoint(args_dict, view_opt=0):
             'ifproc_data': ICal,
             'date_obs': ICal.date_obs,
             'source': ICal.source,
+            'pixel_list': [tracking_beam],
         }
         if args_dict.get('plotly', False):
             results_dict['plotly_fig'] = [j for v in viewers for j in v.to_json()]
