@@ -367,7 +367,12 @@ class m2fit():
             self.m1ZernikeC = zero
             self.m2tipfocus = zero
             self.m2tiltfocus = zero
-        
+        self.m2zfocus = [self.m2zfocus]*len(self.relative_focus_fit) 
+        self.m2yfocus = [self.m2yfocus]*len(self.relative_focus_fit) 
+        self.m2xfocus = [self.m2xfocus]*len(self.relative_focus_fit) 
+        self.m1ZernikeC = [self.m1ZernikeC]*len(self.relative_focus_fit) 
+        self.m2tipfocus = [self.m2tipfocus]*len(self.relative_focus_fit) 
+        self.m2tiltfocus = [self.m2tiltfocus]*len(self.relative_focus_fit) 
         
         if self.m2pos == 0:
             self.m2zfocus = self.relative_focus_fit
