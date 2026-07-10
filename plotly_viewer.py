@@ -862,7 +862,7 @@ class PlotlyViewer():
             indx_fin = np.where(np.isfinite(S.roach[ipix].tsys_spectrum))
             l_fin = len(indx_fin[0])
             if with_matplotlib:
-                if l_fin > 0:
+                if l_fin > 0 and not np.isnan(S.roach[ipix].tsys):
                     pl.plot(S.roach[ipix].tsys_spectrum[indx_fin])
                     if False:
                         pl.text(S.nchan / 2, 10, '%d %6.0fK'%(pixel_id+int(ipix/len(plot_order))*len(plot_order), 
